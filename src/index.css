@@ -1,0 +1,67 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --bg: #0A1628;
+  --card: #0D2448;
+  --card-hover: #102958;
+  --accent: #0891B2;
+  --accent-dim: rgba(8, 145, 178, 0.12);
+  --accent-border: rgba(8, 145, 178, 0.3);
+  --text: #ffffff;
+  --muted: #7c93b4;
+  --border: #1a3352;
+  --danger: #ef4444;
+  --danger-dim: rgba(239, 68, 68, 0.12);
+  --warning: #f59e0b;
+  --warning-dim: rgba(245, 158, 11, 0.12);
+  --success: #22c55e;
+  --success-dim: rgba(34, 197, 94, 0.12);
+}
+
+html, body, #root {
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Outfit', sans-serif;
+  font-size: 15px;
+  -webkit-font-smoothing: antialiased;
+}
+
+input, button, select, textarea {
+  font-family: 'Outfit', sans-serif;
+}
+
+button {
+  cursor: pointer;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+}
