@@ -49,7 +49,7 @@ function SendButton({ patientId, onSent }) {
   }
 
   const variants = {
-    idle: { bg: 'rgba(8,145,178,0.12)', color: '#0891B2', border: '1px solid rgba(8,145,178,0.3)', label: 'Send SMS' },
+    idle: { bg: 'rgba(8,145,178,0.12)', color: '#0891B2', border: '1px solid rgba(8,145,178,0.3)', label: 'Send WhatsApp' },
     loading: { bg: 'rgba(8,145,178,0.08)', color: '#7c93b4', border: '1px solid #1a3352', label: 'Sending…' },
     sent: { bg: 'rgba(34,197,94,0.12)', color: '#22c55e', border: '1px solid rgba(34,197,94,0.3)', label: 'Sent ✓' },
     error: { bg: 'rgba(239,68,68,0.12)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.3)', label: 'Failed' },
