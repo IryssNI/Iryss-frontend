@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { api } from '../api/client'
 import { useAuth } from '../context/AuthContext'
 import StatCard from '../components/StatCard'
@@ -7,6 +7,18 @@ import Spinner from '../components/Spinner'
 function formatDate(d) {
   if (!d) return '—'
   return new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+}
+
+function formatDateTime(d) {
+  if (!d) return '—'
+  const date = new Date(d)
+  const today = new Date()
+  const isToday = date.toDateString() === today.toDateString()
+  if (isToday) {
+    return date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+  }
+  return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) +
+    ' ' + date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
 }
 
 function RiskBadge({ status }) {
@@ -78,11 +90,236 @@ function SendButton({ patientId, onSent }) {
   )
 }
 
+function ChatThread({ messages }) {
+  return (
+    <div style={{
+      padding: '16px',
+      background: '#071829',
+      borderRadius: '10px',
+      marginTop: '2px',
+      maxHeight: '420px',
+      overflowY: 'auto',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '8px',
+    }}>
+      {messages.length === 0 && (
+        <div style={{ color: '#4a6080', fontSize: '13px', textAlign: 'center', padding: '16px' }}>
+          No messages yet
+        </div>
+      )}
+      {messages.map(msg => {
+        const isOutbound = msg.direction === 'outbound'
+        return (
+          <div key={msg.id} style={{ display: 'flex', flexDirection: 'column', alignItems: isOutbound ? 'flex-end' : 'flex-start' }}>
+            <div style={{
+              maxWidth: '78%',
+              background: isOutbound ? '#0e7490' : '#1a3352',
+              color: isOutbound ? '#fff' : '#e2e8f0',
+              borderRadius: isOutbound ? '16px 16px 4px 16px' : '16px 16px 16px 4px',
+              padding: '10px 14px',
+              fontSize: '13px',
+              lineHeight: '1.5',
+              whiteSpace: 'pre-wrap',
+            }}>
+              {msg.message_body}
+            </div>
+            <div style={{ fontSize: '11px', color: '#4a6080', marginTop: '3px', paddingLeft: '2px', paddingRight: '2px' }}>
+              {formatDateTime(msg.sent_at)}
+            </div>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+function MessagesPanel({ onClose }) {
+  const [messages, setMessages] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [expandedPatientId, setExpandedPatientId] = useState(null)
+  const [threads, setThreads] = useState({})
+  const [threadLoading, setThreadLoading] = useState(null)
+
+  useEffect(() => {
+    api('/api/messages/sent-this-week')
+      .then(res => setMessages(res.messages || []))
+      .catch(() => {})
+      .finally(() => setLoading(false))
+  }, [])
+
+  async function toggleThread(patientId) {
+    if (expandedPatientId === patientId) {
+      setExpandedPatientId(null)
+      return
+    }
+    setExpandedPatientId(patientId)
+    if (!threads[patientId]) {
+      setThreadLoading(patientId)
+      try {
+        const res = await api(`/api/messages/thread/${patientId}`)
+        setThreads(prev => ({ ...prev, [patientId]: res.messages || [] }))
+      } catch {
+        setThreads(prev => ({ ...prev, [patientId]: [] }))
+      }
+      setThreadLoading(null)
+    }
+  }
+
+  // Deduplicate: one row per patient, most recent message as preview
+  const patientMap = {}
+  for (const msg of messages) {
+    if (!patientMap[msg.patient_id]) {
+      patientMap[msg.patient_id] = msg
+    }
+  }
+  const patients = Object.values(patientMap)
+
+  return (
+    <>
+      {/* Overlay */}
+      <div
+        onClick={onClose}
+        style={{
+          position: 'fixed', inset: 0,
+          background: 'rgba(4,12,24,0.7)',
+          zIndex: 100,
+        }}
+      />
+      {/* Drawer */}
+      <div style={{
+        position: 'fixed', top: 0, right: 0, bottom: 0,
+        width: '480px',
+        background: '#0a1f3a',
+        borderLeft: '1px solid #1a3352',
+        zIndex: 101,
+        display: 'flex',
+        flexDirection: 'column',
+        boxShadow: '-8px 0 32px rgba(0,0,0,0.4)',
+      }}>
+        {/* Header */}
+        <div style={{
+          padding: '20px 24px',
+          borderBottom: '1px solid #1a3352',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexShrink: 0,
+        }}>
+          <div>
+            <h2 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '2px' }}>
+              WhatsApp Messages Sent This Week
+            </h2>
+            {!loading && (
+              <p style={{ color: '#7c93b4', fontSize: '13px' }}>
+                {messages.length} message{messages.length !== 1 ? 's' : ''} · {patients.length} patient{patients.length !== 1 ? 's' : ''}
+              </p>
+            )}
+          </div>
+          <button
+            onClick={onClose}
+            style={{
+              background: 'rgba(255,255,255,0.06)',
+              border: '1px solid #1a3352',
+              borderRadius: '8px',
+              color: '#7c93b4',
+              width: '34px',
+              height: '34px',
+              cursor: 'pointer',
+              fontSize: '18px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            ×
+          </button>
+        </div>
+
+        {/* Body */}
+        <div style={{ overflowY: 'auto', flex: 1, padding: '16px' }}>
+          {loading ? (
+            <div style={{ display: 'flex', justifyContent: 'center', padding: '48px' }}>
+              <Spinner size={28} />
+            </div>
+          ) : patients.length === 0 ? (
+            <div style={{ textAlign: 'center', color: '#7c93b4', padding: '48px 24px' }}>
+              <div style={{ fontSize: '28px', marginBottom: '10px' }}>💬</div>
+              <div style={{ fontSize: '14px' }}>No messages sent this week yet</div>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              {patients.map(msg => {
+                const isExpanded = expandedPatientId === msg.patient_id
+                const isLoadingThread = threadLoading === msg.patient_id
+                return (
+                  <div key={msg.patient_id}>
+                    <div
+                      onClick={() => toggleThread(msg.patient_id)}
+                      style={{
+                        background: isExpanded ? '#0D2448' : 'rgba(13,36,72,0.6)',
+                        border: `1px solid ${isExpanded ? '#0891B2' : '#1a3352'}`,
+                        borderRadius: isExpanded ? '10px 10px 0 0' : '10px',
+                        padding: '14px 16px',
+                        cursor: 'pointer',
+                        transition: 'all 0.15s',
+                      }}
+                      onMouseEnter={e => { if (!isExpanded) e.currentTarget.style.borderColor = '#2a4a72' }}
+                      onMouseLeave={e => { if (!isExpanded) e.currentTarget.style.borderColor = '#1a3352' }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px' }}>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontWeight: '600', fontSize: '14px', marginBottom: '4px' }}>
+                            {msg.patient_name}
+                          </div>
+                          <div style={{
+                            fontSize: '13px',
+                            color: '#7c93b4',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                          }}>
+                            {msg.message_body}
+                          </div>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+                          <span style={{ fontSize: '11px', color: '#4a6080' }}>
+                            {formatDateTime(msg.sent_at)}
+                          </span>
+                          <span style={{ color: '#7c93b4', fontSize: '12px' }}>
+                            {isExpanded ? '▲' : '▼'}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    {isExpanded && (
+                      <div style={{ border: '1px solid #0891B2', borderTop: 'none', borderRadius: '0 0 10px 10px', overflow: 'hidden' }}>
+                        {isLoadingThread ? (
+                          <div style={{ display: 'flex', justifyContent: 'center', padding: '32px', background: '#071829' }}>
+                            <Spinner size={22} />
+                          </div>
+                        ) : (
+                          <ChatThread messages={threads[msg.patient_id] || []} />
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+    </>
+  )
+}
+
 export default function Dashboard() {
   const { practice } = useAuth()
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [showPanel, setShowPanel] = useState(false)
 
   async function fetchData() {
     try {
@@ -102,6 +339,8 @@ export default function Dashboard() {
 
   return (
     <div>
+      {showPanel && <MessagesPanel onClose={() => setShowPanel(false)} />}
+
       {/* Header */}
       <div style={{ marginBottom: '32px' }}>
         <h1 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '4px' }}>
@@ -157,9 +396,25 @@ export default function Dashboard() {
             <span style={{ fontSize: '22px', fontWeight: '700', color: '#f59e0b' }}>{summary.unresolved_alerts ?? 0}</span>
             <span style={{ color: '#7c93b4', fontSize: '14px' }}>Unresolved urgent alerts</span>
           </div>
-          <div style={{ background: '#0D2448', border: '1px solid #1a3352', borderRadius: '10px', padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div
+            onClick={() => setShowPanel(true)}
+            style={{
+              background: '#0D2448',
+              border: '1px solid #1a3352',
+              borderRadius: '10px',
+              padding: '16px 20px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              cursor: 'pointer',
+              transition: 'border-color 0.15s',
+            }}
+            onMouseEnter={e => e.currentTarget.style.borderColor = '#0891B2'}
+            onMouseLeave={e => e.currentTarget.style.borderColor = '#1a3352'}
+          >
             <span style={{ fontSize: '22px', fontWeight: '700', color: '#0891B2' }}>{summary.messages_sent_this_week ?? 0}</span>
-            <span style={{ color: '#7c93b4', fontSize: '14px' }}>SMS sent this week</span>
+            <span style={{ color: '#7c93b4', fontSize: '14px' }}>WhatsApp messages sent this week</span>
+            <span style={{ color: '#0891B2', fontSize: '12px', marginLeft: 'auto' }}>View →</span>
           </div>
         </div>
       )}
