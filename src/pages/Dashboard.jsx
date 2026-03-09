@@ -512,11 +512,55 @@ export default function Dashboard() {
       {panel === 'reviews' && <ReviewsPanel onClose={() => setPanel(null)} />}
 
       {/* Header */}
-      <div style={{ marginBottom: '32px' }}>
+      <div style={{ marginBottom: '28px' }}>
         <h1 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '4px' }}>Dashboard</h1>
         <p style={{ color: '#7c93b4', fontSize: '14px' }}>
           {practice?.name} — {new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
         </p>
+      </div>
+
+      {/* Spectacles widget */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '32px', flexWrap: 'wrap' }}>
+        {/* CSS spectacles */}
+        <svg width="72" height="30" viewBox="0 0 72 30" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
+          {/* Left arm */}
+          <line x1="0" y1="10" x2="10" y2="10" stroke="#0891B2" strokeWidth="2" strokeLinecap="round" />
+          {/* Left lens */}
+          <rect x="10" y="3" width="22" height="16" rx="7" stroke="#0891B2" strokeWidth="2" />
+          {/* Bridge */}
+          <path d="M32 11 Q36 8 40 11" stroke="#0891B2" strokeWidth="2" fill="none" strokeLinecap="round" />
+          {/* Right lens */}
+          <rect x="40" y="3" width="22" height="16" rx="7" stroke="#0891B2" strokeWidth="2" />
+          {/* Right arm */}
+          <line x1="62" y1="10" x2="72" y2="10" stroke="#0891B2" strokeWidth="2" strokeLinecap="round" />
+        </svg>
+
+        {/* Speech bubble */}
+        <div style={{ position: 'relative' }}>
+          {/* Triangle pointer — bottom-left pointing toward glasses */}
+          <div style={{
+            position: 'absolute',
+            bottom: '-8px',
+            left: '14px',
+            width: 0,
+            height: 0,
+            borderLeft: '8px solid transparent',
+            borderRight: '8px solid transparent',
+            borderTop: '9px solid #0891B2',
+          }} />
+          <div style={{
+            background: '#0891B2',
+            borderRadius: '12px',
+            padding: '9px 16px',
+            color: '#ffffff',
+            fontSize: '13px',
+            fontWeight: '500',
+            whiteSpace: 'nowrap',
+            lineHeight: 1.4,
+          }}>
+            Retaining every patient — glasses, lenses &amp; beyond. 👓
+          </div>
+        </div>
       </div>
 
       {error && (

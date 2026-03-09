@@ -156,12 +156,6 @@ export default function Settings() {
         <p style={{ color: '#7c93b4', fontSize: '14px' }}>Manage your practice configuration</p>
       </div>
 
-      <div style={{ background: 'rgba(8,145,178,0.08)', border: '1px solid rgba(8,145,178,0.2)', borderRadius: '12px', padding: '16px 20px', marginBottom: '28px', maxWidth: '560px' }}>
-        <p style={{ color: '#a0b4cc', fontSize: '14px', lineHeight: '1.6' }}>
-          Iryss helps you retain every patient on your list — whether they're in glasses, contact lenses, or coming in for general eye health. We keep them engaged, coming back, and feeling cared for.
-        </p>
-      </div>
-
       <div className="settings-wrap">
         {error && (
           <div style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)', borderRadius: '10px', padding: '14px 18px', color: '#ef4444', marginBottom: '24px' }}>
