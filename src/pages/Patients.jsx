@@ -11,7 +11,7 @@ function RiskBadge({ status }) {
   const map = {
     high: { bg: 'rgba(239,68,68,0.12)', color: '#ef4444', label: 'High' },
     medium: { bg: 'rgba(245,158,11,0.12)', color: '#f59e0b', label: 'Medium' },
-    low: { bg: 'rgba(34,197,94,0.12)', color: '#22c55e', label: 'Low' },
+    low: { bg: 'rgba(52,211,153,0.1)', color: '#34d399', label: 'Low' },
   }
   const s = map[status] || map.low
   return (
@@ -41,6 +41,64 @@ function SentimentBadge({ sentiment }) {
   const s = map[sentiment] || { color: '#7c93b4', label: sentiment }
   return (
     <span style={{ color: s.color, fontSize: '12px', fontWeight: '500' }}>{s.label}</span>
+  )
+}
+
+function CheckinButton({ patientId }) {
+  const [state, setState] = useState('idle') // idle | loading | sent | error
+
+  async function handleClick(e) {
+    e.stopPropagation()
+    setState('loading')
+    try {
+      await api(`/api/patients/${patientId}/send-checkin`, { method: 'POST' })
+      setState('sent')
+    } catch {
+      setState('error')
+    }
+  }
+
+  if (state === 'sent') {
+    return <span style={{ fontSize: '12px', color: '#7c93b4', whiteSpace: 'nowrap' }}>Sent ✓</span>
+  }
+
+  if (state === 'error') {
+    return (
+      <span
+        onClick={handleClick}
+        style={{ fontSize: '12px', color: '#ef4444', cursor: 'pointer', whiteSpace: 'nowrap' }}
+        title="Click to retry"
+      >
+        Failed — try again
+      </span>
+    )
+  }
+
+  return (
+    <button
+      onClick={handleClick}
+      disabled={state === 'loading'}
+      style={{
+        background: 'transparent',
+        border: '1px solid rgba(8,145,178,0.4)',
+        borderRadius: '6px',
+        color: '#0891B2',
+        fontSize: '12px',
+        fontWeight: '500',
+        padding: '4px 10px',
+        cursor: state === 'loading' ? 'default' : 'pointer',
+        whiteSpace: 'nowrap',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '4px',
+        opacity: state === 'loading' ? 0.6 : 1,
+        transition: 'all 0.15s',
+      }}
+    >
+      {state === 'loading' ? (
+        <><span style={{ width: '10px', height: '10px', border: '1.5px solid #0891B2', borderTopColor: 'transparent', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.6s linear infinite' }} />Sending…</>
+      ) : '👋 Check in'}
+    </button>
   )
 }
 
@@ -168,7 +226,10 @@ export default function Patients() {
                         </span>
                       </td>
                       <td style={{ padding: '13px 18px' }}>
-                        <RiskBadge status={p.risk_status} />
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <RiskBadge status={p.risk_status} />
+                          {p.risk_status === 'low' && <CheckinButton patientId={p.id} />}
+                        </div>
                       </td>
                       <td style={{ padding: '13px 18px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
