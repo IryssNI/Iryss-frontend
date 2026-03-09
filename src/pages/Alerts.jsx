@@ -89,12 +89,9 @@ export default function Alerts() {
                 borderLeft: '4px solid #f59e0b',
                 borderRadius: '12px',
                 padding: '20px 24px',
-                display: 'flex',
-                alignItems: 'flex-start',
-                justifyContent: 'space-between',
-                gap: '20px',
               }}
             >
+              <div className="alert-card-inner">
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px', flexWrap: 'wrap' }}>
                   <span style={{
@@ -157,6 +154,7 @@ export default function Alerts() {
               >
                 {resolving === alert.id ? 'Resolving…' : 'Mark Resolved'}
               </button>
+              </div>
             </div>
           ))}
         </div>

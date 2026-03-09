@@ -16,14 +16,10 @@ function RiskBadge({ status }) {
   const s = map[status] || map.low
   return (
     <span style={{
-      background: s.bg,
-      color: s.color,
-      fontSize: '11px',
-      fontWeight: '600',
-      padding: '3px 9px',
-      borderRadius: '20px',
-      textTransform: 'uppercase',
-      letterSpacing: '0.5px',
+      background: s.bg, color: s.color,
+      fontSize: '11px', fontWeight: '600',
+      padding: '3px 9px', borderRadius: '20px',
+      textTransform: 'uppercase', letterSpacing: '0.5px',
       whiteSpace: 'nowrap',
     }}>
       {s.label}
@@ -45,7 +41,7 @@ function SentimentBadge({ sentiment }) {
 }
 
 function CheckinButton({ patientId }) {
-  const [state, setState] = useState('idle') // idle | loading | sent | error
+  const [state, setState] = useState('idle')
 
   async function handleClick(e) {
     e.stopPropagation()
@@ -59,12 +55,13 @@ function CheckinButton({ patientId }) {
   }
 
   if (state === 'sent') {
-    return <span style={{ fontSize: '12px', color: '#7c93b4', whiteSpace: 'nowrap' }}>Sent ✓</span>
+    return <span className="badge-btn" style={{ fontSize: '12px', color: '#7c93b4', whiteSpace: 'nowrap' }}>Sent ✓</span>
   }
 
   if (state === 'error') {
     return (
       <span
+        className="badge-btn"
         onClick={handleClick}
         style={{ fontSize: '12px', color: '#ef4444', cursor: 'pointer', whiteSpace: 'nowrap' }}
         title="Click to retry"
@@ -78,6 +75,7 @@ function CheckinButton({ patientId }) {
     <button
       onClick={handleClick}
       disabled={state === 'loading'}
+      className="badge-btn"
       style={{
         background: 'transparent',
         border: '1px solid rgba(8,145,178,0.4)',
@@ -88,11 +86,12 @@ function CheckinButton({ patientId }) {
         padding: '4px 10px',
         cursor: state === 'loading' ? 'default' : 'pointer',
         whiteSpace: 'nowrap',
-        display: 'flex',
+        display: 'inline-flex',
         alignItems: 'center',
         gap: '4px',
         opacity: state === 'loading' ? 0.6 : 1,
         transition: 'all 0.15s',
+        minHeight: 'unset',
       }}
     >
       {state === 'loading' ? (
@@ -145,7 +144,7 @@ export default function Patients() {
 
   return (
     <div>
-      <div style={{ marginBottom: '28px' }}>
+      <div style={{ marginBottom: '24px' }}>
         <h1 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '4px' }}>Patients</h1>
         <p style={{ color: '#7c93b4', fontSize: '14px' }}>{total} patients total</p>
       </div>
@@ -156,8 +155,9 @@ export default function Patients() {
           <button
             key={f.value}
             onClick={() => handleFilterChange(f.value)}
+            className="badge-btn"
             style={{
-              padding: '7px 16px',
+              padding: '8px 16px',
               borderRadius: '8px',
               border: filter === f.value ? '1px solid rgba(8,145,178,0.4)' : '1px solid #1a3352',
               background: filter === f.value ? 'rgba(8,145,178,0.12)' : '#0D2448',
@@ -166,6 +166,7 @@ export default function Patients() {
               fontWeight: '500',
               cursor: 'pointer',
               transition: 'all 0.15s',
+              minHeight: '38px',
             }}
           >
             {f.label}
@@ -190,7 +191,8 @@ export default function Patients() {
           </div>
         ) : (
           <>
-            <div style={{ overflowX: 'auto' }}>
+            {/* ── Desktop table ── */}
+            <div className="desktop-only" style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                   <tr style={{ borderBottom: '1px solid #1a3352' }}>
@@ -216,11 +218,7 @@ export default function Patients() {
                         <span style={{
                           background: p.patient_type === 'contact_lens' ? 'rgba(8,145,178,0.12)' : 'rgba(124,147,180,0.12)',
                           color: p.patient_type === 'contact_lens' ? '#0891B2' : '#7c93b4',
-                          fontSize: '11px',
-                          fontWeight: '600',
-                          padding: '3px 8px',
-                          borderRadius: '20px',
-                          whiteSpace: 'nowrap',
+                          fontSize: '11px', fontWeight: '600', padding: '3px 8px', borderRadius: '20px', whiteSpace: 'nowrap',
                         }}>
                           {p.patient_type === 'contact_lens' ? 'CL' : 'General'}
                         </span>
@@ -235,8 +233,7 @@ export default function Patients() {
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                           <div style={{ flex: 1, height: '4px', background: '#1a3352', borderRadius: '2px', width: '48px', overflow: 'hidden' }}>
                             <div style={{
-                              height: '100%',
-                              width: `${p.risk_score}%`,
+                              height: '100%', width: `${p.risk_score}%`,
                               background: p.risk_status === 'high' ? '#ef4444' : p.risk_status === 'medium' ? '#f59e0b' : '#22c55e',
                               borderRadius: '2px',
                             }} />
@@ -247,8 +244,7 @@ export default function Patients() {
                       <td style={{ padding: '13px 18px' }}>
                         <span style={{
                           color: p.days_since_reorder > 42 ? '#ef4444' : p.days_since_reorder > 28 ? '#f59e0b' : '#22c55e',
-                          fontWeight: '600',
-                          fontSize: '14px',
+                          fontWeight: '600', fontSize: '14px',
                         }}>
                           {p.days_since_reorder != null ? `${p.days_since_reorder}d` : '—'}
                         </span>
@@ -268,24 +264,74 @@ export default function Patients() {
               </table>
             </div>
 
+            {/* ── Mobile cards ── */}
+            <div className="mobile-only" style={{ display: 'none' }}>
+              {patients.map((p, i) => (
+                <div
+                  key={p.id}
+                  style={{
+                    padding: '16px',
+                    borderBottom: i < patients.length - 1 ? '1px solid #1a3352' : 'none',
+                  }}
+                >
+                  {/* Row 1: name + risk badge */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px', gap: '8px' }}>
+                    <div style={{ fontWeight: '600', fontSize: '15px' }}>{p.name}</div>
+                    <RiskBadge status={p.risk_status} />
+                  </div>
+
+                  {/* Row 2: type + days overdue */}
+                  <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '8px' }}>
+                    <span style={{
+                      background: p.patient_type === 'contact_lens' ? 'rgba(8,145,178,0.12)' : 'rgba(124,147,180,0.12)',
+                      color: p.patient_type === 'contact_lens' ? '#0891B2' : '#7c93b4',
+                      fontSize: '11px', fontWeight: '600', padding: '3px 8px', borderRadius: '20px',
+                    }}>
+                      {p.patient_type === 'contact_lens' ? 'Contact Lens' : 'General'}
+                    </span>
+                    {p.days_since_reorder != null && (
+                      <span style={{
+                        color: p.days_since_reorder > 42 ? '#ef4444' : p.days_since_reorder > 28 ? '#f59e0b' : '#22c55e',
+                        fontSize: '13px', fontWeight: '600',
+                      }}>
+                        {p.days_since_reorder}d overdue
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Row 3: last appointment */}
+                  <div style={{ fontSize: '12px', color: '#7c93b4', marginBottom: p.risk_status === 'low' ? '12px' : '0' }}>
+                    Last appt: {formatDate(p.last_appointment_date)}
+                  </div>
+
+                  {/* Check-in button for low-risk */}
+                  {p.risk_status === 'low' && (
+                    <div style={{ marginTop: '10px' }}>
+                      <CheckinButton patientId={p.id} />
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+
             {/* Pagination */}
             {totalPages > 1 && (
               <div style={{ padding: '16px 18px', borderTop: '1px solid #1a3352', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <span style={{ color: '#7c93b4', fontSize: '13px' }}>
-                  Showing {(page - 1) * limit + 1}–{Math.min(page * limit, total)} of {total}
+                  {(page - 1) * limit + 1}–{Math.min(page * limit, total)} of {total}
                 </span>
                 <div style={{ display: 'flex', gap: '6px' }}>
                   <button
                     onClick={() => setPage(p => Math.max(1, p - 1))}
                     disabled={page === 1}
-                    style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid #1a3352', background: 'none', color: page === 1 ? '#4a6080' : '#7c93b4', cursor: page === 1 ? 'default' : 'pointer', fontSize: '13px' }}
+                    style={{ padding: '8px 14px', borderRadius: '6px', border: '1px solid #1a3352', background: 'none', color: page === 1 ? '#4a6080' : '#7c93b4', cursor: page === 1 ? 'default' : 'pointer', fontSize: '13px', minHeight: '44px' }}
                   >
                     Previous
                   </button>
                   <button
                     onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                     disabled={page === totalPages}
-                    style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid #1a3352', background: 'none', color: page === totalPages ? '#4a6080' : '#7c93b4', cursor: page === totalPages ? 'default' : 'pointer', fontSize: '13px' }}
+                    style={{ padding: '8px 14px', borderRadius: '6px', border: '1px solid #1a3352', background: 'none', color: page === totalPages ? '#4a6080' : '#7c93b4', cursor: page === totalPages ? 'default' : 'pointer', fontSize: '13px', minHeight: '44px' }}
                   >
                     Next
                   </button>

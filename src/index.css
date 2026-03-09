@@ -57,10 +57,6 @@ button {
   background: var(--accent);
 }
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
 .sr-only {
   position: absolute;
   width: 1px;
@@ -68,4 +64,188 @@ button {
   overflow: hidden;
   clip: rect(0,0,0,0);
   white-space: nowrap;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Layout ──────────────────────────────────────────────────── */
+
+.page-content {
+  padding: 36px 40px;
+  max-width: 1200px;
+}
+
+/* ── Stat grid (4-up desktop, 2x2 mobile) ────────────────────── */
+
+.stat-grid {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 40px;
+  flex-wrap: wrap;
+}
+
+.secondary-stats {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 40px;
+}
+
+/* ── Bottom nav (mobile only) ────────────────────────────────── */
+
+.bottom-nav {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: #060f1e;
+  border-top: 1px solid #1a3352;
+  z-index: 200;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.bottom-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  color: #7c93b4;
+  text-decoration: none;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+  flex: 1;
+  height: 100%;
+  transition: color 0.15s;
+  font-family: 'Outfit', sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.bottom-nav-item.active {
+  color: #0891B2;
+}
+
+/* ── Show/hide helpers ───────────────────────────────────────── */
+
+.desktop-only { /* visible by default */ }
+.mobile-only  { display: none !important; }
+
+/* ── Panels ──────────────────────────────────────────────────── */
+
+.responsive-panel { /* desktop: 560px set inline */ }
+
+/* ── Alert card ──────────────────────────────────────────────── */
+
+.alert-card-inner {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+/* ── Settings form ───────────────────────────────────────────── */
+
+.settings-wrap {
+  max-width: 560px;
+}
+
+.settings-save-btn {
+  padding: 12px 28px;
+  border-radius: 8px;
+  border: none;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.15s;
+  min-height: 44px;
+}
+
+/* ── Mobile breakpoint ───────────────────────────────────────── */
+
+@media (max-width: 767px) {
+
+  /* Page padding: tighter sides, extra bottom for bottom nav */
+  .page-content {
+    padding: 20px 16px 80px !important;
+  }
+
+  /* 2-column stat grid */
+  .stat-grid {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
+    margin-bottom: 20px !important;
+  }
+
+  /* Override StatCard internal flex/min-width so grid controls sizing */
+  .stat-grid > div {
+    min-width: 0 !important;
+    flex: none !important;
+    padding: 16px !important;
+  }
+
+  /* Reduce large value font size slightly */
+  .stat-grid > div > div:nth-child(3) {
+    font-size: 26px !important;
+  }
+
+  /* Stack secondary stats */
+  .secondary-stats {
+    flex-direction: column !important;
+    gap: 10px !important;
+    margin-bottom: 20px !important;
+  }
+
+  /* Sidebar hidden, bottom nav shown */
+  .desktop-only {
+    display: none !important;
+  }
+
+  .mobile-only {
+    display: block !important;
+  }
+
+  .bottom-nav {
+    display: flex !important;
+  }
+
+  /* Panels: full screen on mobile */
+  .responsive-panel {
+    width: 100% !important;
+    left: 0 !important;
+  }
+
+  /* Alert card: stack button below text on mobile */
+  .alert-card-inner {
+    flex-direction: column !important;
+    gap: 14px !important;
+  }
+
+  .alert-card-inner button {
+    width: 100% !important;
+    min-height: 44px !important;
+  }
+
+  /* Settings: full width */
+  .settings-wrap {
+    max-width: 100% !important;
+  }
+
+  .settings-save-btn {
+    width: 100% !important;
+  }
+
+  /* Minimum tap target for all buttons */
+  button {
+    min-height: 44px;
+  }
+
+  /* But don't force min-height on small inline badge-style spans */
+  .badge-btn {
+    min-height: unset !important;
+  }
 }

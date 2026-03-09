@@ -102,10 +102,6 @@ const S = {
     overflow: 'auto',
     background: '#0A1628',
   },
-  content: {
-    padding: '36px 40px',
-    maxWidth: '1200px',
-  },
 }
 
 function IconDashboard() {
@@ -187,7 +183,9 @@ export default function Layout() {
 
   return (
     <div style={S.shell}>
-      <aside style={S.sidebar}>
+
+      {/* Desktop sidebar — hidden on mobile via CSS */}
+      <aside style={S.sidebar} className="desktop-only">
         <div style={S.logoWrap}>
           <div style={S.logo}>
             iry<span style={S.logoDot}>ss</span>
@@ -231,11 +229,28 @@ export default function Layout() {
         </div>
       </aside>
 
+      {/* Main content */}
       <main style={S.main}>
-        <div style={S.content}>
+        <div className="page-content">
           <Outlet />
         </div>
       </main>
+
+      {/* Mobile bottom nav */}
+      <nav className="bottom-nav">
+        {navItems.map(({ to, label, icon, end }) => (
+          <NavLink
+            key={to}
+            to={to}
+            end={end}
+            className={({ isActive }) => `bottom-nav-item${isActive ? ' active' : ''}`}
+          >
+            {icon}
+            <span>{label}</span>
+          </NavLink>
+        ))}
+      </nav>
+
     </div>
   )
 }

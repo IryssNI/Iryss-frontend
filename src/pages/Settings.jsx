@@ -126,7 +126,7 @@ export default function Settings() {
         <p style={{ color: '#7c93b4', fontSize: '14px' }}>Manage your practice configuration</p>
       </div>
 
-      <div style={{ maxWidth: '560px' }}>
+      <div className="settings-wrap">
         {error && (
           <div style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)', borderRadius: '10px', padding: '14px 18px', color: '#ef4444', marginBottom: '24px' }}>
             {error}
@@ -201,16 +201,11 @@ export default function Settings() {
           <button
             type="submit"
             disabled={saving}
+            className="settings-save-btn"
             style={{
-              padding: '12px 28px',
               background: saving ? 'rgba(8,145,178,0.5)' : '#0891B2',
               color: '#ffffff',
-              border: 'none',
-              borderRadius: '8px',
-              fontSize: '14px',
-              fontWeight: '600',
               cursor: saving ? 'not-allowed' : 'pointer',
-              transition: 'all 0.15s',
             }}
             onMouseEnter={e => { if (!saving) e.currentTarget.style.background = '#0779a0' }}
             onMouseLeave={e => { if (!saving) e.currentTarget.style.background = '#0891B2' }}

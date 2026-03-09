@@ -102,7 +102,7 @@ function Panel({ title, subtitle, onClose, children }) {
   return (
     <>
       <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(4,12,24,0.7)', zIndex: 100 }} />
-      <div style={{
+      <div className="responsive-panel" style={{
         position: 'fixed', top: 0, right: 0, bottom: 0, width: '560px',
         background: '#0a1f3a', borderLeft: '1px solid #1a3352',
         zIndex: 101, display: 'flex', flexDirection: 'column',
@@ -466,7 +466,7 @@ export default function Dashboard() {
       )}
 
       {/* Stat Cards */}
-      <div style={{ display: 'flex', gap: '16px', marginBottom: '40px', flexWrap: 'wrap' }}>
+      <div className="stat-grid">
         <StatCard
           label="Patients at risk"
           value={loading ? '—' : summary.patients_at_risk ?? 0}
@@ -503,7 +503,7 @@ export default function Dashboard() {
 
       {/* Secondary stats */}
       {!loading && (
-        <div style={{ display: 'flex', gap: '16px', marginBottom: '40px' }}>
+        <div className="secondary-stats">
           <div style={{ background: '#0D2448', border: '1px solid #1a3352', borderRadius: '10px', padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '12px' }}>
             <span style={{ fontSize: '22px', fontWeight: '700', color: '#f59e0b' }}>{summary.unresolved_alerts ?? 0}</span>
             <span style={{ color: '#7c93b4', fontSize: '14px' }}>Unresolved urgent alerts</span>

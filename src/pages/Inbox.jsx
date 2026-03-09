@@ -60,7 +60,7 @@ export default function Inbox() {
 
   return (
     <div>
-      <div style={{ marginBottom: '28px' }}>
+      <div style={{ marginBottom: '24px' }}>
         <h1 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '4px' }}>Inbox</h1>
         <p style={{ color: '#7c93b4', fontSize: '14px' }}>
           Inbound patient replies — {total} total
@@ -79,7 +79,7 @@ export default function Inbox() {
             <Spinner size={32} />
           </div>
         ) : messages.length === 0 ? (
-          <div style={{ padding: '64px', textAlign: 'center' }}>
+          <div style={{ padding: '64px 24px', textAlign: 'center' }}>
             <div style={{ fontSize: '32px', marginBottom: '12px' }}>💬</div>
             <div style={{ fontSize: '15px', fontWeight: '500', color: '#7c93b4' }}>No inbound messages yet</div>
             <div style={{ fontSize: '13px', color: '#4a6080', marginTop: '4px' }}>
@@ -88,7 +88,8 @@ export default function Inbox() {
           </div>
         ) : (
           <>
-            <div style={{ overflowX: 'auto' }}>
+            {/* ── Desktop table ── */}
+            <div className="desktop-only" style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                   <tr style={{ borderBottom: '1px solid #1a3352' }}>
@@ -113,13 +114,9 @@ export default function Inbox() {
                       </td>
                       <td style={{ padding: '14px 20px', maxWidth: '420px' }}>
                         <div style={{
-                          background: 'rgba(0,0,0,0.2)',
-                          border: '1px solid #1a3352',
-                          borderRadius: '8px',
-                          padding: '8px 12px',
-                          fontSize: '13px',
-                          color: '#a0b4cc',
-                          lineHeight: 1.5,
+                          background: 'rgba(0,0,0,0.2)', border: '1px solid #1a3352',
+                          borderRadius: '8px', padding: '8px 12px',
+                          fontSize: '13px', color: '#a0b4cc', lineHeight: 1.5,
                         }}>
                           {m.message_body}
                         </div>
@@ -136,18 +133,56 @@ export default function Inbox() {
               </table>
             </div>
 
+            {/* ── Mobile cards ── */}
+            <div className="mobile-only" style={{ display: 'none' }}>
+              {messages.map((m, i) => (
+                <div
+                  key={m.id}
+                  style={{
+                    padding: '16px',
+                    borderBottom: i < messages.length - 1 ? '1px solid #1a3352' : 'none',
+                  }}
+                >
+                  {/* Name + sentiment */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px', gap: '8px' }}>
+                    <div>
+                      <div style={{ fontWeight: '600', fontSize: '14px' }}>{m.patient_name}</div>
+                      <div style={{ fontSize: '11px', color: '#4a6080', marginTop: '2px' }}>{m.practice_name}</div>
+                    </div>
+                    <SentimentBadge sentiment={m.sentiment} />
+                  </div>
+
+                  {/* Message body */}
+                  <div style={{
+                    background: 'rgba(0,0,0,0.2)', border: '1px solid #1a3352',
+                    borderRadius: '8px', padding: '10px 12px',
+                    fontSize: '13px', color: '#a0b4cc', lineHeight: 1.6,
+                    marginBottom: '8px', wordBreak: 'break-word',
+                  }}>
+                    {m.message_body}
+                  </div>
+
+                  {/* Date */}
+                  <div style={{ fontSize: '11px', color: '#4a6080' }}>
+                    {formatDateTime(m.sent_at)}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Pagination */}
             {totalPages > 1 && (
               <div style={{ padding: '16px 20px', borderTop: '1px solid #1a3352', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <span style={{ color: '#7c93b4', fontSize: '13px' }}>
-                  Showing {(page - 1) * limit + 1}–{Math.min(page * limit, total)} of {total}
+                  {(page - 1) * limit + 1}–{Math.min(page * limit, total)} of {total}
                 </span>
                 <div style={{ display: 'flex', gap: '6px' }}>
                   <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}
-                    style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid #1a3352', background: 'none', color: page === 1 ? '#4a6080' : '#7c93b4', cursor: page === 1 ? 'default' : 'pointer', fontSize: '13px' }}>
+                    style={{ padding: '8px 14px', borderRadius: '6px', border: '1px solid #1a3352', background: 'none', color: page === 1 ? '#4a6080' : '#7c93b4', cursor: page === 1 ? 'default' : 'pointer', fontSize: '13px', minHeight: '44px' }}>
                     Previous
                   </button>
                   <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}
-                    style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid #1a3352', background: 'none', color: page === totalPages ? '#4a6080' : '#7c93b4', cursor: page === totalPages ? 'default' : 'pointer', fontSize: '13px' }}>
+                    style={{ padding: '8px 14px', borderRadius: '6px', border: '1px solid #1a3352', background: 'none', color: page === totalPages ? '#4a6080' : '#7c93b4', cursor: page === totalPages ? 'default' : 'pointer', fontSize: '13px', minHeight: '44px' }}>
                     Next
                   </button>
                 </div>
