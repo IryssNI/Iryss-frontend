@@ -77,13 +77,13 @@ button {
   max-width: 1200px;
 }
 
-/* ── Stat grid (4-up desktop, 2x2 mobile) ────────────────────── */
+/* ── Stat grid (3+2 desktop, stacked mobile) ─────────────────── */
 
 .stat-grid {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: 16px;
   margin-bottom: 40px;
-  flex-wrap: wrap;
 }
 
 .secondary-stats {
@@ -173,10 +173,9 @@ button {
     padding: 20px 16px 80px !important;
   }
 
-  /* 2-column stat grid */
+  /* Single-column stat grid on mobile */
   .stat-grid {
-    display: grid !important;
-    grid-template-columns: 1fr 1fr !important;
+    grid-template-columns: 1fr !important;
     gap: 10px !important;
     margin-bottom: 20px !important;
   }

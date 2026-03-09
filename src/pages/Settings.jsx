@@ -58,6 +58,12 @@ export default function Settings() {
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
 
+  const [googleReviewLink, setGoogleReviewLink] = useState('')
+  const [reviewAutomationEnabled, setReviewAutomationEnabled] = useState(true)
+  const [savingReview, setSavingReview] = useState(false)
+  const [reviewSuccess, setReviewSuccess] = useState('')
+  const [reviewError, setReviewError] = useState('')
+
   useEffect(() => {
     async function fetchSettings() {
       try {
@@ -67,6 +73,10 @@ export default function Settings() {
         setEmail(s.email || '')
         setSmsSenderName(s.sms_sender_name || '')
         setDigestEmailTime(s.digest_email_time || '18:00')
+        setGoogleReviewLink(s.google_review_link || '')
+        if (s.review_automation_enabled !== undefined) {
+          setReviewAutomationEnabled(s.review_automation_enabled)
+        }
       } catch (err) {
         setError(err.message)
       } finally {
@@ -75,6 +85,25 @@ export default function Settings() {
     }
     fetchSettings()
   }, [])
+
+  async function handleSaveReviewLink(e) {
+    e.preventDefault()
+    setReviewError('')
+    setReviewSuccess('')
+    setSavingReview(true)
+    try {
+      await api('/api/practices/google-review-link', {
+        method: 'PUT',
+        body: JSON.stringify({ google_review_link: googleReviewLink, review_automation_enabled: reviewAutomationEnabled }),
+      })
+      setReviewSuccess("Review link saved — Iryss will now automatically ask happy patients to leave a review 💙")
+      setTimeout(() => setReviewSuccess(''), 5000)
+    } catch (err) {
+      setReviewError(err.message)
+    } finally {
+      setSavingReview(false)
+    }
+  }
 
   async function handleSave(e) {
     e.preventDefault()
@@ -211,6 +240,80 @@ export default function Settings() {
             onMouseLeave={e => { if (!saving) e.currentTarget.style.background = '#0891B2' }}
           >
             {saving ? 'Saving…' : 'Save changes'}
+          </button>
+        </form>
+
+        {/* Google Reviews */}
+        <form onSubmit={handleSaveReviewLink} style={{ marginTop: '20px' }}>
+          {reviewError && (
+            <div style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)', borderRadius: '10px', padding: '14px 18px', color: '#ef4444', marginBottom: '20px' }}>
+              {reviewError}
+            </div>
+          )}
+          {reviewSuccess && (
+            <div style={{ background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.25)', borderRadius: '10px', padding: '14px 18px', color: '#22c55e', marginBottom: '20px' }}>
+              {reviewSuccess}
+            </div>
+          )}
+
+          <div style={{ background: '#0D2448', border: '1px solid #1a3352', borderRadius: '14px', padding: '28px', marginBottom: '20px' }}>
+            <h2 style={{ fontSize: '15px', fontWeight: '600', marginBottom: '4px' }}>
+              Google Reviews
+            </h2>
+            <p style={{ color: '#7c93b4', fontSize: '13px', marginBottom: '20px', paddingBottom: '14px', borderBottom: '1px solid #1a3352' }}>
+              Automatically invite happy patients to leave a review after their visit
+            </p>
+
+            <Field
+              label="Your Google Review Link"
+              hint="Paste your Google Business review link here. Find it by searching your practice name on Google, clicking 'Write a review', and copying the URL."
+            >
+              <Input
+                value={googleReviewLink}
+                onChange={e => setGoogleReviewLink(e.target.value)}
+                placeholder="https://g.page/r/..."
+              />
+            </Field>
+
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 0' }}>
+              <div>
+                <div style={{ fontSize: '13px', fontWeight: '500', color: '#a0b4cc' }}>Enable review automation</div>
+                <div style={{ fontSize: '12px', color: '#4a6080', marginTop: '2px' }}>Automatically ask happy patients to leave a Google review</div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setReviewAutomationEnabled(v => !v)}
+                style={{
+                  width: '44px', height: '24px', borderRadius: '12px', border: 'none',
+                  background: reviewAutomationEnabled ? '#0891B2' : '#1a3352',
+                  cursor: 'pointer', position: 'relative', transition: 'background 0.2s',
+                  flexShrink: 0, minHeight: 'unset',
+                }}
+                className="badge-btn"
+              >
+                <div style={{
+                  position: 'absolute', top: '3px',
+                  left: reviewAutomationEnabled ? '22px' : '3px',
+                  width: '18px', height: '18px', borderRadius: '50%',
+                  background: '#fff', transition: 'left 0.2s',
+                }} />
+              </button>
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            disabled={savingReview}
+            className="settings-save-btn"
+            style={{
+              background: savingReview ? 'rgba(8,145,178,0.5)' : '#0891B2',
+              color: '#ffffff',
+              cursor: savingReview ? 'not-allowed' : 'pointer',
+            }}
+            onMouseEnter={e => { if (!savingReview) e.currentTarget.style.background = '#0779a0' }}
+            onMouseLeave={e => { if (!savingReview) e.currentTarget.style.background = '#0891B2' }}
+          >
+            {savingReview ? 'Saving…' : 'Save review settings'}
           </button>
         </form>
       </div>

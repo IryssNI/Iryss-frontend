@@ -418,14 +418,65 @@ function MessagesPanel({ onClose }) {
   )
 }
 
+// ── Panel 6: Reviews requested this month ─────────────────────────────────────
+
+function ReviewsPanel({ onClose }) {
+  const [requests, setRequests] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    api('/api/reviews/requests')
+      .then(res => setRequests(res.requests || []))
+      .catch(() => {})
+      .finally(() => setLoading(false))
+  }, [])
+
+  return (
+    <Panel
+      title="Reviews Requested This Month"
+      subtitle={loading ? null : `${requests.length} patient${requests.length !== 1 ? 's' : ''} sent a review request`}
+      onClose={onClose}
+    >
+      {loading ? <PanelLoading /> : requests.length === 0 ? (
+        <PanelEmpty message="No review requests sent this month yet" />
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          {requests.map(r => (
+            <div key={r.id || r.patient_id} style={{
+              background: 'rgba(13,36,72,0.6)', border: '1px solid #1a3352',
+              borderRadius: '10px', padding: '14px 16px',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', marginBottom: '6px' }}>
+                <div style={{ fontWeight: '600', fontSize: '14px' }}>{r.patient_name}</div>
+                <span style={{
+                  background: r.message_type === 'follow_up' ? 'rgba(245,158,11,0.12)' : 'rgba(8,145,178,0.12)',
+                  color: r.message_type === 'follow_up' ? '#f59e0b' : '#0891B2',
+                  fontSize: '11px', fontWeight: '600', padding: '3px 8px', borderRadius: '20px',
+                }}>
+                  {r.message_type === 'follow_up' ? 'Follow-up' : 'Initial'}
+                </span>
+              </div>
+              <div style={{ fontSize: '12px', color: '#7c93b4' }}>
+                <span style={{ color: '#4a6080' }}>Sent: </span>
+                {formatDate(r.sent_at)}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </Panel>
+  )
+}
+
 // ── Dashboard ─────────────────────────────────────────────────────────────────
 
 export default function Dashboard() {
   const { practice } = useAuth()
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [reviewsCount, setReviewsCount] = useState(null)
   const [error, setError] = useState('')
-  const [panel, setPanel] = useState(null) // null | 'at-risk' | 'revenue-risk' | 'recovered' | 'revenue-recovered' | 'messages'
+  const [panel, setPanel] = useState(null) // null | 'at-risk' | 'revenue-risk' | 'recovered' | 'revenue-recovered' | 'messages' | 'reviews'
 
   async function fetchData() {
     try {
@@ -438,7 +489,12 @@ export default function Dashboard() {
     }
   }
 
-  useEffect(() => { fetchData() }, [])
+  useEffect(() => {
+    fetchData()
+    api('/api/reviews/stats')
+      .then(res => setReviewsCount(res.review_requests_sent_this_month ?? 0))
+      .catch(() => setReviewsCount(0))
+  }, [])
 
   const summary = data?.summary || {}
   const highRisk = data?.high_risk_patients || []
@@ -450,6 +506,7 @@ export default function Dashboard() {
       {panel === 'recovered' && <RecoveredPanel mode="patients" onClose={() => setPanel(null)} />}
       {panel === 'revenue-recovered' && <RecoveredPanel mode="revenue" onClose={() => setPanel(null)} />}
       {panel === 'messages' && <MessagesPanel onClose={() => setPanel(null)} />}
+      {panel === 'reviews' && <ReviewsPanel onClose={() => setPanel(null)} />}
 
       {/* Header */}
       <div style={{ marginBottom: '32px' }}>
@@ -498,6 +555,14 @@ export default function Dashboard() {
           color="#22c55e"
           loading={loading}
           onClick={() => setPanel('revenue-recovered')}
+        />
+        <StatCard
+          label="Reviews requested"
+          value={reviewsCount === null ? '—' : reviewsCount}
+          sub="this month"
+          color="#F59E0B"
+          loading={reviewsCount === null}
+          onClick={() => setPanel('reviews')}
         />
       </div>
 
