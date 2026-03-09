@@ -537,23 +537,35 @@ export default function Dashboard() {
 
         {/* Speech bubble */}
         <div style={{ position: 'relative' }}>
-          {/* Triangle pointer — bottom-left pointing toward glasses */}
+          {/* Triangle pointer — outer (teal border) */}
           <div style={{
             position: 'absolute',
-            bottom: '-8px',
+            bottom: '-11px',
             left: '14px',
             width: 0,
             height: 0,
-            borderLeft: '8px solid transparent',
-            borderRight: '8px solid transparent',
-            borderTop: '9px solid #0891B2',
+            borderLeft: '9px solid transparent',
+            borderRight: '9px solid transparent',
+            borderTop: '11px solid #0891B2',
+          }} />
+          {/* Triangle pointer — inner (white fill) */}
+          <div style={{
+            position: 'absolute',
+            bottom: '-8px',
+            left: '16px',
+            width: 0,
+            height: 0,
+            borderLeft: '7px solid transparent',
+            borderRight: '7px solid transparent',
+            borderTop: '9px solid #ffffff',
           }} />
           <div style={{
-            background: '#0891B2',
+            background: '#ffffff',
+            border: '2px solid #0891B2',
             borderRadius: '12px',
-            padding: '9px 16px',
-            color: '#ffffff',
-            fontSize: '13px',
+            padding: '20px 24px',
+            color: '#0891B2',
+            fontSize: '16px',
             fontWeight: '500',
             whiteSpace: 'nowrap',
             lineHeight: 1.4,
