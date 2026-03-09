@@ -196,7 +196,7 @@ export default function Patients() {
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                   <tr style={{ borderBottom: '1px solid #1a3352' }}>
-                    {['Patient', 'Type', 'Risk', 'Score', 'Days Since Reorder', 'Last Reorder', 'Last Appointment', 'Sentiment'].map(h => (
+                    {['Patient', 'Type', 'Risk', 'Score', 'Days Since Visit', 'Last Visit', 'Last Appointment', 'Sentiment'].map(h => (
                       <th key={h} style={{ padding: '12px 18px', textAlign: 'left', fontSize: '11px', fontWeight: '600', color: '#7c93b4', textTransform: 'uppercase', letterSpacing: '0.6px', whiteSpace: 'nowrap' }}>
                         {h}
                       </th>
@@ -220,7 +220,7 @@ export default function Patients() {
                           color: p.patient_type === 'contact_lens' ? '#0891B2' : '#7c93b4',
                           fontSize: '11px', fontWeight: '600', padding: '3px 8px', borderRadius: '20px', whiteSpace: 'nowrap',
                         }}>
-                          {p.patient_type === 'contact_lens' ? 'CL' : 'General'}
+                          {p.patient_type === 'contact_lens' ? 'Contact Lens' : 'General'}
                         </span>
                       </td>
                       <td style={{ padding: '13px 18px' }}>

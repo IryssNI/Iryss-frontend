@@ -201,7 +201,7 @@ function AtRiskPanel({ mode, onClose }) {
               </div>
               <div style={{ display: 'flex', gap: '20px', fontSize: '12px', color: '#7c93b4' }}>
                 <span>
-                  <span style={{ color: '#4a6080' }}>Overdue: </span>
+                  <span style={{ color: '#4a6080' }}>Due: </span>
                   <span style={{ color: p.days_since_reorder > 60 ? '#ef4444' : '#f59e0b', fontWeight: '600' }}>
                     {p.days_since_reorder != null ? `${p.days_since_reorder}d` : '—'}
                   </span>
@@ -631,7 +631,7 @@ export default function Dashboard() {
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ borderBottom: '1px solid #1a3352' }}>
-                  {['Patient', 'Type', 'Days Since Reorder', 'Last Appointment', 'Last Message', ''].map(h => (
+                  {['Patient', 'Type', 'Days Since Visit', 'Last Appointment', 'Last Message', ''].map(h => (
                     <th key={h} style={{ padding: '12px 20px', textAlign: 'left', fontSize: '11px', fontWeight: '600', color: '#7c93b4', textTransform: 'uppercase', letterSpacing: '0.6px', whiteSpace: 'nowrap' }}>
                       {h}
                     </th>
