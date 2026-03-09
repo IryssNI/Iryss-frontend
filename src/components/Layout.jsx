@@ -1,5 +1,7 @@
 import { Outlet, NavLink, useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
 import { useAuth } from '../context/AuthContext'
+import { api } from '../api/client'
 
 const S = {
   shell: {
@@ -172,9 +174,41 @@ const navItems = [
   { to: '/settings', label: 'Settings', icon: <IconSettings /> },
 ]
 
+function UnreadBadge({ count }) {
+  if (!count) return null
+  return (
+    <span style={{
+      background: '#0891B2',
+      color: '#fff',
+      fontSize: '10px',
+      fontWeight: '700',
+      lineHeight: 1,
+      padding: '3px 6px',
+      borderRadius: '10px',
+      marginLeft: 'auto',
+      minWidth: '18px',
+      textAlign: 'center',
+    }}>
+      {count >= 10 ? '9+' : count}
+    </span>
+  )
+}
+
 export default function Layout() {
   const { practice, logout } = useAuth()
   const navigate = useNavigate()
+  const [unreadCount, setUnreadCount] = useState(0)
+
+  useEffect(() => {
+    api('/api/messages/unread-count')
+      .then(res => setUnreadCount(res.unread_count || 0))
+      .catch(() => {})
+  }, [])
+
+  function handleInboxClick() {
+    setUnreadCount(0)
+    api('/api/messages/mark-read', { method: 'POST' }).catch(() => {})
+  }
 
   function handleLogout() {
     logout()
@@ -199,6 +233,7 @@ export default function Layout() {
               key={to}
               to={to}
               end={end}
+              onClick={to === '/inbox' ? handleInboxClick : undefined}
               style={({ isActive }) => ({
                 ...S.navItem,
                 ...(isActive ? S.navItemActive : {}),
@@ -206,6 +241,7 @@ export default function Layout() {
             >
               {icon}
               {label}
+              {to === '/inbox' && <UnreadBadge count={unreadCount} />}
             </NavLink>
           ))}
         </nav>
@@ -243,9 +279,30 @@ export default function Layout() {
             key={to}
             to={to}
             end={end}
+            onClick={to === '/inbox' ? handleInboxClick : undefined}
             className={({ isActive }) => `bottom-nav-item${isActive ? ' active' : ''}`}
           >
-            {icon}
+            <div style={{ position: 'relative', display: 'inline-flex' }}>
+              {icon}
+              {to === '/inbox' && unreadCount > 0 && (
+                <span style={{
+                  position: 'absolute',
+                  top: '-5px',
+                  right: '-7px',
+                  background: '#0891B2',
+                  color: '#fff',
+                  fontSize: '9px',
+                  fontWeight: '700',
+                  lineHeight: 1,
+                  padding: '2px 4px',
+                  borderRadius: '8px',
+                  minWidth: '14px',
+                  textAlign: 'center',
+                }}>
+                  {unreadCount >= 10 ? '9+' : unreadCount}
+                </span>
+              )}
+            </div>
             <span>{label}</span>
           </NavLink>
         ))}
