@@ -1,4 +1,4 @@
-export default function StatCard({ label, value, sub, color = '#0891B2', loading }) {
+export default function StatCard({ label, value, sub, color = '#0891B2', loading, onClick }) {
   const dimMap = {
     '#ef4444': 'rgba(239,68,68,0.1)',
     '#f59e0b': 'rgba(245,158,11,0.1)',
@@ -8,16 +8,23 @@ export default function StatCard({ label, value, sub, color = '#0891B2', loading
   const dim = dimMap[color] || 'rgba(8,145,178,0.1)'
 
   return (
-    <div style={{
-      background: '#0D2448',
-      border: '1px solid #1a3352',
-      borderRadius: '14px',
-      padding: '24px 28px',
-      flex: 1,
-      minWidth: '200px',
-      position: 'relative',
-      overflow: 'hidden',
-    }}>
+    <div
+      onClick={onClick}
+      style={{
+        background: '#0D2448',
+        border: '1px solid #1a3352',
+        borderRadius: '14px',
+        padding: '24px 28px',
+        flex: 1,
+        minWidth: '200px',
+        position: 'relative',
+        overflow: 'hidden',
+        cursor: onClick ? 'pointer' : 'default',
+        transition: 'border-color 0.15s',
+      }}
+      onMouseEnter={e => { if (onClick) e.currentTarget.style.borderColor = color }}
+      onMouseLeave={e => { if (onClick) e.currentTarget.style.borderColor = '#1a3352' }}
+    >
       <div style={{
         position: 'absolute',
         top: 0,
