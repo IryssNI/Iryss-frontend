@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { api } from '../api/client'
 import { useAuth } from '../context/AuthContext'
 import StatCard from '../components/StatCard'
@@ -472,6 +473,7 @@ function ReviewsPanel({ onClose }) {
 
 export default function Dashboard() {
   const { practice } = useAuth()
+  const navigate = useNavigate()
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [reviewsCount, setReviewsCount] = useState(null)
@@ -569,9 +571,19 @@ export default function Dashboard() {
       {/* Secondary stats */}
       {!loading && (
         <div className="secondary-stats">
-          <div style={{ background: '#0D2448', border: '1px solid #1a3352', borderRadius: '10px', padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div
+            onClick={() => navigate('/alerts')}
+            style={{
+              background: '#0D2448', border: '1px solid #1a3352', borderRadius: '10px',
+              padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '12px',
+              cursor: 'pointer', transition: 'border-color 0.15s',
+            }}
+            onMouseEnter={e => e.currentTarget.style.borderColor = '#f59e0b'}
+            onMouseLeave={e => e.currentTarget.style.borderColor = '#1a3352'}
+          >
             <span style={{ fontSize: '22px', fontWeight: '700', color: '#f59e0b' }}>{summary.unresolved_alerts ?? 0}</span>
             <span style={{ color: '#7c93b4', fontSize: '14px' }}>Unresolved urgent alerts</span>
+            <span style={{ color: '#f59e0b', fontSize: '12px', marginLeft: 'auto' }}>View →</span>
           </div>
           <div
             onClick={() => setPanel('messages')}
