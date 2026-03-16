@@ -653,7 +653,7 @@ function Dashboard() {
           {nav==="receptionist"&&(
             <div>
               <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:14, marginBottom:24 }}>
-                <SC label="Conversations handled" value="142" sub="This month"      accent={`linear-gradient(90deg,${C.teal},${C.tealLt})`} />
+                <SC label="Conversations handled" value="142" sub="This month" accent={`linear-gradient(90deg,${C.teal},${C.tealLt})`} onDrill={()=>setDrill("conversations")} />
                 <SC label="Avg response time"     value="<2s" sub="24/7 available"  accent={`linear-gradient(90deg,${C.green},#34D399)`} />
                 <SC label="Escalated to human"    value="3"   sub="This month"      accent={`linear-gradient(90deg,${C.amber},#EAB308)`} onDrill={()=>setDrill("escalated")} />
               </div>
