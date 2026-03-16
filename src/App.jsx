@@ -932,7 +932,38 @@ function Dashboard() {
           ))}
         </DrillPanel>
       )}
-
+{drill==="conversations"&&(
+  <DrillPanel title="Conversations Handled" sub="142 conversations this month via AI Receptionist" onClose={()=>setDrill(null)}>
+    <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, marginBottom:20 }}>
+      {[{label:"Booking enquiries",value:"61",c:C.teal},{label:"Product questions",value:"44",c:C.purple},{label:"Appointment changes",value:"24",c:C.amber},{label:"Escalated to human",value:"3",c:C.red}].map(s=>(
+        <div key={s.label} style={{ background:C.cream, borderRadius:10, padding:"12px 14px", border:`1px solid ${C.border}`, textAlign:"center" }}>
+          <div style={{ fontSize:22, fontWeight:800, color:s.c }}>{s.value}</div>
+          <div style={{ fontSize:11, color:C.slate, marginTop:2 }}>{s.label}</div>
+        </div>
+      ))}
+    </div>
+    {[
+      { patient:"James Brew",      topic:"Multifocal contact lens enquiry → appointment booked", time:"Today 14:32",   resolved:true  },
+      { patient:"Ciara Murphy",    topic:"Asked about eye test frequency for children",           time:"Today 11:00",   resolved:true  },
+      { patient:"Sarah Flynn",     topic:"Appointment reminder confirmation",                     time:"Today 09:00",   resolved:true  },
+      { patient:"Robert Hughes",   topic:"Query about varifocal adaptation period",               time:"Yesterday",     resolved:true  },
+      { patient:"Emma Wilson",     topic:"Asked about contact lens trial process",                time:"Yesterday",     resolved:true  },
+      { patient:"Margaret Flynn",  topic:"Reported blurry vision — escalated to clinician",       time:"Today 09:18",   resolved:false },
+    ].map((c,i,arr)=>(
+      <div key={i} style={{ display:"flex", alignItems:"center", gap:12, padding:"12px 0", borderBottom:i<arr.length-1?`1px solid ${C.border}`:"none" }}>
+        <Avatar initials={c.patient.split(" ").map(w=>w[0]).join("").slice(0,2)} bg={c.resolved?C.teal:C.red} size={36} />
+        <div style={{ flex:1 }}>
+          <div style={{ fontWeight:600, fontSize:13 }}>{c.patient}</div>
+          <div style={{ fontSize:12, color:C.slate, marginTop:2 }}>{c.topic}</div>
+          <div style={{ fontSize:11, color:C.slate, marginTop:2 }}>{c.time}</div>
+        </div>
+        <span style={{ fontSize:11, fontWeight:700, padding:"3px 9px", borderRadius:20, background:c.resolved?"rgba(16,185,129,.12)":"rgba(239,68,68,.12)", color:c.resolved?C.green:C.red }}>
+          {c.resolved?"Resolved":"Escalated"}
+        </span>
+      </div>
+    ))}
+  </DrillPanel>
+)}
       {drill==="escalated"&&(
         <DrillPanel title="Escalated to Human" sub="3 conversations this month" onClose={()=>setDrill(null)}>
           <div style={{ background:"rgba(245,158,11,.06)", border:"1px solid rgba(245,158,11,.2)", borderRadius:12, padding:"12px 16px", marginBottom:20 }}>
