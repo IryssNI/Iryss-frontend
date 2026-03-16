@@ -715,7 +715,7 @@ function Dashboard() {
               </div>
             ))}
           </div>
-          {PATIENTS.map((p,i)=><PatientRow key={p.id} p={p} i={i} total={PATIENTS.length} showWA waSent={waSent} onSendWA={p=>{setDrill(null);openSendWA(p);}} />)}
+          {PATIENTS.filter(p=>p.risk!=="low").map((p,i,arr)=><PatientRow key={p.id} p={p} i={i} total={arr.length} showWA waSent={waSent} onSendWA={p=>{setDrill(null);openSendWA(p);}} />)}
         </DrillPanel>
       )}
 
