@@ -306,7 +306,7 @@ function Dashboard() {
               ))}
 
               <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:16, marginBottom:28 }}>
-                <SC label="Patients at risk"    value={highRisk.length}          sub={`${medRisk.length} medium · ${lowRisk.length} low`} accent={`linear-gradient(90deg,${C.red},#F97316)`}    onDrill={()=>setDrill("at-risk")} />
+                <SC label="Patients at risk" value={PATIENTS.filter(p=>p.risk!=="low").length} sub={`${highRisk.length} high · ${medRisk.length} medium`} accent={`linear-gradient(90deg,${C.red},#F97316)`} onDrill={()=>setDrill("at-risk")} />          sub={`${medRisk.length} medium · ${lowRisk.length} low`} accent={`linear-gradient(90deg,${C.red},#F97316)`}    onDrill={()=>setDrill("at-risk")} />
                 <SC label="Revenue at risk"     value={`£${atRiskRevenue.toLocaleString()}`} sub="This month"    accent={`linear-gradient(90deg,${C.amber},#EAB308)`}  onDrill={()=>setDrill("rev-risk")} />
                 <SC label="Patients recovered"  value={recovered.length}         sub="This month"    accent={`linear-gradient(90deg,${C.green},#34D399)`}  onDrill={()=>setDrill("recovered")} />
                 <SC label="Revenue recovered"   value={`£${recoveredRev.toLocaleString()}`} sub="↑ This month"  accent={`linear-gradient(90deg,${C.teal},${C.tealLt})`} onDrill={()=>setDrill("rev-recovered")} />
