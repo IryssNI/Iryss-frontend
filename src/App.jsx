@@ -408,7 +408,7 @@ function Dashboard() {
               <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:14, marginBottom:24 }}>
                 <SC label="High risk"             value={highRisk.length}    accent={`linear-gradient(90deg,${C.red},#F97316)`}    onDrill={()=>setDrill("high-risk")} />
                 <SC label="Medium risk"           value={medRisk.length}     accent={`linear-gradient(90deg,${C.amber},#EAB308)`}  onDrill={()=>setDrill("med-risk")} />
-                <SC label="Low risk"              value={lowRisk.length}     accent={`linear-gradient(90deg,${C.green},#34D399)`}  onDrill={()=>setDrill("low-risk")} />
+                {["all","high","medium"]              value={lowRisk.length}     accent={`linear-gradient(90deg,${C.green},#34D399)`}  onDrill={()=>setDrill("low-risk")} />
                 <SC label="Total revenue at risk" value={`£${atRiskRevenue.toLocaleString()}`} accent={`linear-gradient(90deg,${C.teal},${C.tealLt})`} onDrill={()=>setDrill("rev-risk")} />
               </div>
               <div style={{ display:"flex", gap:8, marginBottom:20 }}>
