@@ -16,13 +16,13 @@ const C = {
 };
 
 const PATIENTS = [
-  { id:"P-001", name:"Sarah O'Neill",   initials:"SO",  phone:"+447827001001", lastVisit:"14 months ago", product:"Varifocals",               risk:"high",   riskScore:92, revenue:320, status:"pending"   },
+  { id:"P-001", name:"Louise Everden",  initials:"LE",  phone:"+447827322027", lastVisit:"6 months ago",  product:"Acuvue Oasys Astigmatism", age:33, risk:"low",    riskScore:28, revenue:280, status:"checkin"   },
   { id:"P-002", name:"Tom Bradley",     initials:"TB",  phone:"+447827001002", lastVisit:"9 months ago",  product:"Monthly Contact Lenses",    risk:"medium", riskScore:61, revenue:185, status:"sent"      },
   { id:"P-003", name:"Margaret Flynn",  initials:"MF",  phone:"+447827001003", lastVisit:"11 months ago", product:"Glasses + Contact Lenses",  risk:"high",   riskScore:88, revenue:410, status:"alert"     },
   { id:"P-004", name:"Ciara Murphy",    initials:"CM",  phone:"+447827001004", lastVisit:"4 months ago",  product:"Glasses",                   risk:"low",    riskScore:24, revenue:240, status:"checkin"   },
-  { id:"P-005", name:"James Brew",      initials:"JB",  phone:"+447803003472", lastVisit:"7 months ago",  product:"Daily Contact Lenses",      risk:"medium", riskScore:54, revenue:160, status:"booked"    },
+  { id:"P-005", name:"James Brew",      initials:"JB",  phone:"+447803003472", lastVisit:"8 months ago",  product:"No current spectacles or CL", age:44, risk:"medium", riskScore:61, revenue:150, status:"sent"      },
   { id:"P-006", name:"Sarah Flynn",     initials:"SF",  phone:"+447827001006", lastVisit:"3 months ago",  product:"Varifocals",                risk:"low",    riskScore:18, revenue:380, status:"booked"    },
-  { id:"P-007", name:"Shona Everden",   initials:"SE",  phone:"+447711552094", lastVisit:"13 months ago", product:"Progressive Lenses",        risk:"high",   riskScore:79, revenue:295, status:"pending"   },
+  { id:"P-007", name:"Shona Everden",   initials:"SE",  phone:"+447711552094", lastVisit:"13 months ago", product:"Varifocals + Acuvue Oasys Max", age:62, risk:"high",   riskScore:82, revenue:420, status:"pending"   },
   { id:"P-008", name:"Jessica Bayman",  initials:"JB2", phone:"+447572043380", lastVisit:"5 months ago",  product:"Monthly CL + Glasses",      risk:"low",    riskScore:31, revenue:220, status:"recovered" },
 ];
 
