@@ -612,20 +612,6 @@ function Dashboard() {
                     </div>
                   ))}
                 </div>
-                <div style={{ background:`linear-gradient(135deg,${C.navy} 0%,#0E2040 100%)`, borderRadius:16, padding:22, boxShadow:"0 4px 20px rgba(8,15,30,.15)" }}>
-                  <div style={{ fontWeight:700, fontSize:15, color:C.white, marginBottom:6, letterSpacing:-0.3 }}>Your Iryss ROI</div>
-                  <div style={{ fontSize:13, color:"rgba(255,255,255,.4)", marginBottom:20 }}>Month of March 2026</div>
-                  {[
-                    { label:"Subscription cost",  val:"£220",             accent:"rgba(255,255,255,.06)", fgc:"rgba(255,255,255,.5)" },
-                    { label:"Revenue recovered",  val:`£${recoveredRev}`, accent:"rgba(16,185,129,.12)",  fgc:"#6EE7B7" },
-                    { label:"Net return",         val:`£${recoveredRev-220}`, accent:"rgba(8,145,178,.12)", fgc:C.tealLt },
-                  ].map(item=>(
-                    <div key={item.label} style={{ background:item.accent, borderRadius:12, padding:"14px 16px", marginBottom:10, border:"1px solid rgba(255,255,255,.05)" }}>
-                      <div style={{ fontSize:10, color:"rgba(255,255,255,.35)", textTransform:"uppercase", letterSpacing:1.2 }}>{item.label}</div>
-                      <div style={{ fontSize:24, fontWeight:800, color:item.fgc, marginTop:5, letterSpacing:-0.5 }}>{item.val}</div>
-                    </div>
-                  ))}
-                </div>
               </div>
             </div>
           )}
