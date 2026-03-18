@@ -211,7 +211,7 @@ function Dashboard() {
     async function fetchMessages() {
       try {
         const res = await fetch('https://iryss-backend-12fh.onrender.com/api/messages/inbound', {
-          headers: { 'Authorization': 'Bearer demo-token' }
+          headers: { 'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NywiZW1haWwiOiJ0ZXN0QGJyaWdodGV5ZXMuY28udWsiLCJpYXQiOjE3NzM4Njk5NzksImV4cCI6MTc3NDQ3NDc3OX0.RQlrg8gOTaEJuHj7DOEJIOQ4M_q7i5bk-t9avIns7dE' }
         });
         if (!res.ok) return;
         const data = await res.json();
