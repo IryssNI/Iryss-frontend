@@ -412,7 +412,7 @@ function Dashboard() {
                 <SC label="Total revenue at risk" value={`£${atRiskRevenue.toLocaleString()}`} accent={`linear-gradient(90deg,${C.teal},${C.tealLt})`} onDrill={()=>setDrill("rev-risk")} />
               </div>
               <div style={{ display:"flex", gap:8, marginBottom:20 }}>
-                {["all","high","medium","low"].map(r=>(
+                {["all","high","medium"].map(r=>(
                   <button key={r} onClick={()=>setFilterRisk(r)} style={{
                     padding:"7px 16px", borderRadius:20, cursor:"pointer", fontFamily:"inherit",
                     background:filterRisk===r?C.navy:C.white, color:filterRisk===r?C.white:C.slate,
