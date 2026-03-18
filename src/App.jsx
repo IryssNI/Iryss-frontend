@@ -229,7 +229,7 @@ function Dashboard() {
   function confirmSendWA(pid) {
     const patient = PATIENTS.find(p=>p.id===pid);
     if (patient) {
-      fetch("https://iryss-backend-12fh.onrender.com/api/messages/send", {
+      fetch("https://iryss-backend-12fh.onrender.com/api/send-whatsapp", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({ to: patient.phone, message: waMsg })
