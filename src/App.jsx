@@ -205,6 +205,39 @@ function Dashboard() {
   const [waMsg, setWaMsg]           = useState("");
   const [waSent, setWaSent]         = useState({});
   const msgEndRef = useRef(null);
+  const [liveInbox, setLiveInbox] = useState(INBOX);
+
+  useEffect(() => {
+    async function fetchMessages() {
+      try {
+        const res = await fetch('https://iryss-backend-12fh.onrender.com/api/messages/inbound', {
+          headers: { 'Authorization': 'Bearer demo-token' }
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data && data.conversations && data.conversations.length > 0) {
+          const mapped = data.conversations.map(c => ({
+            id: c.patient_id,
+            patient: c.patient_name,
+            initials: c.patient_name.split(' ').map(w=>w[0]).join('').slice(0,2),
+            preview: c.last_message || '',
+            time: new Date(c.last_message_at).toLocaleTimeString('en-GB', {hour:'2-digit',minute:'2-digit'}),
+            unread: c.unread_count > 0,
+            urgent: c.sentiment === 'urgent',
+            thread: (c.messages || []).map(m => ({
+              from: m.direction === 'inbound' ? 'patient' : 'practice',
+              text: m.message_body,
+              time: new Date(m.sent_at).toLocaleTimeString('en-GB', {hour:'2-digit',minute:'2-digit'})
+            }))
+          }));
+          setLiveInbox(mapped);
+        }
+      } catch(e) { console.log('Using demo inbox', e); }
+    }
+    fetchMessages();
+    const interval = setInterval(fetchMessages, 15000);
+    return () => clearInterval(interval);
+  }, []);
 
   const highRisk      = PATIENTS.filter(p=>p.risk==="high");
   const medRisk       = PATIENTS.filter(p=>p.risk==="medium");
@@ -212,8 +245,8 @@ function Dashboard() {
   const recovered     = PATIENTS.filter(p=>p.status==="recovered"||p.status==="booked");
   const atRiskRevenue = PATIENTS.filter(p=>p.risk!=="low").reduce((a,p)=>a+p.revenue,0);
   const recoveredRev  = recovered.reduce((a,p)=>a+p.revenue,0);
-  const unreadCount   = INBOX.filter(i=>i.unread).length;
-  const urgentCount   = INBOX.filter(i=>i.urgent).length;
+  const unreadCount   = liveInbox.filter(i=>i.unread).length;
+  const urgentCount   = liveInbox.filter(i=>i.urgent).length;
   const filteredPts   = filterRisk==="all"?PATIENTS:PATIENTS.filter(p=>p.risk===filterRisk);
 
   const waTemplates = {
