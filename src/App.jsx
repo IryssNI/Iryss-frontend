@@ -642,15 +642,27 @@ function Dashboard() {
                         <div style={{ fontSize:12, color:C.red, fontWeight:600 }}>AI flagged this as urgent — patient may need a clinical callback today.</div>
                       </div>
                     )}
-                    {selectedThread.thread.map((msg,i)=>(
-                      <div key={i} style={{ display:"flex", justifyContent:msg.from==="practice"?"flex-end":"flex-start" }}>
-                        <div style={{ maxWidth:"70%", background:msg.from==="practice"?`linear-gradient(135deg,${C.teal},${C.tealLt})`:C.white, color:msg.from==="practice"?"#fff":C.navy, borderRadius:msg.from==="practice"?"16px 16px 4px 16px":"16px 16px 16px 4px", padding:"10px 14px", fontSize:13, lineHeight:1.6, border:msg.from==="patient"?`1px solid ${C.border}`:"none", boxShadow:"0 2px 8px rgba(0,0,0,.06)", whiteSpace:"pre-wrap" }}>
-                          {msg.from==="practice"&&<div style={{ fontSize:9, opacity:0.7, marginBottom:4, textTransform:"uppercase", letterSpacing:1 }}>Bright Eyes · Iryss AI</div>}
-                          {msg.text}
-                          <div style={{ fontSize:10, opacity:0.55, textAlign:"right", marginTop:4 }}>{msg.time}{msg.from==="practice"?" ✓✓":""}</div>
+                    {selectedThread.thread.reduce((acc, msg, i, arr) => {
+                      const msgDate = msg.sent_at ? new Date(msg.sent_at) : null;
+                      const prevDate = i > 0 && arr[i-1].sent_at ? new Date(arr[i-1].sent_at) : null;
+                      const showSeparator = msgDate && (!prevDate || msgDate.toDateString() !== prevDate.toDateString());
+                      if (showSeparator) {
+                        const today = new Date();
+                        const yesterday = new Date(); yesterday.setDate(yesterday.getDate()-1);
+                        let label = msgDate.toDateString()===today.toDateString() ? "Today" : msgDate.toDateString()===yesterday.toDateString() ? "Yesterday" : msgDate.toLocaleDateString("en-GB",{day:"numeric",month:"long"});
+                        acc.push(<div key={"sep-"+i} style={{ textAlign:"center", margin:"12px 0" }}><span style={{ fontSize:11, color:C.slate, background:C.border, borderRadius:10, padding:"3px 12px" }}>{label}</span></div>);
+                      }
+                      acc.push(
+                        <div key={i} style={{ display:"flex", justifyContent:msg.from==="practice"?"flex-end":"flex-start" }}>
+                          <div style={{ maxWidth:"70%", background:msg.from==="practice"?`linear-gradient(135deg,${C.teal},${C.tealLt})`:C.white, color:msg.from==="practice"?"#fff":C.navy, borderRadius:msg.from==="practice"?"16px 16px 4px 16px":"16px 16px 16px 4px", padding:"10px 14px", fontSize:13, lineHeight:1.6, border:msg.from==="patient"?`1px solid ${C.border}`:"none", boxShadow:"0 2px 8px rgba(0,0,0,.06)", whiteSpace:"pre-wrap" }}>
+                            {msg.from==="practice"&&<div style={{ fontSize:9, opacity:0.7, marginBottom:4, textTransform:"uppercase", letterSpacing:1 }}>Bright Eyes · Iryss AI</div>}
+                            {msg.text}
+                            <div style={{ fontSize:10, opacity:0.55, textAlign:"right", marginTop:4 }}>{msg.time}{msg.from==="practice"?" ✓✓":""}</div>
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                      return acc;
+                    }, [])}
                     <div ref={msgEndRef} />
                   </div>
                   <div style={{ padding:16, borderTop:`1px solid ${C.border}`, display:"flex", gap:10, alignItems:"center" }}>
