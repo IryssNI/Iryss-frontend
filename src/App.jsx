@@ -216,6 +216,15 @@ function Dashboard() {
   const [confirmSent, setConfirmSent] = useState({});
   const [reminder48Active, setReminder48Active] = useState(false);
   const [reminder2hActive, setReminder2hActive] = useState(false);
+  const [digestEnabled, setDigestEnabled]       = useState(true);
+  const [digestTime, setDigestTime]             = useState("8:00am");
+  const [showBellDropdown, setShowBellDropdown] = useState(false);
+  const [toastMsg, setToastMsg]                 = useState(null);
+  const [settingsSaved, setSettingsSaved]       = useState(false);
+  const [practiceDetails, setPracticeDetails]   = useState({ name:"Bright Eyes Opticians", email:"louiev@hotmail.co.uk", whatsapp:"+447827322027", google:"" });
+  const [autoRecall, setAutoRecall]             = useState(false);
+  const [autoReorder, setAutoReorder]           = useState(false);
+  const [autoReview, setAutoReview]             = useState(false);
 
   useEffect(() => {
     msgEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -387,10 +396,13 @@ function Dashboard() {
     reviews:"Google Reviews",
     appointments:"Today's Appointments",
     receptionist:"AI Receptionist",
+    settings:"Settings",
   };
 
+  function showToast(msg) { setToastMsg(msg); setTimeout(()=>setToastMsg(null), 3500); }
+
   return (
-    <div style={{ display:"flex", height:"100vh", fontFamily:F, background:"#EEF2F7", color:C.navy, overflow:"hidden" }}>
+    <div onClick={()=>setShowBellDropdown(false)} style={{ display:"flex", height:"100vh", fontFamily:F, background:"#EEF2F7", color:C.navy, overflow:"hidden" }}>
 
       {/* ── Sidebar ── */}
       <div style={{ width:236, background:C.navy, display:"flex", flexDirection:"column", flexShrink:0, padding:"0 12px 20px", borderRight:"1px solid rgba(255,255,255,.05)" }}>
@@ -448,6 +460,23 @@ function Dashboard() {
               <span style={{ flex:1 }}>{item.label}</span>
             </button>
           ))}
+          <div style={{ marginTop:"auto" }}>
+            <div style={{ height:1, background:"rgba(255,255,255,.06)", margin:"10px 4px" }} />
+            <button onClick={()=>goNav("settings")} style={{
+              display:"flex", alignItems:"center", gap:11, width:"100%", padding:"11px 12px",
+              border:"none", background:nav==="settings"?"rgba(8,145,178,.2)":"transparent",
+              borderRadius:10, cursor:"pointer",
+              color:nav==="settings"?"#fff":"rgba(255,255,255,.42)",
+              fontWeight:nav==="settings"?700:400, fontSize:13.5, fontFamily:F, textAlign:"left",
+              borderLeft:nav==="settings"?`3px solid ${C.teal}`:"3px solid transparent",
+              transition:"all .15s", letterSpacing:-0.1
+            }}
+              onMouseEnter={e=>{ if(nav!=="settings"){ e.currentTarget.style.background="rgba(255,255,255,.05)"; e.currentTarget.style.color="rgba(255,255,255,.75)"; }}}
+              onMouseLeave={e=>{ if(nav!=="settings"){ e.currentTarget.style.background="transparent"; e.currentTarget.style.color="rgba(255,255,255,.42)"; }}}>
+              <span style={{ fontSize:14, width:18, textAlign:"center", opacity:nav==="settings"?1:0.65 }}>⚙</span>
+              <span style={{ flex:1 }}>Settings</span>
+            </button>
+          </div>
         </nav>
 
         <div style={{ borderTop:"1px solid rgba(255,255,255,.07)", paddingTop:16, marginTop:8 }}>
@@ -477,11 +506,51 @@ function Dashboard() {
                 <span style={{ fontSize:12, fontWeight:700, color:C.red }}>{urgentCount} urgent alert{urgentCount>1?"s":""}</span>
               </div>
             )}
-            <div onClick={()=>goNav("inbox")} style={{ position:"relative", cursor:"pointer", width:36, height:36, display:"flex", alignItems:"center", justifyContent:"center", background:C.offWhite, borderRadius:10, border:`1px solid ${C.border}` }}>
-              <span style={{ fontSize:17 }}>🔔</span>
-              {unreadCount>0&&<span style={{ position:"absolute", top:-4, right:-4, background:C.red, color:"#fff", borderRadius:20, fontSize:9, fontWeight:800, padding:"2px 5px", minWidth:16, textAlign:"center", lineHeight:1.4 }}>{unreadCount}</span>}
+            <div style={{ position:"relative" }}>
+              <div onClick={()=>setShowBellDropdown(v=>!v)} style={{ position:"relative", cursor:"pointer", width:36, height:36, display:"flex", alignItems:"center", justifyContent:"center", background:showBellDropdown?C.offWhite:C.offWhite, borderRadius:10, border:`1px solid ${showBellDropdown?C.teal:C.border}`, transition:"border .15s" }}>
+                <span style={{ fontSize:17 }}>🔔</span>
+                {unreadCount>0&&<span style={{ position:"absolute", top:-4, right:-4, background:C.red, color:"#fff", borderRadius:20, fontSize:9, fontWeight:800, padding:"2px 5px", minWidth:16, textAlign:"center", lineHeight:1.4 }}>{unreadCount}</span>}
+              </div>
+              {showBellDropdown&&(()=>{
+                const notifs = [
+                  ...urgentMessages.map(m=>({ type:"urgent", icon:"🚨", label:`${m.patient} sent an urgent message`, time:m.time, action:()=>{ setSelectedThread(m); goNav("inbox"); setShowBellDropdown(false); } })),
+                  ...liveInbox.filter(m=>m.unread&&m.sentiment==='negative'&&!urgentMessages.find(u=>u.id===m.id)).map(m=>({ type:"warning", icon:"⚠️", label:`${m.patient} needs attention`, time:m.time, action:()=>{ setSelectedThread(m); goNav("inbox"); setShowBellDropdown(false); } })),
+                  { type:"automation", icon:"✅", label:"Recall reminder sent to overdue patients", time:"02:00", action:null },
+                  { type:"automation", icon:"⭐", label:"7 Google review requests sent overnight", time:"01:45", action:null },
+                  { type:"automation", icon:"📅", label:"Appointment confirmations sent for today", time:"07:00", action:null },
+                ].slice(0,5);
+                return (
+                  <div onClick={e=>e.stopPropagation()} style={{ position:"absolute", top:44, right:0, width:340, background:C.white, border:`1px solid ${C.border}`, borderRadius:14, boxShadow:"0 12px 40px rgba(0,0,0,.15)", zIndex:800, overflow:"hidden" }}>
+                    <div style={{ padding:"14px 16px 10px", borderBottom:`1px solid ${C.border}`, display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+                      <div style={{ fontWeight:700, fontSize:14, color:C.navy }}>Notifications</div>
+                      <button onClick={()=>setShowBellDropdown(false)} style={{ background:"none", border:"none", cursor:"pointer", fontSize:18, color:C.slateLight, lineHeight:1 }}>×</button>
+                    </div>
+                    {notifs.length===0?(
+                      <div style={{ padding:"28px 16px", textAlign:"center", color:C.slate, fontSize:13 }}>No new notifications</div>
+                    ):(
+                      notifs.map((n,i)=>(
+                        <div key={i} onClick={n.action||undefined} style={{ display:"flex", gap:10, padding:"12px 16px", borderBottom:i<notifs.length-1?`1px solid ${C.border}`:"none", cursor:n.action?"pointer":"default", background:"transparent", transition:"background .12s" }}
+                          onMouseEnter={e=>{ if(n.action) e.currentTarget.style.background="rgba(8,145,178,.04)"; }}
+                          onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
+                          <span style={{ fontSize:16, flexShrink:0 }}>{n.icon}</span>
+                          <div style={{ flex:1 }}>
+                            <div style={{ fontSize:13, color:n.type==="urgent"?C.red:n.type==="warning"?C.amber:C.navy, fontWeight:n.type==="automation"?400:600, lineHeight:1.4 }}>{n.label}</div>
+                            <div style={{ fontSize:11, color:C.slateLight, marginTop:3 }}>{n.time}</div>
+                          </div>
+                          {n.action&&<span style={{ fontSize:11, color:C.teal, fontWeight:600, alignSelf:"center", flexShrink:0 }}>View →</span>}
+                        </div>
+                      ))
+                    )}
+                    <div style={{ padding:"10px 16px", borderTop:`1px solid ${C.border}` }}>
+                      <button onClick={()=>{ goNav("inbox"); setShowBellDropdown(false); }} style={{ width:"100%", background:"none", border:`1px solid ${C.border}`, borderRadius:8, padding:"8px", fontSize:12, fontWeight:600, color:C.slate, cursor:"pointer", fontFamily:F }}>View all in Inbox →</button>
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
-            <Avatar initials="BE" bg={C.teal} size={36} />
+            <div onClick={()=>goNav("settings")} style={{ cursor:"pointer" }}>
+              <Avatar initials="BE" bg={C.teal} size={36} />
+            </div>
           </div>
         </div>
 
@@ -1228,9 +1297,152 @@ function Dashboard() {
               </div>
             </div>
           )}
+          {/* ═══ SETTINGS ═══ */}
+          {nav==="settings"&&(
+            <div style={{ maxWidth:780 }}>
+
+              {/* ── Practice Details ── */}
+              <div style={{ background:C.white, borderRadius:16, border:`1px solid ${C.border}`, padding:"24px 28px", marginBottom:22, boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
+                <div style={{ fontWeight:700, fontSize:16, color:C.navy, marginBottom:4, letterSpacing:-0.4 }}>🏥 Practice Details</div>
+                <div style={{ fontSize:13, color:C.slate, marginBottom:20 }}>Your practice information used across all Iryss automations.</div>
+                <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:16, marginBottom:20 }}>
+                  {[
+                    { label:"Practice name",             key:"name",    placeholder:"Bright Eyes Opticians" },
+                    { label:"Email address",             key:"email",   placeholder:"you@yourpractice.com"  },
+                    { label:"WhatsApp number",           key:"whatsapp",placeholder:"+447827322027"         },
+                    { label:"Google Business profile",   key:"google",  placeholder:"https://g.page/..."   },
+                  ].map(f=>(
+                    <div key={f.key}>
+                      <label style={{ fontSize:11, fontWeight:700, color:C.slateLight, textTransform:"uppercase", letterSpacing:1.1, display:"block", marginBottom:6 }}>{f.label}</label>
+                      <input value={practiceDetails[f.key]} onChange={e=>setPracticeDetails(prev=>({...prev,[f.key]:e.target.value}))}
+                        placeholder={f.placeholder}
+                        style={{ width:"100%", border:`1px solid ${C.border}`, borderRadius:10, padding:"10px 14px", fontSize:13, fontFamily:F, outline:"none", boxSizing:"border-box", color:C.navy, background:C.offWhite, transition:"border .15s" }}
+                        onFocus={e=>e.target.style.borderColor=C.teal} onBlur={e=>e.target.style.borderColor=C.border} />
+                    </div>
+                  ))}
+                </div>
+                <button onClick={()=>{ setSettingsSaved(true); showToast("Practice details saved ✓"); setTimeout(()=>setSettingsSaved(false),2500); }}
+                  style={{ background:`linear-gradient(135deg,${C.teal},${C.tealLt})`, color:"#fff", border:"none", borderRadius:10, padding:"10px 22px", fontWeight:700, fontSize:13, cursor:"pointer", fontFamily:F, boxShadow:"0 2px 8px rgba(8,145,178,.3)", display:"flex", alignItems:"center", gap:8 }}>
+                  {settingsSaved ? "✓ Saved!" : "Save Changes"}
+                </button>
+              </div>
+
+              {/* ── Notifications ── */}
+              <div style={{ background:C.white, borderRadius:16, border:`1px solid ${C.border}`, padding:"24px 28px", marginBottom:22, boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
+                <div style={{ fontWeight:700, fontSize:16, color:C.navy, marginBottom:4, letterSpacing:-0.4 }}>🔔 Notifications</div>
+                <div style={{ fontSize:13, color:C.slate, marginBottom:20 }}>Configure how and when you hear from Iryss.</div>
+
+                {/* Daily Digest card */}
+                <div style={{ border:`1px solid ${C.border}`, borderRadius:14, overflow:"hidden" }}>
+                  <div style={{ padding:"16px 20px", background:"#FAFBFC", display:"flex", alignItems:"center", justifyContent:"space-between", borderBottom:`1px solid ${C.border}` }}>
+                    <div>
+                      <div style={{ fontWeight:700, fontSize:14, color:C.navy, display:"flex", alignItems:"center", gap:10 }}>
+                        Daily Digest Email
+                        {digestEnabled
+                          ? <span style={{ background:"rgba(16,185,129,.12)", color:C.green, fontWeight:700, fontSize:11, padding:"3px 10px", borderRadius:20, display:"flex", alignItems:"center", gap:5 }}><span style={{ width:6, height:6, borderRadius:"50%", background:C.green, display:"inline-block", boxShadow:"0 0 6px rgba(16,185,129,.6)" }} />Active</span>
+                          : <span style={{ background:"rgba(100,116,139,.1)", color:C.slate, fontWeight:600, fontSize:11, padding:"3px 10px", borderRadius:20 }}>Off</span>
+                        }
+                      </div>
+                      <div style={{ fontSize:12, color:C.slate, marginTop:3 }}>A morning summary of everything that happened overnight — sent to {practiceDetails.email}</div>
+                    </div>
+                    <div onClick={()=>setDigestEnabled(v=>!v)} style={{ width:44, height:24, borderRadius:12, background:digestEnabled?C.teal:C.border, cursor:"pointer", position:"relative", transition:"background .2s", flexShrink:0, marginLeft:16 }}>
+                      <div style={{ position:"absolute", top:3, left:digestEnabled?22:3, width:18, height:18, borderRadius:"50%", background:"#fff", boxShadow:"0 1px 4px rgba(0,0,0,.2)", transition:"left .2s" }} />
+                    </div>
+                  </div>
+
+                  <div style={{ padding:"16px 20px", display:"flex", alignItems:"center", gap:12, borderBottom:`1px solid ${C.border}` }}>
+                    <span style={{ fontSize:13, fontWeight:600, color:C.navy }}>Send at:</span>
+                    <select value={digestTime} onChange={e=>setDigestTime(e.target.value)}
+                      style={{ border:`1px solid ${C.border}`, borderRadius:8, padding:"6px 12px", fontSize:13, fontFamily:F, color:C.navy, background:C.white, outline:"none", cursor:"pointer" }}>
+                      {["7:00am","8:00am","9:00am"].map(t=><option key={t} value={t}>{t}</option>)}
+                    </select>
+                    <span style={{ fontSize:12, color:C.slateLight }}>every weekday morning</span>
+                    <button onClick={()=>showToast(`Test digest sent to ${practiceDetails.email} ✓`)}
+                      style={{ marginLeft:"auto", background:"none", border:`1px solid ${C.border}`, borderRadius:8, padding:"7px 14px", fontSize:12, fontWeight:700, color:C.slate, cursor:"pointer", fontFamily:F, transition:"all .15s" }}
+                      onMouseEnter={e=>{e.currentTarget.style.borderColor=C.teal;e.currentTarget.style.color=C.teal;}}
+                      onMouseLeave={e=>{e.currentTarget.style.borderColor=C.border;e.currentTarget.style.color=C.slate;}}>
+                      Send Test Digest Now
+                    </button>
+                  </div>
+
+                  {/* Digest preview */}
+                  <div style={{ padding:"20px" }}>
+                    <div style={{ fontSize:11, fontWeight:700, color:C.slateLight, textTransform:"uppercase", letterSpacing:1, marginBottom:12 }}>Preview</div>
+                    <div style={{ border:`1px solid ${C.border}`, borderRadius:12, overflow:"hidden", fontFamily:"Georgia, serif" }}>
+                      <div style={{ background:C.navy, padding:"18px 22px" }}>
+                        <div style={{ fontSize:13, fontWeight:700, color:C.tealLt, letterSpacing:2, textTransform:"uppercase", marginBottom:4 }}>Iryss Daily Digest</div>
+                        <div style={{ fontSize:18, fontWeight:700, color:"#fff" }}>Good morning, Bright Eyes 👋</div>
+                        <div style={{ fontSize:12, color:"rgba(255,255,255,.45)", marginTop:4 }}>{new Date().toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"})}</div>
+                      </div>
+                      <div style={{ padding:"18px 22px", background:C.offWhite }}>
+                        <div style={{ fontSize:13, color:C.slate, marginBottom:16, fontFamily:F }}>Here is your Iryss summary for today:</div>
+                        {[
+                          { icon:"🚨", label:"Overnight replies needing attention", value:urgentMessages.length, detail:urgentMessages.map(m=>m.patient).join(", ")||"None", color:urgentMessages.length>0?C.red:C.green },
+                          { icon:"◷",  label:"Patients due for recall this week",  value:recallPatients.length, detail:`${recallPatients.length} patient${recallPatients.length!==1?"s":""} overdue or due soon`, color:C.amber },
+                          { icon:"📅", label:"Unconfirmed appointments today",     value:noShowRisk.length, detail:`£${noShowRisk.reduce((a,p)=>a+p.revenue,0)} revenue at risk`, color:noShowRisk.length>0?C.red:C.green },
+                          { icon:"🤖", label:"AI conversations handled overnight", value:12, detail:"All resolved automatically", color:C.teal },
+                        ].map((row,i,arr)=>(
+                          <div key={i} style={{ display:"flex", alignItems:"flex-start", gap:12, padding:"10px 0", borderBottom:i<arr.length-1?`1px solid ${C.border}`:"none", fontFamily:F }}>
+                            <span style={{ fontSize:16, flexShrink:0 }}>{row.icon}</span>
+                            <div style={{ flex:1 }}>
+                              <div style={{ fontSize:13, color:C.navy, fontWeight:600 }}>{row.label}</div>
+                              <div style={{ fontSize:12, color:C.slate, marginTop:2 }}>{row.detail}</div>
+                            </div>
+                            <div style={{ fontSize:20, fontWeight:800, color:row.color, letterSpacing:-1 }}>{row.value}</div>
+                          </div>
+                        ))}
+                        <button style={{ width:"100%", marginTop:18, background:`linear-gradient(135deg,${C.teal},${C.tealLt})`, color:"#fff", border:"none", borderRadius:10, padding:"11px", fontWeight:700, fontSize:13, cursor:"default", fontFamily:F }}>
+                          View Dashboard →
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* ── Automation ── */}
+              <div style={{ background:C.white, borderRadius:16, border:`1px solid ${C.border}`, padding:"24px 28px", boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
+                <div style={{ fontWeight:700, fontSize:16, color:C.navy, marginBottom:4, letterSpacing:-0.4 }}>⚡ Automation</div>
+                <div style={{ fontSize:13, color:C.slate, marginBottom:20 }}>Control which automations run automatically. All changes take effect immediately.</div>
+                {[
+                  { label:"Auto-send recall messages",                 sub:"Sends to patients 8+ months since last visit",    active:autoRecall,        toggle:()=>setAutoRecall(v=>!v)        },
+                  { label:"Auto-send reorder reminders",               sub:"Sends to contact lens patients every 3 months",   active:autoReorder,       toggle:()=>setAutoReorder(v=>!v)       },
+                  { label:"Auto-send appointment confirmations (48hr)", sub:"WhatsApp reminder 48 hours before appointment",   active:reminder48Active,  toggle:()=>setReminder48Active(v=>!v)  },
+                  { label:"Auto-send appointment confirmations (2hr)",  sub:"Final reminder 2 hours before appointment",       active:reminder2hActive,  toggle:()=>setReminder2hActive(v=>!v)  },
+                  { label:"Auto-send Google review requests",           sub:"Sent 24 hours after each appointment",            active:autoReview,        toggle:()=>setAutoReview(v=>!v)        },
+                ].map((item,i,arr)=>(
+                  <div key={item.label} style={{ display:"flex", alignItems:"center", gap:14, padding:"14px 0", borderBottom:i<arr.length-1?`1px solid ${C.border}`:"none" }}>
+                    <div style={{ flex:1 }}>
+                      <div style={{ fontWeight:600, fontSize:14, color:C.navy, display:"flex", alignItems:"center", gap:8 }}>
+                        {item.label}
+                        {item.active
+                          ? <span style={{ background:"rgba(16,185,129,.12)", color:C.green, fontWeight:700, fontSize:10, padding:"2px 9px", borderRadius:20 }}>Active</span>
+                          : <span style={{ background:"rgba(100,116,139,.1)", color:C.slateLight, fontWeight:600, fontSize:10, padding:"2px 9px", borderRadius:20 }}>Off</span>
+                        }
+                      </div>
+                      <div style={{ fontSize:12, color:C.slate, marginTop:2 }}>{item.sub}</div>
+                    </div>
+                    <div onClick={item.toggle} style={{ width:44, height:24, borderRadius:12, background:item.active?C.teal:C.border, cursor:"pointer", position:"relative", transition:"background .2s", flexShrink:0 }}>
+                      <div style={{ position:"absolute", top:3, left:item.active?22:3, width:18, height:18, borderRadius:"50%", background:"#fff", boxShadow:"0 1px 4px rgba(0,0,0,.2)", transition:"left .2s" }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+            </div>
+          )}
+
           </>)}
         </div>
       </div>
+
+      {/* ═══ TOAST ═══ */}
+      {toastMsg&&(
+        <div style={{ position:"fixed", bottom:32, left:"50%", transform:"translateX(-50%)", background:C.navy, color:"#fff", borderRadius:12, padding:"13px 22px", fontSize:14, fontWeight:600, fontFamily:F, zIndex:9999, boxShadow:"0 8px 32px rgba(0,0,0,.25)", display:"flex", alignItems:"center", gap:10, whiteSpace:"nowrap", animation:"fadeIn .25s ease" }}>
+          <span style={{ color:C.green, fontSize:16 }}>✓</span>
+          {toastMsg}
+        </div>
+      )}
 
       {/* ═══ DRILLDOWN PANELS ═══ */}
 
