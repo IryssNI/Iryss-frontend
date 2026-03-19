@@ -220,21 +220,26 @@ function Dashboard() {
             if (!grouped[name]) grouped[name] = { name, phone: m.patient_phone, messages: [] };
             grouped[name].messages.push(m);
           });
-          const mapped = Object.values(grouped).map(c => ({
-            id: c.name,
-            patient: c.name,
-            phone: c.phone,
-            initials: c.name.split(' ').map(w=>w[0]).join('').slice(0,2),
-            preview: c.messages[0]?.message_body || '',
-            time: new Date(c.messages[0]?.sent_at).toLocaleTimeString('en-GB', {hour:'2-digit',minute:'2-digit'}),
-            unread: c.messages.some(m=>m.direction==='inbound'),
-            urgent: c.messages.some(m=>m.sentiment==='urgent'),
-            thread: c.messages.reverse().map(m => ({
-              from: m.direction === 'inbound' ? 'patient' : 'practice',
-              text: m.message_body,
-              time: new Date(m.sent_at).toLocaleTimeString('en-GB', {hour:'2-digit',minute:'2-digit'})
-            }))
-          }));
+          const mapped = Object.values(grouped).map(c => {
+            const sorted = [...c.messages].sort((a, b) => new Date(a.sent_at) - new Date(b.sent_at));
+            const latest = sorted[sorted.length - 1];
+            return {
+              id: c.name,
+              patient: c.name,
+              phone: c.phone,
+              initials: c.name.split(' ').map(w=>w[0]).join('').slice(0,2),
+              preview: latest?.message_body || '',
+              time: new Date(latest?.sent_at).toLocaleTimeString('en-GB', {hour:'2-digit',minute:'2-digit'}),
+              unread: c.messages.some(m=>m.direction==='inbound'),
+              urgent: c.messages.some(m=>m.sentiment==='urgent'),
+              thread: sorted.map(m => ({
+                from: m.direction === 'inbound' ? 'patient' : 'practice',
+                text: m.message_body,
+                time: new Date(m.sent_at).toLocaleTimeString('en-GB', {hour:'2-digit',minute:'2-digit'}),
+                date: new Date(m.sent_at)
+              }))
+            };
+          });
           setLiveInbox(mapped);
           setSelectedThread(prev =>
             prev ? (mapped.find(m => m.id === prev.id) ?? mapped[0]) : mapped[0]
@@ -256,6 +261,16 @@ function Dashboard() {
   const unreadCount   = liveInbox.filter(i=>i.unread).length;
   const urgentCount   = liveInbox.filter(i=>i.urgent).length;
   const filteredPts   = filterRisk==="all"?PATIENTS:PATIENTS.filter(p=>p.risk===filterRisk);
+
+  function formatMsgDate(date) {
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const d = new Date(date);
+    if (d.toDateString() === today.toDateString()) return 'Today';
+    if (d.toDateString() === yesterday.toDateString()) return 'Yesterday';
+    return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long' });
+  }
 
   const waTemplates = {
     high:   `Hi {name} 👋\n\nWe've been thinking about you and just wanted to check in. It's been a while since your last visit — whenever you're ready, we'd love to welcome you back.\n\nJust reply here and we'll sort everything 😊\n\nBright Eyes Opticians`,
@@ -642,15 +657,26 @@ function Dashboard() {
                         <div style={{ fontSize:12, color:C.red, fontWeight:600 }}>AI flagged this as urgent — patient may need a clinical callback today.</div>
                       </div>
                     )}
-                    {selectedThread.thread.map((msg,i)=>(
-                      <div key={i} style={{ display:"flex", justifyContent:msg.from==="practice"?"flex-end":"flex-start" }}>
-                        <div style={{ maxWidth:"70%", background:msg.from==="practice"?`linear-gradient(135deg,${C.teal},${C.tealLt})`:C.white, color:msg.from==="practice"?"#fff":C.navy, borderRadius:msg.from==="practice"?"16px 16px 4px 16px":"16px 16px 16px 4px", padding:"10px 14px", fontSize:13, lineHeight:1.6, border:msg.from==="patient"?`1px solid ${C.border}`:"none", boxShadow:"0 2px 8px rgba(0,0,0,.06)", whiteSpace:"pre-wrap" }}>
-                          {msg.from==="practice"&&<div style={{ fontSize:9, opacity:0.7, marginBottom:4, textTransform:"uppercase", letterSpacing:1 }}>Bright Eyes · Iryss AI</div>}
-                          {msg.text}
-                          <div style={{ fontSize:10, opacity:0.55, textAlign:"right", marginTop:4 }}>{msg.time}{msg.from==="practice"?" ✓✓":""}</div>
-                        </div>
-                      </div>
-                    ))}
+                    {selectedThread.thread.map((msg,i)=>{
+                      const thread = selectedThread.thread;
+                      const showSeparator = msg.date && (i===0 || !thread[i-1].date || new Date(msg.date).toDateString()!==new Date(thread[i-1].date).toDateString());
+                      return (
+                        <React.Fragment key={i}>
+                          {showSeparator&&(
+                            <div style={{ display:"flex", justifyContent:"center", margin:"4px 0" }}>
+                              <span style={{ background:"rgba(0,0,0,.06)", color:"#718096", fontSize:11, fontWeight:500, padding:"3px 12px", borderRadius:20 }}>{formatMsgDate(msg.date)}</span>
+                            </div>
+                          )}
+                          <div style={{ display:"flex", justifyContent:msg.from==="practice"?"flex-end":"flex-start" }}>
+                            <div style={{ maxWidth:"70%", background:msg.from==="practice"?`linear-gradient(135deg,${C.teal},${C.tealLt})`:C.white, color:msg.from==="practice"?"#fff":C.navy, borderRadius:msg.from==="practice"?"16px 16px 4px 16px":"16px 16px 16px 4px", padding:"10px 14px", fontSize:13, lineHeight:1.6, border:msg.from==="patient"?`1px solid ${C.border}`:"none", boxShadow:"0 2px 8px rgba(0,0,0,.06)", whiteSpace:"pre-wrap" }}>
+                              {msg.from==="practice"&&<div style={{ fontSize:9, opacity:0.7, marginBottom:4, textTransform:"uppercase", letterSpacing:1 }}>Bright Eyes · Iryss AI</div>}
+                              {msg.text}
+                              <div style={{ fontSize:10, opacity:0.55, textAlign:"right", marginTop:4 }}>{msg.time}{msg.from==="practice"?" ✓✓":""}</div>
+                            </div>
+                          </div>
+                        </React.Fragment>
+                      );
+                    })}
                     <div ref={msgEndRef} />
                   </div>
                   <div style={{ padding:16, borderTop:`1px solid ${C.border}`, display:"flex", gap:10, alignItems:"center" }}>
