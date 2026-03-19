@@ -355,7 +355,7 @@ function Dashboard() {
       {/* ── Sidebar ── */}
       <div style={{ width:236, background:C.navy, display:"flex", flexDirection:"column", flexShrink:0, padding:"0 10px 16px", borderRight:"1px solid rgba(255,255,255,.04)" }}>
         <div style={{ padding:"24px 8px 20px", borderBottom:"1px solid rgba(255,255,255,.06)", marginBottom:10 }}>
-          <img src="/iryss-logo.png" alt="Iryss" style={{ height:36 }} />
+          <img src="/iryss-logo.png" alt="Iryss" style={{ height:"36px", objectFit:"contain" }} />
           <div style={{ display:"flex", alignItems:"center", gap:8, marginTop:6 }}><div style={{ fontSize:10, color:"rgba(255,255,255,.3)", letterSpacing:2, textTransform:"uppercase" }}>Bright Eyes Opticians</div></div>
         </div>
 
