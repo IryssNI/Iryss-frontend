@@ -266,16 +266,25 @@ function Dashboard() {
     setShowSendWA(p);
     setWaMsg(waTemplates[p.risk].replace("{name}",p.name.split(" ")[0]).replace("{product}",p.product));
   }
-  function confirmSendWA(pid) {
+  async function confirmSendWA(pid) {
     const patient = PATIENTS.find(p=>p.id===pid);
-    if (patient) {
-      fetch("https://iryss-backend-12fh.onrender.com/api/send-whatsapp", {
+    if (!patient) return;
+    setShowSendWA(null); setWaMsg("");
+    try {
+      const res = await fetch("https://iryss-backend-12fh.onrender.com/api/send-whatsapp", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({ to: patient.phone, message: waMsg })
-      }).then(r=>r.json()).then(d=>console.log("Sent:",d)).catch(e=>console.error("Error:",e));
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        alert(`Failed to send to ${patient.name}: ${data.error || res.statusText}`);
+        return;
+      }
+      setWaSent(prev=>({...prev,[pid]:true}));
+    } catch(e) {
+      alert(`Failed to send to ${patient.name}: ${e.message}`);
     }
-    setWaSent(prev=>({...prev,[pid]:true})); setShowSendWA(null); setWaMsg("");
   }
   function goNav(id) { setDrill(null); setNav(id); }
 
