@@ -210,27 +210,31 @@ function Dashboard() {
   useEffect(() => {
     async function fetchMessages() {
       try {
-        const res = await fetch('https://iryss-backend-12fh.onrender.com/api/messages/inbound', {
-          headers: { 'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NywiZW1haWwiOiJ0ZXN0QGJyaWdodGV5ZXMuY28udWsiLCJpYXQiOjE3NzM4Njk5NzksImV4cCI6MTc3NDQ3NDc3OX0.RQlrg8gOTaEJuHj7DOEJIOQ4M_q7i5bk-t9avIns7dE' }
-        });
+        const res = await fetch('https://iryss-backend-12fh.onrender.com/api/public/inbox');
         if (!res.ok) return;
         const data = await res.json();
-        if (data && data.conversations && data.conversations.length > 0) {
-          const mapped = data.conversations.map(c => ({
-            id: c.patient_id,
-            patient: c.patient_name,
-            initials: c.patient_name.split(' ').map(w=>w[0]).join('').slice(0,2),
-            preview: c.last_message || '',
-            time: new Date(c.last_message_at).toLocaleTimeString('en-GB', {hour:'2-digit',minute:'2-digit'}),
-            unread: c.unread_count > 0,
-            urgent: c.sentiment === 'urgent',
-            thread: (c.messages || []).map(m => ({
+        if (data && data.messages && data.messages.length > 0) {
+          const grouped = {};
+          data.messages.forEach(m => {
+            const name = m.patient_name;
+            if (!grouped[name]) grouped[name] = { name, phone: m.patient_phone, messages: [] };
+            grouped[name].messages.push(m);
+          });
+          const mapped = Object.values(grouped).map(c => ({
+            id: c.name,
+            patient: c.name,
+            initials: c.name.split(' ').map(w=>w[0]).join('').slice(0,2),
+            preview: c.messages[0]?.message_body || '',
+            time: new Date(c.messages[0]?.sent_at).toLocaleTimeString('en-GB', {hour:'2-digit',minute:'2-digit'}),
+            unread: c.messages.some(m=>m.direction==='inbound'),
+            urgent: c.messages.some(m=>m.sentiment==='urgent'),
+            thread: c.messages.reverse().map(m => ({
               from: m.direction === 'inbound' ? 'patient' : 'practice',
               text: m.message_body,
               time: new Date(m.sent_at).toLocaleTimeString('en-GB', {hour:'2-digit',minute:'2-digit'})
             }))
           }));
-          setLiveInbox(mapped);
+          setLiveInbox(mapped); })
         }
       } catch(e) { console.log('Using demo inbox', e); }
     }
