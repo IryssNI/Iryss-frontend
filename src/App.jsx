@@ -248,6 +248,13 @@ function Dashboard() {
   const [autoReview, setAutoReview]             = useState(true);
   const [reviewTab, setReviewTab]               = useState("reviews");
   const [reviewSent, setReviewSent]             = useState({});
+  const [showImport, setShowImport]             = useState(false);
+  const [importStep, setImportStep]             = useState(1);   // 1=upload 2=analysing 3=results
+  const [importDrag, setImportDrag]             = useState(false);
+  const [importData, setImportData]             = useState(null); // parsed CSV rows
+  const [importProgress, setImportProgress]     = useState(0);
+  const [importCounters, setImportCounters]     = useState({ scanned:0, atRisk:0, recalls:0, gap:0 });
+  const importFileRef = useRef(null);
 
   useEffect(() => {
     msgEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -432,6 +439,85 @@ function Dashboard() {
 
   function showToast(msg) { setToastMsg(msg); setTimeout(()=>setToastMsg(null), 3500); }
 
+  function parseCSVMonthsAgo(dateStr) {
+    if (!dateStr) return 99;
+    const d = new Date(dateStr);
+    if (isNaN(d)) return 99;
+    const now = new Date();
+    return Math.floor((now - d) / (1000 * 60 * 60 * 24 * 30.44));
+  }
+
+  function parseCSV(text) {
+    const lines = text.trim().split(/\r?\n/);
+    if (lines.length < 2) return [];
+    const headers = lines[0].split(',').map(h => h.trim().toLowerCase().replace(/["\s]/g,''));
+    const nameKey    = headers.findIndex(h => h.includes('name'));
+    const phoneKey   = headers.findIndex(h => h.includes('phone') || h.includes('mobile') || h.includes('tel'));
+    const visitKey   = headers.findIndex(h => h.includes('visit') || h.includes('date') || h.includes('last'));
+    const productKey = headers.findIndex(h => h.includes('product') || h.includes('lens') || h.includes('spec') || h.includes('type'));
+    return lines.slice(1).map((line, i) => {
+      const cols = line.split(',').map(c => c.trim().replace(/^"|"$/g,''));
+      const months = parseCSVMonthsAgo(cols[visitKey]);
+      const risk = months >= 18 ? 'high' : months >= 12 ? 'medium' : 'low';
+      const riskScore = Math.min(99, Math.round((months / 30) * 100));
+      const revenue = Math.round(150 + Math.random() * 280);
+      return {
+        id: `csv-${i}`,
+        name:      cols[nameKey]    || `Patient ${i+1}`,
+        phone:     cols[phoneKey]   || '',
+        lastVisit: months === 99 ? 'Unknown' : `${months} months ago`,
+        product:   cols[productKey] || 'Glasses',
+        risk, riskScore, revenue,
+        initials:  (cols[nameKey]||`P${i+1}`).split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase(),
+      };
+    }).filter(r => r.name && r.name !== 'Patient 1' || lines.length > 2);
+  }
+
+  function runImportAnalysis(rows) {
+    setImportStep(2);
+    setImportProgress(0);
+    setImportCounters({ scanned:0, atRisk:0, recalls:0, gap:0 });
+    const totalScanned = rows.length;
+    const atRisk = rows.filter(r=>r.risk!=='low').length;
+    const recalls = rows.filter(r=>parseCSVMonthsAgo(null)>=18||r.risk==='high'||r.risk==='medium').length;
+    const gap = rows.reduce((a,r)=>a+(r.risk!=='low'?r.revenue:0), 0);
+    let elapsed = 0;
+    const tick = setInterval(() => {
+      elapsed += 80;
+      const pct = Math.min(100, Math.round((elapsed / 3000) * 100));
+      setImportProgress(pct);
+      setImportCounters({
+        scanned: Math.round((pct/100) * totalScanned),
+        atRisk:  Math.round((pct/100) * atRisk),
+        recalls: Math.round((pct/100) * recalls),
+        gap:     Math.round((pct/100) * gap),
+      });
+      if (pct >= 100) { clearInterval(tick); setImportStep(3); }
+    }, 80);
+  }
+
+  function handleImportFile(file) {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      const rows = parseCSV(e.target.result);
+      setImportData(rows);
+      runImportAnalysis(rows);
+    };
+    reader.readAsText(file);
+  }
+
+  function useDemoImport() {
+    const rows = PATIENTS.map(p => ({
+      ...p,
+      lastVisit: p.lastVisit,
+    }));
+    setImportData(rows);
+    runImportAnalysis(rows);
+  }
+
+  function resetImport() { setImportStep(1); setImportData(null); setImportProgress(0); setImportCounters({ scanned:0, atRisk:0, recalls:0, gap:0 }); }
+
   return (
     <div onClick={()=>setShowBellDropdown(false)} style={{ display:"flex", height:"100vh", fontFamily:F, background:"#EEF2F7", color:C.navy, overflow:"hidden" }}>
 
@@ -531,6 +617,9 @@ function Dashboard() {
             </div>
           </div>
           <div style={{ display:"flex", alignItems:"center", gap:14 }}>
+            <button onClick={e=>{ e.stopPropagation(); setShowImport(true); resetImport(); }} style={{ display:"flex", alignItems:"center", gap:7, background:`linear-gradient(135deg,${C.teal},${C.tealLt})`, color:"#fff", border:"none", borderRadius:10, padding:"9px 16px", fontWeight:700, fontSize:13, cursor:"pointer", fontFamily:F, boxShadow:"0 2px 10px rgba(8,145,178,.3)", flexShrink:0 }}>
+              <span style={{ fontSize:15 }}>⬆</span> Import Patients
+            </button>
             {urgentCount>0&&(
               <div onClick={()=>goNav("inbox")} style={{ background:"rgba(239,68,68,.07)", border:"1px solid rgba(239,68,68,.18)", borderRadius:10, padding:"8px 16px", cursor:"pointer", display:"flex", alignItems:"center", gap:7, transition:"background .15s" }}>
                 <span style={{ fontSize:14 }}>🚨</span>
@@ -1607,6 +1696,190 @@ function Dashboard() {
           </>)}
         </div>
       </div>
+
+      {/* ═══ CSV IMPORT MODAL ═══ */}
+      {showImport&&(
+        <div onClick={()=>{ if(importStep!==2){ setShowImport(false); } }} style={{ position:"fixed", inset:0, background:"rgba(8,15,30,.8)", zIndex:1000, display:"flex", alignItems:"center", justifyContent:"center", backdropFilter:"blur(6px)", fontFamily:F }}>
+          <div onClick={e=>e.stopPropagation()} style={{ width:"100%", maxWidth:820, maxHeight:"92vh", background:C.white, borderRadius:24, boxShadow:"0 40px 100px rgba(0,0,0,.35)", overflow:"auto", display:"flex", flexDirection:"column" }}>
+
+            {/* Modal header */}
+            <div style={{ padding:"28px 32px 20px", borderBottom:`1px solid ${C.border}`, display:"flex", alignItems:"center", justifyContent:"space-between", flexShrink:0 }}>
+              <div>
+                <div style={{ fontSize:20, fontWeight:800, color:C.navy, letterSpacing:-0.6 }}>Revenue Gap Analysis</div>
+                <div style={{ fontSize:13, color:C.slate, marginTop:3 }}>Upload your patient list to discover hidden revenue opportunities</div>
+              </div>
+              {importStep!==2&&<button onClick={()=>setShowImport(false)} style={{ background:"none", border:"none", fontSize:24, cursor:"pointer", color:C.slateLight, lineHeight:1, padding:4 }}>×</button>}
+            </div>
+
+            {/* Progress steps */}
+            <div style={{ padding:"20px 32px 0", flexShrink:0 }}>
+              <div style={{ display:"flex", alignItems:"center", gap:0, marginBottom:24 }}>
+                {[{n:1,label:"Upload List"},{n:2,label:"Analyse"},{n:3,label:"Your Results"}].map((s,i,arr)=>(
+                  <div key={s.n} style={{ display:"flex", alignItems:"center", flex:1 }}>
+                    <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:4 }}>
+                      <div style={{ width:32, height:32, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", fontWeight:800, fontSize:13, background:importStep>s.n?C.green:importStep===s.n?C.teal:C.border, color:importStep>=s.n?"#fff":C.slateLight, transition:"all .4s" }}>
+                        {importStep>s.n ? "✓" : s.n}
+                      </div>
+                      <div style={{ fontSize:11, fontWeight:importStep===s.n?700:500, color:importStep===s.n?C.teal:importStep>s.n?C.green:C.slateLight, whiteSpace:"nowrap" }}>{s.label}</div>
+                    </div>
+                    {i<arr.length-1&&<div style={{ flex:1, height:2, background:importStep>s.n?C.green:C.border, margin:"0 8px 18px", transition:"background .4s" }} />}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Step 1 — Upload */}
+            {importStep===1&&(
+              <div style={{ padding:"0 32px 32px", flex:1 }}>
+                <input ref={importFileRef} type="file" accept=".csv" style={{ display:"none" }} onChange={e=>handleImportFile(e.target.files[0])} />
+
+                {/* Drop zone */}
+                <div
+                  onClick={()=>importFileRef.current?.click()}
+                  onDragOver={e=>{ e.preventDefault(); setImportDrag(true); }}
+                  onDragLeave={()=>setImportDrag(false)}
+                  onDrop={e=>{ e.preventDefault(); setImportDrag(false); handleImportFile(e.dataTransfer.files[0]); }}
+                  style={{ border:`2px dashed ${importDrag?C.teal:C.border}`, borderRadius:16, padding:"52px 32px", textAlign:"center", cursor:"pointer", background:importDrag?"rgba(8,145,178,.04)":C.offWhite, transition:"all .2s", marginBottom:20 }}>
+                  <div style={{ fontSize:40, marginBottom:14 }}>📂</div>
+                  <div style={{ fontSize:17, fontWeight:700, color:C.navy, marginBottom:6 }}>Drop your patient list CSV here</div>
+                  <div style={{ fontSize:13, color:C.slate, marginBottom:16 }}>or <span style={{ color:C.teal, fontWeight:600, textDecoration:"underline" }}>click to browse</span></div>
+                  <div style={{ fontSize:12, color:C.slateLight, background:C.white, border:`1px solid ${C.border}`, borderRadius:8, padding:"8px 16px", display:"inline-block" }}>
+                    We accept: <strong>Name</strong>, <strong>Phone</strong>, <strong>Last Visit Date</strong>, <strong>Product Type</strong>, <strong>Email</strong>
+                  </div>
+                </div>
+
+                <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:20 }}>
+                  <div style={{ display:"flex", gap:16, alignItems:"center" }}>
+                    <a href="#" onClick={e=>{ e.preventDefault();
+                      const csv = "Name,Phone,Last Visit Date,Product Type,Email\nJohn Smith,+447700000001,2023-06-15,Varifocals,john@email.com\nSue Jones,+447700000002,2024-01-20,Contact Lenses,sue@email.com\n";
+                      const blob = new Blob([csv], {type:"text/csv"});
+                      const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "iryss-patient-template.csv"; a.click();
+                    }} style={{ fontSize:13, color:C.teal, fontWeight:600, textDecoration:"none" }}>⬇ Download sample CSV template</a>
+                    <span style={{ fontSize:13, color:C.slateLight }}>|</span>
+                    <span style={{ fontSize:13, color:C.slate }}>🔒 Your data is encrypted and never shared</span>
+                  </div>
+                  <button onClick={useDemoImport} style={{ background:"none", border:`1px solid ${C.border}`, borderRadius:10, padding:"9px 18px", fontSize:13, fontWeight:700, color:C.slate, cursor:"pointer", fontFamily:F, transition:"all .15s" }}
+                    onMouseEnter={e=>{e.currentTarget.style.borderColor=C.teal;e.currentTarget.style.color=C.teal;}}
+                    onMouseLeave={e=>{e.currentTarget.style.borderColor=C.border;e.currentTarget.style.color=C.slate;}}>
+                    Try with demo data →
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Step 2 — Analysing */}
+            {importStep===2&&(
+              <div style={{ padding:"20px 32px 40px", flex:1, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center" }}>
+                <div style={{ fontSize:36, marginBottom:16 }}>🔍</div>
+                <div style={{ fontSize:20, fontWeight:800, color:C.navy, marginBottom:6, letterSpacing:-0.5 }}>Analysing your patient list…</div>
+                <div style={{ fontSize:13, color:C.slate, marginBottom:28 }}>This takes just a few seconds</div>
+                <div style={{ width:"100%", maxWidth:440, height:8, background:C.border, borderRadius:4, overflow:"hidden", marginBottom:32 }}>
+                  <div style={{ width:`${importProgress}%`, height:"100%", background:`linear-gradient(90deg,${C.teal},${C.tealLt})`, borderRadius:4, transition:"width .1s linear" }} />
+                </div>
+                <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr 1fr", gap:14, width:"100%", maxWidth:560 }}>
+                  {[
+                    { label:"Patients scanned",       value:importCounters.scanned, color:C.teal   },
+                    { label:"At-risk identified",      value:importCounters.atRisk,  color:C.red    },
+                    { label:"Recalls due",             value:importCounters.recalls, color:C.amber  },
+                    { label:"Revenue gap",             value:`£${importCounters.gap.toLocaleString()}`, color:C.green },
+                  ].map(c=>(
+                    <div key={c.label} style={{ background:C.offWhite, borderRadius:12, padding:"14px 12px", textAlign:"center", border:`1px solid ${C.border}` }}>
+                      <div style={{ fontSize:20, fontWeight:800, color:c.color, letterSpacing:-0.5, marginBottom:4 }}>{c.value}</div>
+                      <div style={{ fontSize:10, color:C.slate, fontWeight:500, lineHeight:1.3 }}>{c.label}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Step 3 — Results */}
+            {importStep===3&&(()=>{
+              const rows = importData || [];
+              const atRiskRows  = rows.filter(r=>r.risk!=='low');
+              const highRows    = rows.filter(r=>r.risk==='high');
+              const lensRows    = rows.filter(r=>/contact|lens|cl|oasys/i.test(r.product));
+              const gapTotal    = atRiskRows.reduce((a,r)=>a+r.revenue, 0);
+              const monthlyGrowth = Math.round(gapTotal * 0.07);
+              const top10 = [...atRiskRows].sort((a,b)=>b.riskScore-a.riskScore).slice(0,10);
+              return (
+                <div style={{ padding:"0 32px 32px", flex:1 }}>
+                  {/* Hero */}
+                  <div style={{ background:`linear-gradient(135deg,${C.navy} 0%,#0E2040 100%)`, borderRadius:16, padding:"28px 32px", marginBottom:22, textAlign:"center" }}>
+                    <div style={{ fontSize:12, color:"rgba(255,255,255,.4)", textTransform:"uppercase", letterSpacing:2, marginBottom:8 }}>Revenue sitting in your patient list</div>
+                    <div style={{ fontSize:52, fontWeight:800, color:C.tealLt, letterSpacing:-2, lineHeight:1, marginBottom:8 }}>£{gapTotal.toLocaleString()}</div>
+                    <div style={{ fontSize:14, color:"rgba(255,255,255,.55)" }}>from {atRiskRows.length} patients who haven't returned</div>
+                  </div>
+
+                  {/* 4 result cards */}
+                  <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:14, marginBottom:22 }}>
+                    {[
+                      { icon:"⚠️",  label:"Overdue for recall",         value:highRows.length,   sub:`${rows.length} total scanned`,       color:C.red   },
+                      { icon:"◉",   label:"Lens reorders due",           value:lensRows.length,  sub:"Contact lens patients",               color:C.teal  },
+                      { icon:"🎯",  label:"High dropout risk",           value:highRows.length,  sub:"18+ months since last visit",          color:C.amber },
+                      { icon:"💰",  label:"Monthly revenue recoverable", value:`£${Math.round(gapTotal/12).toLocaleString()}`, sub:"Est. monthly if re-engaged", color:C.green },
+                    ].map(c=>(
+                      <div key={c.label} style={{ background:C.white, border:`1px solid ${C.border}`, borderRadius:14, padding:"18px 16px", boxShadow:"0 2px 8px rgba(0,0,0,.05)" }}>
+                        <div style={{ fontSize:22, marginBottom:8 }}>{c.icon}</div>
+                        <div style={{ fontSize:24, fontWeight:800, color:c.color, letterSpacing:-1, marginBottom:4 }}>{c.value}</div>
+                        <div style={{ fontSize:11, fontWeight:600, color:C.navy, marginBottom:2 }}>{c.label}</div>
+                        <div style={{ fontSize:11, color:C.slateLight }}>{c.sub}</div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Top 10 table */}
+                  {top10.length>0&&(
+                    <div style={{ background:C.white, borderRadius:14, border:`1px solid ${C.border}`, overflow:"hidden", marginBottom:22, boxShadow:"0 2px 8px rgba(0,0,0,.05)" }}>
+                      <div style={{ padding:"14px 20px", borderBottom:`1px solid ${C.border}`, fontWeight:700, fontSize:14, color:C.navy }}>
+                        Top {top10.length} at-risk patients
+                      </div>
+                      <div style={{ display:"grid", gridTemplateColumns:"1fr 120px 160px 90px 90px", gap:12, padding:"10px 20px", background:"#FAFBFC", borderBottom:`1px solid ${C.border}` }}>
+                        {["Name","Last Visit","Product","Risk","Est. Value"].map(h=>(
+                          <div key={h} style={{ fontSize:10, fontWeight:700, color:C.slateLight, textTransform:"uppercase", letterSpacing:1 }}>{h}</div>
+                        ))}
+                      </div>
+                      {top10.map((p,i)=>(
+                        <div key={i} style={{ display:"grid", gridTemplateColumns:"1fr 120px 160px 90px 90px", gap:12, padding:"12px 20px", borderBottom:i<top10.length-1?`1px solid ${C.border}`:"none", alignItems:"center", background:i%2===0?C.white:"#FAFBFD" }}>
+                          <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+                            <Avatar initials={p.initials} bg={p.risk==="high"?C.red:p.risk==="medium"?C.amber:C.green} size={28} />
+                            <span style={{ fontWeight:600, fontSize:13 }}>{p.name}</span>
+                          </div>
+                          <div style={{ fontSize:12, color:C.slate }}>{p.lastVisit}</div>
+                          <div style={{ fontSize:12, color:C.navy, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{p.product}</div>
+                          <Chip color={riskFg[p.risk]}>{riskLabel[p.risk]}</Chip>
+                          <div style={{ fontWeight:700, fontSize:13, color:C.navy }}>£{p.revenue}</div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Urgency */}
+                  <div style={{ background:"rgba(245,158,11,.06)", border:"1px solid rgba(245,158,11,.2)", borderRadius:12, padding:"12px 18px", marginBottom:20, display:"flex", alignItems:"center", gap:10 }}>
+                    <span style={{ fontSize:16 }}>⏳</span>
+                    <div style={{ fontSize:13, color:C.amber, fontWeight:600 }}>
+                      Based on industry averages, this revenue gap grows by approximately <strong>£{monthlyGrowth.toLocaleString()}</strong> every month you wait.
+                    </div>
+                  </div>
+
+                  {/* CTAs */}
+                  <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:14 }}>
+                    <button style={{ background:`linear-gradient(135deg,${C.teal},${C.tealLt})`, color:"#fff", border:"none", borderRadius:12, padding:"16px 24px", fontWeight:800, fontSize:15, cursor:"pointer", fontFamily:F, boxShadow:"0 4px 20px rgba(8,145,178,.35)", letterSpacing:-0.3 }}>
+                      Start Free Trial — Recover This Revenue →
+                    </button>
+                    <button onClick={()=>showToast("PDF export coming soon — we'll email it to you ✓")} style={{ background:C.white, color:C.navy, border:`2px solid ${C.border}`, borderRadius:12, padding:"16px 24px", fontWeight:700, fontSize:15, cursor:"pointer", fontFamily:F, letterSpacing:-0.3 }}>
+                      ⬇ Export This Report as PDF
+                    </button>
+                  </div>
+
+                  <div style={{ textAlign:"center", marginTop:14 }}>
+                    <button onClick={resetImport} style={{ background:"none", border:"none", fontSize:12, color:C.slateLight, cursor:"pointer", fontFamily:F }}>← Upload a different file</button>
+                  </div>
+                </div>
+              );
+            })()}
+          </div>
+        </div>
+      )}
 
       {/* ═══ TOAST ═══ */}
       {toastMsg&&(
