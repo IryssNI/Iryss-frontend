@@ -41,6 +41,27 @@ const REVIEWS = [
   { name:"Patricia R.", stars:5, text:"Fantastic service from start to finish. Was surprised to get a message checking in afterwards!",            days:"2 weeks ago", via:false },
 ];
 
+const REVIEW_REQUESTS = [
+  { patient:"Emma Wilson",    date:"18 Mar", trigger:"Appointment confirmed", status:"left",    phone:"+447827001010" },
+  { patient:"Tom Bradley",    date:"18 Mar", trigger:"Positive reply",        status:"pending", phone:"+447827001002" },
+  { patient:"Priya Sharma",   date:"17 Mar", trigger:"Appointment confirmed", status:"left",    phone:"+447827001011" },
+  { patient:"James Brew",     date:"15 Mar", trigger:"Positive reply",        status:"pending", phone:"+447803003472" },
+  { patient:"Sarah Flynn",    date:"14 Mar", trigger:"Appointment confirmed", status:"none",    phone:"+447827001006" },
+  { patient:"Ciara Murphy",   date:"12 Mar", trigger:"Positive reply",        status:"left",    phone:"+447827001004" },
+  { patient:"Louise Everden", date:"10 Mar", trigger:"Appointment confirmed", status:"none",    phone:"+447827322027" },
+  { patient:"Margaret Flynn", date:"8 Mar",  trigger:"Positive reply",        status:"pending", phone:"+447827001003" },
+];
+
+const STAR_BREAKDOWN = [
+  { stars:5, count:132 }, { stars:4, count:10 }, { stars:3, count:3 }, { stars:2, count:1 }, { stars:1, count:1 },
+];
+const REVIEW_THEMES = [
+  { label:"Friendly staff",       pct:78 },
+  { label:"Professional advice",  pct:65 },
+  { label:"Quick service",        pct:59 },
+  { label:"Good value",           pct:43 },
+];
+
 const APPOINTMENTS = [
   { patient:"Emma Wilson",    type:"Eye Test",              time:"09:00", optician:"Dr. Patel", confirmed:true,  viaIryss:false, revenue:45,  phone:"+447827001010" },
   { patient:"Tom Bradley",    type:"Contact Lens Fitting",  time:"10:30", optician:"Dr. Chen",  confirmed:true,  viaIryss:true,  revenue:120, phone:"+447827001002" },
@@ -224,7 +245,9 @@ function Dashboard() {
   const [practiceDetails, setPracticeDetails]   = useState({ name:"Bright Eyes Opticians", email:"louiev@hotmail.co.uk", whatsapp:"+447827322027", google:"" });
   const [autoRecall, setAutoRecall]             = useState(false);
   const [autoReorder, setAutoReorder]           = useState(false);
-  const [autoReview, setAutoReview]             = useState(false);
+  const [autoReview, setAutoReview]             = useState(true);
+  const [reviewTab, setReviewTab]               = useState("reviews");
+  const [reviewSent, setReviewSent]             = useState({});
 
   useEffect(() => {
     msgEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -281,6 +304,13 @@ function Dashboard() {
   function parseMonthsAgo(str) { const m=str.match(/(\d+)\s+month/); return m?parseInt(m[1]):0; }
   function openRecallWA(p) { setShowSendWA(p); setWaMsg(`Hi ${p.name.split(' ')[0]}, it's been 2 years since your last eye test at Bright Eyes — we'd love to see you again. Would you like to book in? 😊\n\nBright Eyes Opticians`); }
   function openReorderWA(p) { setShowSendWA(p); setWaMsg(`Hi ${p.name.split(' ')[0]}, your contact lens supply might be running low — would you like to reorder? We can get them sorted quickly for you 😊\n\nBright Eyes Opticians`); }
+  function openReviewWA(name, phone) {
+    const firstName = name.split(' ')[0];
+    const googleLink = practiceDetails.google || 'https://g.page/brighteyesopticians';
+    const resolvedPhone = phone || PATIENTS.find(p=>p.name===name)?.phone || '';
+    setShowSendWA({ id:`review-${name}`, name, risk:'low', lastVisit:'Recent', phone:resolvedPhone });
+    setWaMsg(`Hi ${firstName}, thank you so much for visiting Bright Eyes Opticians — we hope you had a great experience! If you have a moment, we'd really appreciate it if you could leave us a Google review 😊\n\n${googleLink}`);
+  }
 
   const highRisk      = PATIENTS.filter(p=>p.risk==="high");
   const medRisk       = PATIENTS.filter(p=>p.risk==="medium");
@@ -326,6 +356,7 @@ function Dashboard() {
         return;
       }
       if (patient) setWaSent(prev=>({...prev,[pid]:true}));
+      else if (typeof pid==='string'&&pid.startsWith('review-')) setReviewSent(prev=>({...prev,[pid]:true}));
       else setConfirmSent(prev=>({...prev,[pid]:true}));
     } catch(e) {
       alert(`Failed to send to ${name}: ${e.message}`);
@@ -586,10 +617,16 @@ function Dashboard() {
                       {pt.revenue&&<span style={{ fontSize:11, color:C.slateLight }}>· £{pt.revenue} revenue value</span>}
                     </div>
                   </div>
-                  {pt.id&&(waSent[pt.id]
-                    ?<span style={{ fontSize:13, color:C.green, fontWeight:600 }}>✓ WhatsApp sent</span>
-                    :<button onClick={()=>openSendWA(pt)} style={{ background:`linear-gradient(135deg,${C.teal},${C.tealLt})`, color:"#fff", border:"none", borderRadius:10, padding:"11px 22px", fontWeight:700, fontSize:13, cursor:"pointer", fontFamily:F, boxShadow:"0 4px 14px rgba(8,145,178,.3)", flexShrink:0 }}>Send WhatsApp</button>
-                  )}
+                  <div style={{ display:"flex", gap:10, alignItems:"center", flexShrink:0 }}>
+                    {reviewSent[`review-${pt.name||pt.patient}`]
+                      ? <span style={{ fontSize:12, color:C.green, fontWeight:600 }}>Review request sent ✓</span>
+                      : <button onClick={()=>openReviewWA(pt.name||pt.patient||'', pt.phone||'')} style={{ background:"none", border:`1px solid ${C.border}`, borderRadius:10, padding:"10px 18px", fontWeight:600, fontSize:13, cursor:"pointer", fontFamily:F, color:C.slate }}>⭐ Review request</button>
+                    }
+                    {pt.id&&(waSent[pt.id]
+                      ?<span style={{ fontSize:13, color:C.green, fontWeight:600 }}>✓ WhatsApp sent</span>
+                      :<button onClick={()=>openSendWA(pt)} style={{ background:`linear-gradient(135deg,${C.teal},${C.tealLt})`, color:"#fff", border:"none", borderRadius:10, padding:"11px 22px", fontWeight:700, fontSize:13, cursor:"pointer", fontFamily:F, boxShadow:"0 4px 14px rgba(8,145,178,.3)" }}>Send WhatsApp</button>
+                    )}
+                  </div>
                 </div>
                 <div style={{ maxWidth:760, margin:"0 auto", position:"relative" }}>
                   <div style={{ position:"absolute", left:"50%", top:0, bottom:0, width:2, background:C.border, transform:"translateX(-1px)", zIndex:0 }} />
@@ -754,8 +791,13 @@ function Dashboard() {
 
                 {/* Google rating */}
                 <div style={{ background:`linear-gradient(135deg,${C.navy} 0%,#0E2040 100%)`, borderRadius:16, padding:22, boxShadow:"0 4px 20px rgba(8,15,30,.15)" }}>
-                  <div style={{ fontWeight:700, fontSize:15, color:C.white, marginBottom:18, letterSpacing:-0.3 }}>⭐ Google Reviews</div>
-                  <div style={{ display:"flex", alignItems:"center", gap:20, marginBottom:18 }}>
+                  <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:18 }}>
+                    <div style={{ fontWeight:700, fontSize:15, color:C.white, letterSpacing:-0.3 }}>⭐ Google Reviews</div>
+                    <span onClick={()=>{ setReviewTab("requests"); goNav("reviews"); }} style={{ background:"rgba(245,158,11,.18)", color:C.amber, fontSize:11, fontWeight:700, padding:"3px 10px", borderRadius:20, cursor:"pointer", border:"1px solid rgba(245,158,11,.3)" }}>
+                      3 requests pending
+                    </span>
+                  </div>
+                  <div style={{ display:"flex", alignItems:"center", gap:20, marginBottom:14 }}>
                     <div>
                       <div style={{ fontSize:42, fontWeight:800, color:C.white, lineHeight:1, letterSpacing:-2 }}>4.9</div>
                       <div style={{ color:"#FBBC05", fontSize:16, marginTop:4, letterSpacing:2 }}>★★★★★</div>
@@ -766,6 +808,15 @@ function Dashboard() {
                       <div style={{ fontSize:11, color:"rgba(255,255,255,.35)", marginTop:2 }}>this month</div>
                       <div style={{ fontSize:11, color:C.tealLt, fontWeight:600, marginTop:5 }}>via Iryss ✓</div>
                     </div>
+                  </div>
+                  <div style={{ height:1, background:"rgba(255,255,255,.07)", marginBottom:14 }} />
+                  <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8, marginBottom:14 }}>
+                    {[{label:"Requests sent",value:"52",sub:"This month"},{label:"Conversion rate",value:"73%",sub:"Reviews received"}].map(s=>(
+                      <div key={s.label} style={{ background:"rgba(255,255,255,.04)", borderRadius:8, padding:"8px 12px" }}>
+                        <div style={{ fontSize:16, fontWeight:800, color:C.white, letterSpacing:-0.5 }}>{s.value}</div>
+                        <div style={{ fontSize:10, color:"rgba(255,255,255,.35)", marginTop:2 }}>{s.label}</div>
+                      </div>
+                    ))}
                   </div>
                   <button onClick={()=>goNav("reviews")} style={{ width:"100%", background:"rgba(255,255,255,.06)", border:"1px solid rgba(255,255,255,.1)", borderRadius:10, padding:"10px", color:"rgba(255,255,255,.8)", fontSize:13, fontWeight:600, cursor:"pointer", fontFamily:F, transition:"all .2s" }}>
                     View all reviews →
@@ -1094,42 +1145,163 @@ function Dashboard() {
           {/* ═══ REVIEWS ═══ */}
           {nav==="reviews"&&(
             <div>
-              <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:14, marginBottom:22 }}>
-                <SC label="Google rating"        value="4.9 ★" sub="All time"           accent={`linear-gradient(90deg,#FBBC05,#F59E0B)`} />
-                <SC label="Total reviews"        value="147"   sub="+38 this month"     accent={`linear-gradient(90deg,${C.teal},${C.tealLt})`} onDrill={()=>setDrill("all-reviews")} />
-                <SC label="Via Iryss this month" value="38"    sub="Fully automatic"    accent={`linear-gradient(90deg,${C.green},#34D399)`}  onDrill={()=>setDrill("iryss-reviews")} />
-                <SC label="Review requests sent" value="52"    sub="73% response rate"  accent={`linear-gradient(90deg,${C.purple},#A78BFA)`} onDrill={()=>setDrill("review-requests")} />
-              </div>
-              <div style={{ background:C.white, borderRadius:16, padding:24, border:`1px solid ${C.border}`, marginBottom:18, boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
-                <div style={{ fontWeight:700, fontSize:15, marginBottom:16, letterSpacing:-0.3 }}>How it works</div>
-                <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:14 }}>
-                  {[
-                    { step:"1", title:"Appointment logged",     desc:"Patient attends. Click 'Log appointment' to start the automation." },
-                    { step:"2", title:"24hr WhatsApp check-in", desc:"Iryss sends a warm message asking how their visit went." },
-                    { step:"3", title:"Review link sent",       desc:"If happy, a direct link to your Google Business profile is sent." },
-                  ].map(s=>(
-                    <div key={s.step} style={{ background:C.cream, borderRadius:12, padding:16, border:`1px solid ${C.border}` }}>
-                      <div style={{ width:34, height:34, borderRadius:"50%", background:C.navy, color:C.white, display:"flex", alignItems:"center", justifyContent:"center", fontWeight:800, fontSize:14, marginBottom:10 }}>{s.step}</div>
-                      <div style={{ fontWeight:700, fontSize:13, marginBottom:4 }}>{s.title}</div>
-                      <div style={{ fontSize:12, color:C.slate, lineHeight:1.6 }}>{s.desc}</div>
-                    </div>
-                  ))}
+              {/* Automation banner */}
+              <div style={{ background:C.white, borderRadius:14, padding:"16px 22px", border:`1px solid ${C.border}`, boxShadow:"0 2px 8px rgba(0,0,0,.05)", marginBottom:22, display:"flex", alignItems:"center", gap:20 }}>
+                <div style={{ flex:1 }}>
+                  <div style={{ fontWeight:700, fontSize:14, color:C.navy, marginBottom:3, display:"flex", alignItems:"center", gap:10 }}>
+                    ⭐ Review Request Automation
+                    {autoReview
+                      ? <span style={{ background:"rgba(16,185,129,.12)", color:C.green, fontWeight:700, fontSize:11, padding:"3px 10px", borderRadius:20, display:"flex", alignItems:"center", gap:5 }}><span style={{ width:6, height:6, borderRadius:"50%", background:C.green, display:"inline-block", boxShadow:"0 0 6px rgba(16,185,129,.6)" }} />Active</span>
+                      : <span style={{ background:"rgba(100,116,139,.1)", color:C.slateLight, fontWeight:600, fontSize:11, padding:"3px 10px", borderRadius:20 }}>Off</span>
+                    }
+                  </div>
+                  <div style={{ fontSize:12, color:C.slate }}>Iryss automatically sends a review request when a patient replies positively or books an appointment.</div>
+                </div>
+                <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+                  <span style={{ fontSize:13, fontWeight:600, color:C.navy, whiteSpace:"nowrap" }}>Auto-send review requests</span>
+                  <div onClick={()=>setAutoReview(v=>!v)} style={{ width:44, height:24, borderRadius:12, background:autoReview?C.teal:C.border, cursor:"pointer", position:"relative", transition:"background .2s", flexShrink:0 }}>
+                    <div style={{ position:"absolute", top:3, left:autoReview?22:3, width:18, height:18, borderRadius:"50%", background:"#fff", boxShadow:"0 1px 4px rgba(0,0,0,.2)", transition:"left .2s" }} />
+                  </div>
                 </div>
               </div>
-              <div style={{ background:C.white, borderRadius:16, padding:22, border:`1px solid ${C.border}`, boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
-                <div style={{ fontWeight:700, fontSize:15, marginBottom:16, letterSpacing:-0.3 }}>Recent reviews via Iryss</div>
-                {REVIEWS.map((r,i)=>(
-                  <div key={i} style={{ padding:"14px 0", borderBottom:i<REVIEWS.length-1?`1px solid ${C.border}`:"none" }}>
-                    <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:6 }}>
-                      <div style={{ color:"#FBBC05", fontSize:13, letterSpacing:1 }}>{"★".repeat(r.stars)}</div>
-                      <div style={{ fontWeight:600, fontSize:13 }}>{r.name}</div>
-                      <div style={{ fontSize:11, color:C.slateLight, marginLeft:"auto" }}>{r.days}</div>
-                      {r.via&&<span style={{ fontSize:10, color:C.teal, fontWeight:600, background:C.tealPale, padding:"2px 8px", borderRadius:20 }}>via Iryss ✓</span>}
-                    </div>
-                    <div style={{ fontSize:13, color:C.slate, lineHeight:1.6, fontStyle:"italic" }}>"{r.text}"</div>
-                  </div>
+
+              {/* KPI cards — 6 total */}
+              <div style={{ display:"grid", gridTemplateColumns:"repeat(6,1fr)", gap:14, marginBottom:22 }}>
+                <SC label="Google rating"             value="4.9 ★" sub="All time"           accent={`linear-gradient(90deg,#FBBC05,#F59E0B)`} />
+                <SC label="Total reviews"             value="147"   sub="+38 this month"     accent={`linear-gradient(90deg,${C.teal},${C.tealLt})`} onDrill={()=>setDrill("all-reviews")} />
+                <SC label="Via Iryss this month"      value="38"    sub="Fully automatic"    accent={`linear-gradient(90deg,${C.green},#34D399)`}  onDrill={()=>setDrill("iryss-reviews")} />
+                <SC label="Requests sent this month"  value="52"    sub="73% open rate"      accent={`linear-gradient(90deg,${C.purple},#A78BFA)`} onDrill={()=>setDrill("review-requests")} />
+                <SC label="Pending responses"         value={REVIEW_REQUESTS.filter(r=>r.status!=="left").length} sub="Awaiting review" accent={`linear-gradient(90deg,${C.amber},#EAB308)`} trend="3 pending" trendUp={false} />
+                <SC label="Conversion rate"           value="73%"   sub="Reviews / requests" accent={`linear-gradient(90deg,${C.green},#34D399)`} trend="↑ 5%" trendUp={true} />
+              </div>
+
+              {/* Tabs */}
+              <div style={{ display:"flex", gap:8, marginBottom:18 }}>
+                {[{id:"reviews",label:"⭐ Recent Reviews"},{id:"requests",label:"📨 Review Requests"}].map(t=>(
+                  <button key={t.id} onClick={()=>setReviewTab(t.id)} style={{ padding:"9px 20px", borderRadius:10, cursor:"pointer", fontFamily:F, fontSize:13, fontWeight:reviewTab===t.id?700:500, background:reviewTab===t.id?C.navy:C.white, color:reviewTab===t.id?"#fff":C.slate, border:`1px solid ${reviewTab===t.id?C.navy:C.border}`, transition:"all .15s" }}>{t.label}</button>
                 ))}
               </div>
+
+              {reviewTab==="reviews"&&(
+                <div style={{ display:"grid", gridTemplateColumns:"1fr 320px", gap:18 }}>
+                  <div>
+                    {/* Reviews list */}
+                    <div style={{ background:C.white, borderRadius:16, padding:22, border:`1px solid ${C.border}`, marginBottom:18, boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
+                      <div style={{ fontWeight:700, fontSize:15, marginBottom:16, letterSpacing:-0.3 }}>Recent reviews via Iryss</div>
+                      {REVIEWS.map((r,i)=>(
+                        <div key={i} style={{ padding:"14px 0", borderBottom:i<REVIEWS.length-1?`1px solid ${C.border}`:"none" }}>
+                          <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:6 }}>
+                            <div style={{ color:"#FBBC05", fontSize:13, letterSpacing:1 }}>{"★".repeat(r.stars)}</div>
+                            <div style={{ fontWeight:600, fontSize:13 }}>{r.name}</div>
+                            <div style={{ fontSize:11, color:C.slateLight, marginLeft:"auto" }}>{r.days}</div>
+                            {r.via&&<span style={{ fontSize:10, color:C.teal, fontWeight:600, background:C.tealPale, padding:"2px 8px", borderRadius:20 }}>via Iryss ✓</span>}
+                            {reviewSent[`review-${r.name}`]
+                              ? <span style={{ fontSize:10, color:C.green, fontWeight:700 }}>Request sent ✓</span>
+                              : <button onClick={()=>openReviewWA(r.name,'')} style={{ background:"none", border:`1px solid ${C.border}`, borderRadius:8, padding:"4px 10px", fontSize:11, fontWeight:600, color:C.slate, cursor:"pointer", fontFamily:F }}>Send request</button>
+                            }
+                          </div>
+                          <div style={{ fontSize:13, color:C.slate, lineHeight:1.6, fontStyle:"italic" }}>"{r.text}"</div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* How it works */}
+                    <div style={{ background:C.white, borderRadius:16, padding:22, border:`1px solid ${C.border}`, boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
+                      <div style={{ fontWeight:700, fontSize:15, marginBottom:14, letterSpacing:-0.3 }}>How it works</div>
+                      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:12 }}>
+                        {[
+                          { step:"1", title:"Appointment logged",     desc:"Patient attends. Click 'Log appointment' to start the automation." },
+                          { step:"2", title:"24hr WhatsApp check-in", desc:"Iryss sends a warm message asking how their visit went." },
+                          { step:"3", title:"Review link sent",       desc:"If happy, a direct link to your Google Business profile is sent." },
+                        ].map(s=>(
+                          <div key={s.step} style={{ background:C.cream, borderRadius:12, padding:14, border:`1px solid ${C.border}` }}>
+                            <div style={{ width:30, height:30, borderRadius:"50%", background:C.navy, color:C.white, display:"flex", alignItems:"center", justifyContent:"center", fontWeight:800, fontSize:13, marginBottom:8 }}>{s.step}</div>
+                            <div style={{ fontWeight:700, fontSize:13, marginBottom:4 }}>{s.title}</div>
+                            <div style={{ fontSize:12, color:C.slate, lineHeight:1.6 }}>{s.desc}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Right column: charts */}
+                  <div style={{ display:"flex", flexDirection:"column", gap:18 }}>
+                    {/* Star rating breakdown */}
+                    <div style={{ background:C.white, borderRadius:16, padding:22, border:`1px solid ${C.border}`, boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
+                      <div style={{ fontWeight:700, fontSize:15, marginBottom:16, letterSpacing:-0.3 }}>★ Rating Breakdown</div>
+                      {STAR_BREAKDOWN.map(row=>(
+                        <div key={row.stars} style={{ display:"flex", alignItems:"center", gap:10, marginBottom:8 }}>
+                          <div style={{ fontSize:12, fontWeight:700, color:"#FBBC05", width:18, textAlign:"right", flexShrink:0 }}>{row.stars}</div>
+                          <div style={{ fontSize:11, color:"#FBBC05", flexShrink:0 }}>★</div>
+                          <div style={{ flex:1, height:8, background:C.border, borderRadius:4, overflow:"hidden" }}>
+                            <div style={{ width:`${(row.count/147)*100}%`, height:"100%", background:`linear-gradient(90deg,#FBBC05,#F59E0B)`, borderRadius:4, transition:"width .6s" }} />
+                          </div>
+                          <div style={{ fontSize:11, color:C.slate, width:28, textAlign:"right", flexShrink:0 }}>{row.count}</div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Top review themes */}
+                    <div style={{ background:C.white, borderRadius:16, padding:22, border:`1px solid ${C.border}`, boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
+                      <div style={{ fontWeight:700, fontSize:15, marginBottom:4, letterSpacing:-0.3 }}>💬 Top Review Themes</div>
+                      <div style={{ fontSize:12, color:C.slate, marginBottom:16 }}>What patients mention most</div>
+                      {REVIEW_THEMES.map((t,i)=>(
+                        <div key={i} style={{ marginBottom:14 }}>
+                          <div style={{ display:"flex", justifyContent:"space-between", marginBottom:5 }}>
+                            <span style={{ fontSize:13, fontWeight:600, color:C.navy }}>{t.label}</span>
+                            <span style={{ fontSize:12, fontWeight:700, color:C.teal }}>{t.pct}%</span>
+                          </div>
+                          <div style={{ height:8, background:C.border, borderRadius:4, overflow:"hidden" }}>
+                            <div style={{ width:`${t.pct}%`, height:"100%", background:`linear-gradient(90deg,${C.teal},${C.tealLt})`, borderRadius:4, transition:"width .6s" }} />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {reviewTab==="requests"&&(
+                <div style={{ background:C.white, borderRadius:16, border:`1px solid ${C.border}`, overflow:"hidden", boxShadow:"0 2px 12px rgba(0,0,0,.06)" }}>
+                  <div style={{ display:"grid", gridTemplateColumns:"1fr 100px 180px 160px 140px", gap:12, padding:"12px 20px", borderBottom:`1px solid ${C.border}`, background:"#FAFBFC" }}>
+                    {["Patient","Date Sent","Trigger","Status","Action"].map(h=>(
+                      <div key={h} style={{ fontSize:10, fontWeight:700, color:C.slateLight, textTransform:"uppercase", letterSpacing:1 }}>{h}</div>
+                    ))}
+                  </div>
+                  {REVIEW_REQUESTS.map((req,i)=>{
+                    const key = `review-${req.patient}`;
+                    const resent = reviewSent[key];
+                    return (
+                      <div key={i} style={{ display:"grid", gridTemplateColumns:"1fr 100px 180px 160px 140px", gap:12, padding:"14px 20px", borderBottom:i<REVIEW_REQUESTS.length-1?`1px solid ${C.border}`:"none", alignItems:"center", background:i%2===0?C.white:"#FAFBFD", transition:"background .12s" }}
+                        onMouseEnter={e=>e.currentTarget.style.background="rgba(8,145,178,.04)"}
+                        onMouseLeave={e=>e.currentTarget.style.background=i%2===0?C.white:"#FAFBFD"}>
+                        <div style={{ display:"flex", alignItems:"center", gap:9 }}>
+                          <Avatar initials={req.patient.split(' ').map(w=>w[0]).join('').slice(0,2)} bg={getColor(i)} size={30} />
+                          <span style={{ fontWeight:600, fontSize:13, color:C.navy }}>{req.patient}</span>
+                        </div>
+                        <div style={{ fontSize:12, color:C.slate }}>{req.date}</div>
+                        <div style={{ fontSize:12, color:C.navy }}>{req.trigger}</div>
+                        <div>
+                          {req.status==="left"
+                            ? <span style={{ fontSize:11, fontWeight:700, color:C.green,  background:"rgba(16,185,129,.1)", padding:"3px 10px", borderRadius:20 }}>Review left ✓</span>
+                            : req.status==="pending"
+                            ? <span style={{ fontSize:11, fontWeight:700, color:C.amber,  background:"rgba(245,158,11,.1)", padding:"3px 10px", borderRadius:20 }}>Pending</span>
+                            : <span style={{ fontSize:11, fontWeight:600, color:C.slateLight, background:"rgba(100,116,139,.1)", padding:"3px 10px", borderRadius:20 }}>No response</span>
+                          }
+                        </div>
+                        <div>
+                          {req.status==="left"
+                            ? <span style={{ fontSize:12, color:C.slateLight }}>—</span>
+                            : resent
+                            ? <span style={{ fontSize:12, color:C.green, fontWeight:600 }}>Resent ✓</span>
+                            : <button onClick={()=>openReviewWA(req.patient, req.phone)} style={{ background:`linear-gradient(135deg,${C.teal},${C.tealLt})`, color:"#fff", border:"none", borderRadius:8, padding:"6px 12px", fontSize:12, fontWeight:700, cursor:"pointer", fontFamily:F, boxShadow:"0 2px 8px rgba(8,145,178,.25)" }}>Resend</button>
+                          }
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           )}
 
