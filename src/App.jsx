@@ -206,6 +206,8 @@ function Dashboard() {
   const [waSent, setWaSent]         = useState({});
   const msgEndRef = useRef(null);
   const [liveInbox, setLiveInbox] = useState([]);
+  const [patientTimeline, setPatientTimeline] = useState(null);
+  const [prevNav, setPrevNav] = useState("dashboard");
 
   useEffect(() => {
     msgEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -297,6 +299,11 @@ function Dashboard() {
     }
   }
   function goNav(id) { setDrill(null); setNav(id); }
+  function openTimeline(p) {
+    const match = PATIENTS.find(pt => pt.name === (p.name || p.patient));
+    setPrevNav(nav);
+    setPatientTimeline(match || p);
+  }
 
   async function sendInboxReply() {
     if (!sendMsg.trim() || !selectedThread?.phone) return;
@@ -423,7 +430,7 @@ function Dashboard() {
         {/* Topbar */}
         <div style={{ background:C.white, borderBottom:`1px solid ${C.border}`, padding:"16px 32px", display:"flex", alignItems:"center", justifyContent:"space-between", flexShrink:0, boxShadow:"0 1px 4px rgba(0,0,0,.05)" }}>
           <div>
-            <div style={{ fontSize:22, fontWeight:800, color:C.navy, letterSpacing:-0.6 }}>{pageTitles[nav]}</div>
+            <div style={{ fontSize:22, fontWeight:800, color:C.navy, letterSpacing:-0.6 }}>{patientTimeline ? (patientTimeline.name||patientTimeline.patient||"Patient") : pageTitles[nav]}</div>
             <div style={{ fontSize:12, color:C.slateLight, marginTop:3, fontWeight:500 }}>
               {new Date().toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long",year:"numeric"})}
             </div>
@@ -445,6 +452,93 @@ function Dashboard() {
 
         {/* Content */}
         <div style={{ flex:1, overflow:"auto", padding:32, background:"linear-gradient(160deg,#F0F4F8 0%,#F8FBFD 100%)" }}>
+
+          {patientTimeline ? (()=>{
+            const pt = patientTimeline;
+            const name = pt.name||pt.patient||'';
+            const initials = pt.initials||name.split(' ').map(w=>w[0]).join('').slice(0,2);
+            const inboxEntry = liveInbox.find(m=>m.patient===name);
+            const phone = pt.phone||inboxEntry?.phone||'';
+            const thread = inboxEntry?.thread||[];
+            const prevLabel = ({dashboard:"Dashboard",patients:"Patients",inbox:"Inbox",revenue:"Revenue",reviews:"Reviews",appointments:"Appointments",receptionist:"AI Receptionist"})[prevNav]||"Back";
+            const events = [];
+            if (pt.product||pt.lastVisit||pt.riskScore!==undefined) {
+              events.push({ type:'profile', icon:'👤', label:'Patient record', detail:[pt.product, pt.lastVisit?`Last visit: ${pt.lastVisit}`:null, pt.revenue?`Revenue: £${pt.revenue}`:null].filter(Boolean).join(' · '), riskScore:pt.riskScore });
+            }
+            thread.forEach(msg=>events.push({type:'message',...msg}));
+            return (
+              <div>
+                <button onClick={()=>setPatientTimeline(null)} style={{ background:"none", border:`1px solid ${C.border}`, borderRadius:8, padding:"7px 14px", fontSize:13, color:C.slate, cursor:"pointer", fontFamily:F, fontWeight:600, display:"inline-flex", alignItems:"center", gap:6, marginBottom:24 }}>← {prevLabel}</button>
+                <div style={{ background:C.white, borderRadius:16, padding:"24px 28px", marginBottom:28, display:"flex", alignItems:"center", gap:20, border:`1px solid ${C.border}`, boxShadow:"0 2px 12px rgba(0,0,0,.06)" }}>
+                  <Avatar initials={initials} bg={pt.risk==="high"?C.red:pt.risk==="medium"?C.amber:C.teal} size={56} />
+                  <div style={{ flex:1 }}>
+                    <div style={{ fontSize:22, fontWeight:800, color:C.navy, letterSpacing:-0.6 }}>{name}</div>
+                    <div style={{ fontSize:13, color:C.slate, marginTop:4, display:"flex", gap:10 }}>
+                      {phone&&<span>{phone}</span>}
+                    </div>
+                    <div style={{ display:"flex", alignItems:"center", gap:8, marginTop:10 }}>
+                      {pt.risk&&<Chip color={riskFg[pt.risk]}>{riskLabel[pt.risk]} risk</Chip>}
+                      {pt.riskScore!==undefined&&<span style={{ fontSize:11, color:C.slateLight }}>Score: {pt.riskScore}/100</span>}
+                      {pt.revenue&&<span style={{ fontSize:11, color:C.slateLight }}>· £{pt.revenue} revenue value</span>}
+                    </div>
+                  </div>
+                  {pt.id&&(waSent[pt.id]
+                    ?<span style={{ fontSize:13, color:C.green, fontWeight:600 }}>✓ WhatsApp sent</span>
+                    :<button onClick={()=>openSendWA(pt)} style={{ background:`linear-gradient(135deg,${C.teal},${C.tealLt})`, color:"#fff", border:"none", borderRadius:10, padding:"11px 22px", fontWeight:700, fontSize:13, cursor:"pointer", fontFamily:F, boxShadow:"0 4px 14px rgba(8,145,178,.3)", flexShrink:0 }}>Send WhatsApp</button>
+                  )}
+                </div>
+                <div style={{ maxWidth:760, margin:"0 auto", position:"relative" }}>
+                  <div style={{ position:"absolute", left:"50%", top:0, bottom:0, width:2, background:C.border, transform:"translateX(-1px)", zIndex:0 }} />
+                  {events.map((ev,i)=>{
+                    const prevEv = events[i-1];
+                    const evDate = ev.sent_at?new Date(ev.sent_at):null;
+                    const prevDate = prevEv?.sent_at?new Date(prevEv.sent_at):null;
+                    const showDateSep = ev.type==='message'&&evDate&&(!prevDate||evDate.toDateString()!==prevDate.toDateString());
+                    const tod=new Date(), yes=new Date(); yes.setDate(yes.getDate()-1);
+                    const dateLabel = evDate?(evDate.toDateString()===tod.toDateString()?"Today":evDate.toDateString()===yes.toDateString()?"Yesterday":evDate.toLocaleDateString("en-GB",{day:"numeric",month:"long"})):null;
+                    if (ev.type==='profile') return (
+                      <div key={i} style={{ display:"flex", justifyContent:"center", marginBottom:28, position:"relative", zIndex:1 }}>
+                        <div style={{ background:C.white, borderRadius:14, padding:"18px 24px", border:`1px solid ${C.border}`, boxShadow:"0 2px 10px rgba(0,0,0,.06)", maxWidth:"55%", textAlign:"center" }}>
+                          <div style={{ fontSize:24, marginBottom:8 }}>{ev.icon}</div>
+                          <div style={{ fontWeight:700, fontSize:14, color:C.navy, marginBottom:6 }}>{ev.label}</div>
+                          <div style={{ fontSize:12, color:C.slate, lineHeight:1.7 }}>{ev.detail}</div>
+                          {ev.riskScore!==undefined&&(
+                            <div style={{ marginTop:12 }}>
+                              <div style={{ display:"flex", justifyContent:"space-between", fontSize:10, color:C.slateLight, marginBottom:4 }}><span>Risk score</span><span>{ev.riskScore}/100</span></div>
+                              <div style={{ height:5, borderRadius:4, background:C.border }}><div style={{ width:`${ev.riskScore}%`, height:"100%", background:ev.riskScore>=70?C.red:ev.riskScore>=40?C.amber:C.green, borderRadius:4 }} /></div>
+                            </div>
+                          )}
+                        </div>
+                        <div style={{ position:"absolute", left:"calc(50% - 8px)", top:"50%", transform:"translateY(-50%)", width:16, height:16, borderRadius:"50%", background:C.navy, border:"3px solid #fff", boxShadow:`0 0 0 2px ${C.border}`, zIndex:2 }} />
+                      </div>
+                    );
+                    if (ev.type==='message') {
+                      const isRight = ev.from==='practice';
+                      return (
+                        <div key={i}>
+                          {showDateSep&&<div style={{ display:"flex", justifyContent:"center", margin:"8px 0 16px", position:"relative", zIndex:1 }}><span style={{ fontSize:11, color:C.slate, background:C.border, borderRadius:20, padding:"3px 14px", fontWeight:500 }}>{dateLabel}</span></div>}
+                          <div style={{ display:"flex", justifyContent:isRight?"flex-end":"flex-start", marginBottom:10, position:"relative", zIndex:1 }}>
+                            <div style={{ maxWidth:"43%", background:isRight?`linear-gradient(135deg,${C.teal},${C.tealLt})`:C.white, color:isRight?"#fff":C.navy, borderRadius:isRight?"16px 16px 4px 16px":"16px 16px 16px 4px", padding:"12px 16px", fontSize:13, lineHeight:1.6, border:!isRight?`1px solid ${C.border}`:"none", boxShadow:"0 2px 10px rgba(0,0,0,.08)", whiteSpace:"pre-wrap" }}>
+                              {isRight&&<div style={{ fontSize:9, opacity:0.7, marginBottom:4, textTransform:"uppercase", letterSpacing:1 }}>Bright Eyes · Iryss AI</div>}
+                              {ev.text}
+                              <div style={{ fontSize:10, opacity:0.55, textAlign:"right", marginTop:6 }}>{ev.time}{isRight?" ✓✓":""}</div>
+                            </div>
+                            <div style={{ position:"absolute", left:"calc(50% - 6px)", top:14, width:12, height:12, borderRadius:"50%", background:isRight?C.teal:C.white, border:`2px solid ${isRight?C.teal:C.border}`, zIndex:2 }} />
+                          </div>
+                        </div>
+                      );
+                    }
+                    return null;
+                  })}
+                  {events.length<=1&&thread.length===0&&(
+                    <div style={{ textAlign:"center", padding:"48px 0", color:C.slate, fontSize:14, position:"relative", zIndex:1 }}>
+                      <div style={{ fontSize:36, marginBottom:12 }}>💬</div>No WhatsApp conversation yet for this patient.
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })() : (<>
 
           {/* ═══ DASHBOARD ═══ */}
           {nav==="dashboard"&&(
@@ -499,7 +593,7 @@ function Dashboard() {
                     <div key={p.id} style={{ display:"flex", alignItems:"center", gap:12, padding:"10px 0", borderBottom:i<highRisk.length-1?`1px solid ${C.border}`:"none" }}>
                       <Avatar initials={p.initials} bg={C.red} size={36} />
                       <div style={{ flex:1 }}>
-                        <div style={{ fontWeight:600, fontSize:13 }}>{p.name}</div>
+                        <div onClick={e=>{e.stopPropagation();openTimeline(p);}} style={{ fontWeight:600, fontSize:13, cursor:"pointer", color:C.navy }} onMouseEnter={e=>e.target.style.color=C.teal} onMouseLeave={e=>e.target.style.color=C.navy}>{p.name}</div>
                         <div style={{ fontSize:11, color:C.slate }}>{p.lastVisit} · {p.product}</div>
                       </div>
                       <div style={{ display:"flex", alignItems:"center", gap:8 }}>
@@ -591,7 +685,7 @@ function Dashboard() {
                     <div style={{ display:"flex", alignItems:"center", gap:10 }}>
                       <Avatar initials={p.initials} bg={p.risk==="high"?C.red:p.risk==="medium"?C.amber:C.green} size={32} />
                       <div>
-                        <div style={{ fontWeight:600, fontSize:13 }}>{p.name}</div>
+                        <div onClick={()=>openTimeline(p)} style={{ fontWeight:600, fontSize:13, cursor:"pointer", color:C.navy }} onMouseEnter={e=>e.target.style.color=C.teal} onMouseLeave={e=>e.target.style.color=C.navy}>{p.name}</div>
                         <div style={{ fontSize:11, color:C.slate }}>{p.phone}</div>
                       </div>
                     </div>
@@ -633,7 +727,7 @@ function Dashboard() {
                       <Avatar initials={m.initials} bg={getColor(i)} size={36} />
                       <div style={{ flex:1, minWidth:0 }}>
                         <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
-                          <div style={{ fontWeight:m.unread?700:500, fontSize:13 }}>{m.patient}</div>
+                          <div onClick={e=>{e.stopPropagation();openTimeline(m);}} style={{ fontWeight:m.unread?700:500, fontSize:13, cursor:"pointer", display:"inline" }} onMouseEnter={e=>e.target.style.color=C.teal} onMouseLeave={e=>e.target.style.color=""}>{m.patient}</div>
                           <div style={{ fontSize:10, color:C.slateLight, flexShrink:0 }}>{m.time}</div>
                         </div>
                         <div style={{ fontSize:11, color:C.slate, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap", marginTop:2 }}>{m.preview}</div>
@@ -649,7 +743,7 @@ function Dashboard() {
                   <div style={{ padding:"16px 20px", borderBottom:`1px solid ${C.border}`, display:"flex", alignItems:"center", gap:12 }}>
                     <Avatar initials={selectedThread.initials} bg={getColor(liveInbox.indexOf(selectedThread))} size={38} />
                     <div style={{ flex:1 }}>
-                      <div style={{ fontWeight:700, fontSize:15, letterSpacing:-0.3 }}>{selectedThread.patient}</div>
+                      <div onClick={()=>openTimeline(selectedThread)} style={{ fontWeight:700, fontSize:15, letterSpacing:-0.3, cursor:"pointer" }} onMouseEnter={e=>e.target.style.color=C.teal} onMouseLeave={e=>e.target.style.color=""}>{selectedThread.patient}</div>
                       {selectedThread.urgent&&<span style={{ fontSize:11, color:C.red, fontWeight:600 }}>⚠ Urgent — requires human review</span>}
                     </div>
                   </div>
@@ -864,6 +958,7 @@ function Dashboard() {
               </div>
             </div>
           )}
+          </>)}
         </div>
       </div>
 
