@@ -65,11 +65,37 @@ const REVIEWS = [
 ];
 
 const APPOINTMENTS = [
-  { patient:"Emma Wilson",    type:"Eye Test",              time:"09:00", optician:"Dr. Patel", confirmed:true,  viaIryss:false },
-  { patient:"Tom Bradley",    type:"Contact Lens Fitting",  time:"10:30", optician:"Dr. Chen",  confirmed:true,  viaIryss:true  },
-  { patient:"Priya Sharma",   type:"Glasses Collection",    time:"11:15", optician:"Dr. Patel", confirmed:true,  viaIryss:false },
-  { patient:"James Brew",     type:"Multifocal CL Trial",   time:"15:30", optician:"Dr. Chen",  confirmed:true,  viaIryss:true  },
-  { patient:"Carol Mitchell", type:"Follow-Up",             time:"17:00", optician:"Dr. Patel", confirmed:false, viaIryss:false },
+  { patient:"Emma Wilson",    type:"Eye Test",              time:"09:00", optician:"Dr. Patel", confirmed:true,  viaIryss:false, revenue:45,  phone:"+447827001010" },
+  { patient:"Tom Bradley",    type:"Contact Lens Fitting",  time:"10:30", optician:"Dr. Chen",  confirmed:true,  viaIryss:true,  revenue:120, phone:"+447827001002" },
+  { patient:"Priya Sharma",   type:"Glasses Collection",    time:"11:15", optician:"Dr. Patel", confirmed:true,  viaIryss:false, revenue:340, phone:"+447827001011" },
+  { patient:"James Brew",     type:"Multifocal CL Trial",   time:"15:30", optician:"Dr. Chen",  confirmed:true,  viaIryss:true,  revenue:85,  phone:"+447803003472" },
+  { patient:"Carol Mitchell", type:"Follow-Up",             time:"17:00", optician:"Dr. Patel", confirmed:false, viaIryss:false, revenue:30,  phone:"+447827001012" },
+];
+
+const UPCOMING_WEEK = [
+  { day:"Monday",    date:"23 March", appts:[
+    { patient:"Sarah Flynn",    type:"Eye Test",             time:"09:30", optician:"Dr. Patel", confirmed:true,  revenue:45  },
+    { patient:"Robert Hughes",  type:"Contact Lens Check",   time:"11:00", optician:"Dr. Chen",  confirmed:false, revenue:65  },
+    { patient:"Ann Hughes",     type:"Varifocal Dispense",   time:"14:30", optician:"Dr. Patel", confirmed:true,  revenue:380 },
+  ]},
+  { day:"Tuesday",   date:"24 March", appts:[
+    { patient:"Ciara Murphy",   type:"Eye Test",             time:"10:00", optician:"Dr. Chen",  confirmed:true,  revenue:45  },
+    { patient:"Brian Walsh",    type:"Contact Lens Fitting", time:"14:00", optician:"Dr. Patel", confirmed:false, revenue:120 },
+  ]},
+  { day:"Wednesday", date:"25 March", appts:[
+    { patient:"Louise Everden", type:"Contact Lens Check",   time:"09:00", optician:"Dr. Chen",  confirmed:true,  revenue:65  },
+    { patient:"Shona Everden",  type:"Eye Test",             time:"11:30", optician:"Dr. Patel", confirmed:false, revenue:45  },
+    { patient:"Mark Graham",    type:"Glasses Collection",   time:"15:00", optician:"Dr. Chen",  confirmed:true,  revenue:280 },
+  ]},
+  { day:"Thursday",  date:"26 March", appts:[
+    { patient:"Tom Bradley",    type:"CL Annual Review",     time:"10:30", optician:"Dr. Patel", confirmed:true,  revenue:85  },
+    { patient:"Jessica Bayman", type:"Eye Test",             time:"13:00", optician:"Dr. Chen",  confirmed:false, revenue:45  },
+  ]},
+  { day:"Friday",    date:"27 March", appts:[
+    { patient:"James Brew",     type:"Multifocal CL Review", time:"09:00", optician:"Dr. Patel", confirmed:true,  revenue:80  },
+    { patient:"Patricia Ross",  type:"Varifocal Dispense",   time:"11:00", optician:"Dr. Chen",  confirmed:false, revenue:340 },
+    { patient:"David Kelly",    type:"Eye Test",             time:"14:30", optician:"Dr. Patel", confirmed:true,  revenue:45  },
+  ]},
 ];
 
 const riskLabel = { high:"HIGH", medium:"MEDIUM", low:"LOW" };
@@ -210,6 +236,9 @@ function Dashboard() {
   const [prevNav, setPrevNav] = useState("dashboard");
   const [recallTab, setRecallTab] = useState("eye-test");
   const [autoSend, setAutoSend] = useState(false);
+  const [confirmSent, setConfirmSent] = useState({});
+  const [reminder48Active, setReminder48Active] = useState(false);
+  const [reminder2hActive, setReminder2hActive] = useState(false);
 
   useEffect(() => {
     msgEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -273,6 +302,7 @@ function Dashboard() {
   const unreadCount   = liveInbox.filter(i=>i.unread).length;
   const urgentCount   = liveInbox.filter(i=>i.urgent).length;
   const filteredPts   = filterRisk==="all"?PATIENTS:PATIENTS.filter(p=>p.risk===filterRisk);
+  const noShowRisk     = APPOINTMENTS.filter(a=>!a.confirmed);
   const recallPatients = PATIENTS.filter(p=>parseMonthsAgo(p.lastVisit)>=8).sort((a,b)=>parseMonthsAgo(b.lastVisit)-parseMonthsAgo(a.lastVisit));
   const overdueRecall  = recallPatients.filter(p=>parseMonthsAgo(p.lastVisit)>=24);
   const reorderPatients = PATIENTS.filter(p=>/contact|lens|cl|oasys/i.test(p.product)&&parseMonthsAgo(p.lastVisit)>=3).sort((a,b)=>parseMonthsAgo(b.lastVisit)-parseMonthsAgo(a.lastVisit));
@@ -290,23 +320,31 @@ function Dashboard() {
   }
   async function confirmSendWA(pid) {
     const patient = PATIENTS.find(p=>p.id===pid);
-    if (!patient) return;
+    const phone = patient?.phone || showSendWA?.phone;
+    const name = patient?.name || showSendWA?.name || "patient";
+    if (!phone) { setShowSendWA(null); return; }
     setShowSendWA(null); setWaMsg("");
     try {
       const res = await fetch("https://iryss-backend-12fh.onrender.com/api/send-whatsapp", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({ to: patient.phone, message: waMsg })
+        body: JSON.stringify({ to: phone, message: waMsg })
       });
       const data = await res.json();
       if (!res.ok) {
-        alert(`Failed to send to ${patient.name}: ${data.error || res.statusText}`);
+        alert(`Failed to send to ${name}: ${data.error || res.statusText}`);
         return;
       }
-      setWaSent(prev=>({...prev,[pid]:true}));
+      if (patient) setWaSent(prev=>({...prev,[pid]:true}));
+      else setConfirmSent(prev=>({...prev,[pid]:true}));
     } catch(e) {
-      alert(`Failed to send to ${patient.name}: ${e.message}`);
+      alert(`Failed to send to ${name}: ${e.message}`);
     }
+  }
+  function openConfirmationWA(a, idx) {
+    const firstName = a.patient.split(' ')[0];
+    setShowSendWA({ id:`appt-${idx}`, name:a.patient, risk:'low', lastVisit:'Today', phone:a.phone||'' });
+    setWaMsg(`Hi ${firstName}, just a reminder that you have an appointment at Bright Eyes Opticians tomorrow. Please reply YES to confirm or call us to rearrange 😊`);
   }
   function goNav(id) { setDrill(null); setNav(id); }
   function openTimeline(p) {
@@ -1010,40 +1048,109 @@ function Dashboard() {
           {/* ═══ APPOINTMENTS ═══ */}
           {nav==="appointments"&&(
             <div>
-              <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:14, marginBottom:22 }}>
-                <SC label="Today's appointments" value={APPOINTMENTS.length}                          accent={`linear-gradient(90deg,${C.teal},${C.tealLt})`} onDrill={()=>setDrill("all-appts")} />
-                <SC label="Confirmed"            value={APPOINTMENTS.filter(a=>a.confirmed).length}  accent={`linear-gradient(90deg,${C.green},#34D399)`}   onDrill={()=>setDrill("confirmed-appts")} />
-                <SC label="Booked via Iryss"     value={APPOINTMENTS.filter(a=>a.viaIryss).length}  sub="WhatsApp bookings" accent={`linear-gradient(90deg,${C.purple},#A78BFA)`} onDrill={()=>setDrill("iryss-appts")} />
+              {/* Automation banner */}
+              <div style={{ background:C.white, borderRadius:14, padding:"16px 22px", border:`1px solid ${C.border}`, boxShadow:"0 2px 8px rgba(0,0,0,.05)", marginBottom:22, display:"flex", alignItems:"center", gap:24 }}>
+                <div style={{ flex:1 }}>
+                  <div style={{ fontWeight:700, fontSize:14, color:C.navy, marginBottom:3 }}>⚡ Appointment Confirmation Automation</div>
+                  <div style={{ fontSize:12, color:C.slate }}>Iryss automatically sends confirmation reminders via WhatsApp to reduce no-shows.</div>
+                </div>
+                <div style={{ display:"flex", gap:20, alignItems:"center" }}>
+                  {[{label:"Auto-send 48hr reminders", active:reminder48Active, toggle:()=>setReminder48Active(v=>!v)},{label:"Auto-send 2hr reminders", active:reminder2hActive, toggle:()=>setReminder2hActive(v=>!v)}].map(({label,active,toggle})=>(
+                    <div key={label} style={{ display:"flex", alignItems:"center", gap:8 }}>
+                      <span style={{ fontSize:12, color:C.slate, fontWeight:500, whiteSpace:"nowrap" }}>{label}</span>
+                      {active
+                        ?<span style={{ fontSize:11, fontWeight:700, color:C.green, background:"rgba(16,185,129,.12)", padding:"3px 10px", borderRadius:20 }}>Active</span>
+                        :<span style={{ fontSize:11, fontWeight:600, color:C.slateLight, background:"rgba(100,116,139,.08)", padding:"3px 10px", borderRadius:20 }}>Off</span>
+                      }
+                      <div onClick={toggle} style={{ width:40, height:22, borderRadius:11, background:active?C.teal:C.border, cursor:"pointer", position:"relative", transition:"background .2s", flexShrink:0 }}>
+                        <div style={{ position:"absolute", top:3, left:active?20:3, width:16, height:16, borderRadius:"50%", background:"#fff", boxShadow:"0 1px 3px rgba(0,0,0,.2)", transition:"left .2s" }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
-              <div style={{ background:C.white, borderRadius:16, border:`1px solid ${C.border}`, overflow:"hidden", boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
-                <div style={{ display:"grid", gridTemplateColumns:"80px 1fr 180px 160px 120px", gap:12, padding:"12px 20px", borderBottom:`1px solid ${C.border}`, background:"#FAFBFC" }}>
-                  {["Time","Patient","Type","Optician","Status"].map(h=>(
+
+              {/* KPI cards */}
+              <div style={{ display:"grid", gridTemplateColumns:"repeat(5,1fr)", gap:14, marginBottom:22 }}>
+                <SC label="Today's appointments" value={APPOINTMENTS.length}                         accent={`linear-gradient(90deg,${C.teal},${C.tealLt})`}   onDrill={()=>setDrill("all-appts")} />
+                <SC label="Confirmed"            value={APPOINTMENTS.filter(a=>a.confirmed).length}  accent={`linear-gradient(90deg,${C.green},#34D399)`}      onDrill={()=>setDrill("confirmed-appts")} />
+                <SC label="Booked via Iryss"     value={APPOINTMENTS.filter(a=>a.viaIryss).length}   accent={`linear-gradient(90deg,${C.purple},#A78BFA)`}     onDrill={()=>setDrill("iryss-appts")} sub="WhatsApp bookings" />
+                <SC label="Confirmations sent"   value={Object.keys(confirmSent).length}             accent={`linear-gradient(90deg,${C.amber},#EAB308)`}      sub="Today" />
+                <SC label="No-show risk"         value={noShowRisk.length}                           accent={`linear-gradient(90deg,${C.red},#F97316)`}        onDrill={()=>setDrill("no-show-risk")} trend={noShowRisk.length>0?"Unconfirmed":null} trendUp={false} />
+              </div>
+
+              {/* Today's schedule table */}
+              <div style={{ background:C.white, borderRadius:16, border:`1px solid ${C.border}`, overflow:"hidden", boxShadow:"0 2px 12px rgba(0,0,0,.06)", marginBottom:22 }}>
+                <div style={{ padding:"14px 20px", borderBottom:`1px solid ${C.border}`, fontWeight:700, fontSize:15, letterSpacing:-0.3 }}>Today's Schedule</div>
+                <div style={{ display:"grid", gridTemplateColumns:"80px 1fr 160px 140px 160px 160px", gap:12, padding:"12px 20px", borderBottom:`1px solid ${C.border}`, background:"#FAFBFC" }}>
+                  {["Time","Patient","Type","Optician","Confirmation Status","Action"].map(h=>(
                     <div key={h} style={{ fontSize:10, fontWeight:700, color:C.slateLight, textTransform:"uppercase", letterSpacing:1 }}>{h}</div>
                   ))}
                 </div>
-                {APPOINTMENTS.map((a,i)=>(
-                  <div key={i} style={{ display:"grid", gridTemplateColumns:"80px 1fr 180px 160px 120px", gap:12, padding:"15px 20px", borderBottom:i<APPOINTMENTS.length-1?`1px solid ${C.border}`:"none", alignItems:"center", background:i%2===0?C.white:"#FAFBFD", transition:"background .12s" }}
-                    onMouseEnter={e=>e.currentTarget.style.background="rgba(8,145,178,.04)"}
-                    onMouseLeave={e=>e.currentTarget.style.background=i%2===0?C.white:"#FAFBFD"}>
-                    <div style={{ fontWeight:700, fontSize:14 }}>{a.time}</div>
-                    <div>
-                      <div style={{ fontWeight:600, fontSize:13 }}>{a.patient}</div>
-                      {a.viaIryss&&<span style={{ fontSize:10, color:C.teal, fontWeight:600, background:C.tealPale, padding:"1px 7px", borderRadius:20 }}>via Iryss WhatsApp</span>}
+                {APPOINTMENTS.map((a,i)=>{
+                  const sent = confirmSent[`appt-${i}`];
+                  const confStatus = a.confirmed ? "confirmed" : sent ? "reminder-sent" : "not-contacted";
+                  return (
+                    <div key={i} style={{ display:"grid", gridTemplateColumns:"80px 1fr 160px 140px 160px 160px", gap:12, padding:"15px 20px", borderBottom:i<APPOINTMENTS.length-1?`1px solid ${C.border}`:"none", alignItems:"center", background:i%2===0?C.white:"#FAFBFD", transition:"background .12s" }}
+                      onMouseEnter={e=>e.currentTarget.style.background="rgba(8,145,178,.04)"}
+                      onMouseLeave={e=>e.currentTarget.style.background=i%2===0?C.white:"#FAFBFD"}>
+                      <div style={{ fontWeight:700, fontSize:14 }}>{a.time}</div>
+                      <div>
+                        <div style={{ fontWeight:600, fontSize:13 }}>{a.patient}</div>
+                        {a.viaIryss&&<span style={{ fontSize:10, color:C.teal, fontWeight:600, background:C.tealPale, padding:"1px 7px", borderRadius:20 }}>via Iryss</span>}
+                      </div>
+                      <div style={{ fontSize:13, color:C.slate }}>{a.type}</div>
+                      <div style={{ fontSize:13 }}>{a.optician}</div>
+                      <span style={{ fontSize:11, fontWeight:700, padding:"4px 10px", borderRadius:20, display:"inline-block",
+                        background:confStatus==="confirmed"?"rgba(16,185,129,.1)":confStatus==="reminder-sent"?"rgba(245,158,11,.1)":"rgba(100,116,139,.08)",
+                        color:confStatus==="confirmed"?C.green:confStatus==="reminder-sent"?C.amber:C.slateLight }}>
+                        {confStatus==="confirmed"?"Confirmed ✓":confStatus==="reminder-sent"?"Reminder Sent":"Not Contacted"}
+                      </span>
+                      <div>
+                        {a.confirmed||sent
+                          ? <span style={{ fontSize:11, color:C.slateLight }}>—</span>
+                          : <button onClick={()=>openConfirmationWA(a,i)} style={{ background:`linear-gradient(135deg,${C.teal},${C.tealLt})`, color:"#fff", border:"none", borderRadius:8, padding:"6px 13px", fontSize:12, fontWeight:700, cursor:"pointer", fontFamily:F, boxShadow:"0 2px 8px rgba(8,145,178,.25)" }}>Send Confirmation</button>
+                        }
+                      </div>
                     </div>
-                    <div style={{ fontSize:13, color:C.slate }}>{a.type}</div>
-                    <div style={{ fontSize:13 }}>{a.optician}</div>
-                    <span style={{ fontSize:11, fontWeight:700, padding:"4px 10px", borderRadius:20, background:a.confirmed?"rgba(16,185,129,.1)":"rgba(245,158,11,.1)", color:a.confirmed?C.green:C.amber }}>
-                      {a.confirmed?"Confirmed":"Unconfirmed"}
-                    </span>
+                  );
+                })}
+              </div>
+
+              {/* Upcoming This Week */}
+              <div style={{ background:C.white, borderRadius:16, border:`1px solid ${C.border}`, overflow:"hidden", boxShadow:"0 2px 12px rgba(0,0,0,.06)", marginBottom:22 }}>
+                <div style={{ padding:"14px 20px", borderBottom:`1px solid ${C.border}`, fontWeight:700, fontSize:15, letterSpacing:-0.3 }}>📅 Upcoming This Week</div>
+                {UPCOMING_WEEK.map((dayGroup,di)=>(
+                  <div key={di}>
+                    <div style={{ padding:"10px 20px", background:"#F7FAFC", borderBottom:`1px solid ${C.border}`, display:"flex", alignItems:"center", gap:12 }}>
+                      <div style={{ fontWeight:700, fontSize:13, color:C.navy }}>{dayGroup.day}</div>
+                      <div style={{ fontSize:12, color:C.slateLight }}>{dayGroup.date}</div>
+                      <span style={{ marginLeft:"auto", fontSize:11, color:C.slate }}>{dayGroup.appts.length} appointments · £{dayGroup.appts.reduce((a,x)=>a+x.revenue,0)} est. revenue</span>
+                    </div>
+                    {dayGroup.appts.map((a,i)=>(
+                      <div key={i} style={{ display:"flex", alignItems:"center", gap:16, padding:"12px 20px", borderBottom:i<dayGroup.appts.length-1?`1px solid ${C.border}`:"none", background:i%2===0?C.white:"#FAFBFD" }}>
+                        <div style={{ fontWeight:700, fontSize:13, width:46, flexShrink:0 }}>{a.time}</div>
+                        <div style={{ flex:1 }}>
+                          <div style={{ fontWeight:600, fontSize:13 }}>{a.patient}</div>
+                          <div style={{ fontSize:11, color:C.slate }}>{a.type} · {a.optician}</div>
+                        </div>
+                        <span style={{ fontSize:11, fontWeight:700, padding:"3px 9px", borderRadius:20, background:a.confirmed?"rgba(16,185,129,.1)":"rgba(245,158,11,.1)", color:a.confirmed?C.green:C.amber }}>
+                          {a.confirmed?"Confirmed ✓":"Unconfirmed"}
+                        </span>
+                        <span style={{ fontSize:12, fontWeight:600, color:C.navy }}>£{a.revenue}</span>
+                      </div>
+                    ))}
                   </div>
                 ))}
               </div>
-              <div style={{ marginTop:18, background:`linear-gradient(135deg,${C.navy} 0%,#0E2040 100%)`, borderRadius:16, padding:22, display:"flex", alignItems:"center", gap:16, boxShadow:"0 4px 20px rgba(8,15,30,.15)" }}>
-                <div style={{ flex:1 }}>
-                  <div style={{ fontWeight:700, fontSize:15, color:C.white, letterSpacing:-0.3 }}>Log an appointment</div>
-                  <div style={{ fontSize:13, color:"rgba(255,255,255,.4)", marginTop:4 }}>After logging, Iryss sends a WhatsApp check-in after 24hrs and a Google review request if they're happy.</div>
+
+              {/* Revenue protected stat */}
+              <div style={{ background:`linear-gradient(135deg,${C.navy} 0%,#0E2040 100%)`, borderRadius:16, padding:"18px 24px", marginBottom:18, display:"flex", alignItems:"center", justifyContent:"space-between", boxShadow:"0 4px 20px rgba(8,15,30,.15)" }}>
+                <div>
+                  <div style={{ fontSize:11, color:"rgba(255,255,255,.35)", textTransform:"uppercase", letterSpacing:1.5, marginBottom:6 }}>This month</div>
+                  <div style={{ fontSize:15, fontWeight:600, color:"#fff" }}>Estimated revenue protected by confirmations: <span style={{ color:"#6EE7B7", fontWeight:800 }}>£{APPOINTMENTS.filter(a=>a.confirmed).reduce((s,a)=>s+a.revenue,0).toLocaleString()}</span></div>
                 </div>
-                <button style={{ background:`linear-gradient(135deg,${C.teal},${C.tealLt})`, color:"#fff", border:"none", borderRadius:10, padding:"12px 24px", fontWeight:700, fontSize:14, cursor:"pointer", fontFamily:F, flexShrink:0, boxShadow:"0 4px 14px rgba(8,145,178,.4)" }}>+ Log appointment</button>
+                <button style={{ background:`linear-gradient(135deg,${C.teal},${C.tealLt})`, color:"#fff", border:"none", borderRadius:10, padding:"11px 22px", fontWeight:700, fontSize:14, cursor:"pointer", fontFamily:F, flexShrink:0, boxShadow:"0 4px 14px rgba(8,145,178,.4)" }}>+ Log appointment</button>
               </div>
             </div>
           )}
@@ -1307,6 +1414,39 @@ function Dashboard() {
               <span style={{ fontSize:11, fontWeight:700, padding:"3px 9px", borderRadius:20, background:"rgba(16,185,129,.1)", color:C.green }}>✓ Confirmed</span>
             </div>
           ))}
+        </DrillPanel>
+      )}
+
+      {drill==="no-show-risk"&&(
+        <DrillPanel title="No-Show Risk" sub={`${noShowRisk.length} unconfirmed appointment${noShowRisk.length!==1?"s":""} in next 24 hours`} onClose={()=>setDrill(null)}>
+          <div style={{ background:"rgba(239,68,68,.05)", border:"1px solid rgba(239,68,68,.12)", borderRadius:12, padding:"14px 16px", marginBottom:20 }}>
+            <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+              <div>
+                <div style={{ fontSize:13, fontWeight:700, color:C.red, marginBottom:4 }}>Estimated revenue at risk</div>
+                <div style={{ fontSize:26, fontWeight:800, color:C.red, letterSpacing:-1 }}>£{noShowRisk.reduce((a,p)=>a+p.revenue,0)}</div>
+              </div>
+              <div style={{ fontSize:28 }}>⚠️</div>
+            </div>
+            <div style={{ fontSize:12, color:C.slate, marginTop:8, lineHeight:1.6 }}>Send confirmation messages now to reduce no-show likelihood. Practices using Iryss reminders see up to 40% fewer no-shows.</div>
+          </div>
+          {noShowRisk.map((a,i,arr)=>(
+            <div key={i} style={{ display:"flex", alignItems:"center", gap:12, padding:"12px 0", borderBottom:i<arr.length-1?`1px solid ${C.border}`:"none" }}>
+              <div style={{ width:46, textAlign:"center", background:"rgba(239,68,68,.08)", borderRadius:8, padding:"6px 0", flexShrink:0 }}>
+                <div style={{ fontSize:13, fontWeight:800, color:C.red }}>{a.time}</div>
+              </div>
+              <div style={{ flex:1 }}>
+                <div style={{ fontWeight:600, fontSize:14 }}>{a.patient}</div>
+                <div style={{ fontSize:12, color:C.slate }}>{a.type} · {a.optician}</div>
+                <div style={{ fontSize:11, color:C.slate, marginTop:2 }}>Revenue at risk: <span style={{ color:C.red, fontWeight:700 }}>£{a.revenue}</span></div>
+              </div>
+              <button onClick={()=>openConfirmationWA(a,`risk-${i}`)} style={{ fontSize:12, fontWeight:700, padding:"7px 14px", borderRadius:10, border:"none", background:confirmSent[`appt-risk-${i}`]?"rgba(16,185,129,.1)":"rgba(37,211,102,.1)", color:confirmSent[`appt-risk-${i}`]?C.green:"#16a34a", cursor:"pointer" }}>
+                {confirmSent[`appt-risk-${i}`]?"✓ Sent":"Send reminder"}
+              </button>
+            </div>
+          ))}
+          {noShowRisk.length===0&&(
+            <div style={{ textAlign:"center", padding:"32px 0", color:C.slate, fontSize:14 }}>All appointments confirmed — no risk today 🎉</div>
+          )}
         </DrillPanel>
       )}
 
