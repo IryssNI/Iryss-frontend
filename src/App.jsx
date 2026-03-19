@@ -199,13 +199,13 @@ function Dashboard() {
   const [nav, setNav]               = useState("dashboard");
   const [drill, setDrill]           = useState(null);
   const [filterRisk, setFilterRisk] = useState("all");
-  const [selectedThread, setSelectedThread] = useState(INBOX[0]);
+  const [selectedThread, setSelectedThread] = useState(null);
   const [sendMsg, setSendMsg]       = useState("");
   const [showSendWA, setShowSendWA] = useState(null);
   const [waMsg, setWaMsg]           = useState("");
   const [waSent, setWaSent]         = useState({});
   const msgEndRef = useRef(null);
-  const [liveInbox, setLiveInbox] = useState(INBOX);
+  const [liveInbox, setLiveInbox] = useState([]);
 
   useEffect(() => {
     async function fetchMessages() {
@@ -234,7 +234,10 @@ function Dashboard() {
               time: new Date(m.sent_at).toLocaleTimeString('en-GB', {hour:'2-digit',minute:'2-digit'})
             }))
           }));
-          setLiveInbox(mapped); })
+          setLiveInbox(mapped);
+          setSelectedThread(prev =>
+            prev ? (mapped.find(m => m.id === prev.id) ?? mapped[0]) : mapped[0]
+          );
         }
       } catch(e) { console.log('Using demo inbox', e); }
     }
@@ -570,7 +573,7 @@ function Dashboard() {
                   <span style={{ background:C.red, color:"#fff", borderRadius:20, fontSize:10, fontWeight:700, padding:"2px 7px" }}>{unreadCount}</span>
                 </div>
                 <div style={{ overflow:"auto", flex:1 }}>
-                  {INBOX.map((m,i)=>(
+                  {liveInbox.map((m,i)=>(
                     <div key={m.id} onClick={()=>setSelectedThread(m)} style={{
                       display:"flex", gap:10, padding:"12px 16px", cursor:"pointer", alignItems:"flex-start",
                       background:selectedThread?.id===m.id?"rgba(8,145,178,.06)":m.urgent?"rgba(239,68,68,.03)":"transparent",
@@ -595,7 +598,7 @@ function Dashboard() {
               {selectedThread?(
                 <div style={{ background:C.white, borderRadius:16, border:`1px solid ${C.border}`, display:"flex", flexDirection:"column", overflow:"hidden", boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
                   <div style={{ padding:"16px 20px", borderBottom:`1px solid ${C.border}`, display:"flex", alignItems:"center", gap:12 }}>
-                    <Avatar initials={selectedThread.initials} bg={getColor(INBOX.indexOf(selectedThread))} size={38} />
+                    <Avatar initials={selectedThread.initials} bg={getColor(liveInbox.indexOf(selectedThread))} size={38} />
                     <div style={{ flex:1 }}>
                       <div style={{ fontWeight:700, fontSize:15, letterSpacing:-0.3 }}>{selectedThread.patient}</div>
                       {selectedThread.urgent&&<span style={{ fontSize:11, color:C.red, fontWeight:600 }}>⚠ Urgent — requires human review</span>}
