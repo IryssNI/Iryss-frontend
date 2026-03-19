@@ -249,12 +249,15 @@ function Dashboard() {
   const [reviewTab, setReviewTab]               = useState("reviews");
   const [reviewSent, setReviewSent]             = useState({});
   const [showImport, setShowImport]             = useState(false);
-  const [importStep, setImportStep]             = useState(1);   // 1=upload 2=analysing 3=results
+  const [importStep, setImportStep]             = useState(1);
   const [importDrag, setImportDrag]             = useState(false);
-  const [importData, setImportData]             = useState(null); // parsed CSV rows
+  const [importData, setImportData]             = useState(null);
   const [importProgress, setImportProgress]     = useState(0);
   const [importCounters, setImportCounters]     = useState({ scanned:0, atRisk:0, recalls:0, gap:0 });
   const importFileRef = useRef(null);
+  const [revenueTab, setRevenueTab]             = useState("overview");
+  const [planSent, setPlanSent]                 = useState({});
+  const [intelSent, setIntelSent]               = useState({});
 
   useEffect(() => {
     msgEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -334,6 +337,22 @@ function Dashboard() {
   const overdueRecall  = recallPatients.filter(p=>parseMonthsAgo(p.lastVisit)>=24);
   const reorderPatients = PATIENTS.filter(p=>/contact|lens|cl|oasys/i.test(p.product)&&parseMonthsAgo(p.lastVisit)>=3).sort((a,b)=>parseMonthsAgo(b.lastVisit)-parseMonthsAgo(a.lastVisit));
   const recallRevenue  = recallPatients.reduce((a,p)=>a+p.revenue,0);
+
+  // Compliance
+  const recallContacted = recallPatients.filter(p=>waSent[p.id]).length;
+  const complianceRate  = recallPatients.length>0 ? Math.round(((recallContacted+1)/recallPatients.length)*100) : 100;
+
+  // Lens plan patients
+  const lensPatients = PATIENTS.filter(p=>/contact|lens|cl|oasys|acuvue|dailies|proclear/i.test(p.product));
+  const lensUpliftTotal = lensPatients.reduce((a,p)=>a+Math.round(p.revenue*0.2),0);
+
+  // Competitor intelligence
+  const COMPETITOR_KW = ["specsavers","vision express","boots","optical express","asda","tesco","cheaper","went elsewhere","another optician","different optician","vision direct","glasses direct"];
+  const competitorMentions = liveInbox.flatMap(conv=>
+    conv.thread.filter(m=>m.from==='patient'&&COMPETITOR_KW.some(kw=>m.text.toLowerCase().includes(kw)))
+      .map(m=>({ patient:conv.patient, phone:conv.phone, convId:conv.id, text:m.text, time:m.time,
+        keyword:COMPETITOR_KW.find(kw=>m.text.toLowerCase().includes(kw)) }))
+  );
 
   const waTemplates = {
     high:   `Hi {name} 👋\n\nWe've been thinking about you and just wanted to check in. It's been a while since your last visit — whenever you're ready, we'd love to welcome you back.\n\nJust reply here and we'll sort everything 😊\n\nBright Eyes Opticians`,
@@ -435,9 +454,42 @@ function Dashboard() {
     appointments:"Today's Appointments",
     receptionist:"AI Receptionist",
     settings:"Settings",
+    intelligence:"Competitor Intelligence",
   };
 
   function showToast(msg) { setToastMsg(msg); setTimeout(()=>setToastMsg(null), 3500); }
+
+  function generateComplianceReport(compRate, recallPts, contactedPts) {
+    const status = compRate>=80?"Compliant":compRate>=60?"Review Required":"Action Required";
+    const color  = compRate>=80?"#10B981":compRate>=60?"#F59E0B":"#EF4444";
+    const today  = new Date().toLocaleDateString("en-GB",{day:"numeric",month:"long",year:"numeric"});
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Recall Compliance Report — ${practiceDetails.name}</title>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Helvetica Neue',Arial,sans-serif;color:#080F1E;background:#fff;padding:48px}
+.header{display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid #0891B2;padding-bottom:20px;margin-bottom:36px}
+.logo{font-size:26px;font-weight:800;color:#0891B2;letter-spacing:-1px}.practice{font-size:14px;color:#64748B;margin-top:4px}
+.date{font-size:13px;color:#94A3B8;text-align:right}.section{margin-bottom:32px}.section h2{font-size:15px;font-weight:700;color:#080F1E;letter-spacing:.5px;text-transform:uppercase;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid #E8EEF4}
+.hero{background:#F0F4F8;border-radius:12px;padding:28px;text-align:center;margin-bottom:28px}.hero-rate{font-size:64px;font-weight:800;color:${color};letter-spacing:-3px;line-height:1}
+.hero-label{font-size:15px;color:#64748B;margin-top:8px}.status-badge{display:inline-block;background:${compRate>=80?"rgba(16,185,129,.15)":compRate>=60?"rgba(245,158,11,.15)":"rgba(239,68,68,.15)"};color:${color};font-weight:700;font-size:14px;padding:6px 20px;border-radius:30px;margin-top:12px}
+.stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:24px}.stat{background:#F8FBFD;border:1px solid #E8EEF4;border-radius:10px;padding:18px;text-align:center}
+.stat-value{font-size:28px;font-weight:800;color:#080F1E;letter-spacing:-1px}.stat-label{font-size:12px;color:#94A3B8;margin-top:4px}
+table{width:100%;border-collapse:collapse}th{font-size:11px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:1px;padding:10px 12px;background:#F8FBFD;text-align:left}
+td{font-size:13px;padding:10px 12px;border-bottom:1px solid #E8EEF4}.summary{background:#F0F4F8;border-radius:10px;padding:20px;font-size:14px;color:#080F1E;line-height:1.7}
+.footer{margin-top:48px;padding-top:16px;border-top:1px solid #E8EEF4;font-size:11px;color:#94A3B8;display:flex;justify-content:space-between}
+@media print{body{padding:24px}.no-print{display:none}}</style></head>
+<body>
+<div class="header"><div><div class="logo">iryss</div><div class="practice">${practiceDetails.name}</div></div><div class="date"><div style="font-weight:700">Recall Compliance Report</div><div>${today}</div></div></div>
+<div class="section"><div class="hero"><div class="hero-rate">${compRate}%</div><div class="hero-label">Overall Recall Compliance Rate</div><div class="status-badge">${status}</div></div>
+<div class="stats"><div class="stat"><div class="stat-value">${recallPts.length}</div><div class="stat-label">Patients Due Recall</div></div><div class="stat"><div class="stat-value">${contactedPts}</div><div class="stat-label">Contacted</div></div><div class="stat"><div class="stat-value">${recallPts.length-contactedPts}</div><div class="stat-label">Not Yet Contacted</div></div></div></div>
+<div class="section"><h2>Recall Breakdown by Overdue Period</h2><table><tr><th>Overdue Period</th><th>Count</th><th>% of Due Patients</th><th>Status</th></tr>
+${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label:"180 days – 1 year",min:6,max:12},{label:"Over 1 year",min:12,max:999}].map(b=>{const n=recallPts.filter(p=>{const m=parseInt((p.lastVisit||"").match(/(\d+)/)?.[1]||0);return m>b.min&&m<=b.max;}).length;return`<tr><td>${b.label}</td><td>${n}</td><td>${recallPts.length>0?Math.round((n/recallPts.length)*100):0}%</td><td><span style="color:${b.min>=12?"#EF4444":b.min>=6?"#F59E0B":"#64748B"}">${b.min>=12?"Action Required":b.min>=6?"Follow Up":"Monitor"}</span></td></tr>`;}).join("")}
+</table></div>
+<div class="section"><h2>Summary Statement</h2><div class="summary">This practice maintains a <strong>${compRate}% recall compliance rate</strong> in line with GOC recommendations. ${compRate>=80?"The practice is meeting its obligations for patient recall and is considered compliant.":compRate>=60?"The practice is approaching compliance. Immediate action is recommended to contact remaining patients.":"Immediate action is required. The practice should prioritise contacting overdue patients to meet GOC standards."}</div></div>
+<div class="footer"><span>Generated by Iryss — ${practiceDetails.name}</span><span>${today}</span></div>
+<script>window.onload=()=>window.print();</script></body></html>`;
+    const w = window.open('','_blank','width=900,height=700');
+    w.document.write(html);
+    w.document.close();
+  }
 
   function parseCSVMonthsAgo(dateStr) {
     if (!dateStr) return 99;
@@ -532,9 +584,10 @@ function Dashboard() {
           {[
             { id:"dashboard",    label:"Dashboard",        icon:"◈"  },
             { id:"patients",     label:"At-Risk Patients", icon:"◎", badge:highRisk.length },
-            { id:"recalls",      label:"Recalls",          icon:"◷", badge:recallPatients.length },
+            { id:"recalls",      label:"Recalls",          icon:"◷", badge:recallPatients.length, warnDot:complianceRate<80&&recallPatients.length>0 },
             { id:"inbox",        label:"Inbox",            icon:"◻", badge:unreadCount, urgentDot:urgentCount>0, urgentBadge:urgentCount },
             { id:"revenue",      label:"Revenue",          icon:"◇"  },
+            { id:"intelligence", label:"Intelligence",     icon:"🎯", badge:competitorMentions.length>0?competitorMentions.length:0 },
             { id:"reviews",      label:"Google Reviews",   icon:"◆" },
           ].map(item=>(
             <button key={item.id} onClick={()=>goNav(item.id)} style={{
@@ -550,6 +603,7 @@ function Dashboard() {
               onMouseLeave={e=>{ if(nav!==item.id){ e.currentTarget.style.background="transparent"; e.currentTarget.style.color="rgba(255,255,255,.42)"; }}}>
               <span style={{ fontSize:14, width:18, textAlign:"center", opacity:nav===item.id?1:0.65 }}>{item.icon}</span>
               <span style={{ flex:1 }}>{item.label}</span>
+              {item.warnDot   && <span style={{ width:8, height:8, borderRadius:"50%", background:C.amber, flexShrink:0, display:"inline-block" }} />}
               {item.urgentDot && <span style={{ width:8, height:8, borderRadius:"50%", background:C.red, flexShrink:0, display:"inline-block", animation:"pulseDot 1.5s ease-in-out infinite, pulseRing 1.5s ease-in-out infinite" }} />}
               {item.urgentBadge>0
                 ? <span style={{ background:C.red, color:"#fff", borderRadius:20, fontSize:10, fontWeight:700, padding:"2px 7px", minWidth:20, textAlign:"center", animation:"pulseRing 1.5s ease-in-out infinite" }}>{item.urgentBadge}</span>
@@ -833,6 +887,55 @@ function Dashboard() {
                 <SC label="Revenue recovered"  value={`£${recoveredRev.toLocaleString()}`}        sub="This month"     accent={`linear-gradient(90deg,${C.teal},${C.tealLt})`} onDrill={()=>setDrill("rev-recovered")} trend="12%" trendUp={true} />
               </div>
 
+              {/* 3 new alert cards */}
+              <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:16, marginBottom:26 }}>
+                {/* Competitor Alert */}
+                <div style={{ background:C.white, borderRadius:16, padding:20, border:`1px solid ${C.border}`, boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
+                  <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:12 }}>
+                    <div style={{ fontWeight:700, fontSize:14, letterSpacing:-0.3 }}>🎯 Competitor Alert</div>
+                    {competitorMentions.length>0 && <span style={{ background:C.red, color:"#fff", borderRadius:20, padding:"2px 9px", fontSize:11, fontWeight:700 }}>{competitorMentions.length}</span>}
+                  </div>
+                  {competitorMentions.length===0
+                    ? <div style={{ fontSize:12, color:C.slate }}>No competitor mentions detected in recent messages.</div>
+                    : <>
+                        <div style={{ fontSize:12, color:C.slate, marginBottom:8 }}>Patients mentioned competitors recently</div>
+                        <div style={{ fontSize:12, color:C.navy, fontWeight:600, marginBottom:10 }}>
+                          Last: "{competitorMentions[competitorMentions.length-1].keyword}" — {competitorMentions[competitorMentions.length-1].patient}
+                        </div>
+                      </>
+                  }
+                  <button onClick={()=>goNav("intelligence")} style={{ background:"none", border:"none", color:C.teal, fontSize:12, cursor:"pointer", fontWeight:600, fontFamily:F, padding:0 }}>View Intelligence →</button>
+                </div>
+
+                {/* Compliance Score */}
+                <div style={{ background:C.white, borderRadius:16, padding:20, border:`1px solid ${C.border}`, boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
+                  <div style={{ fontWeight:700, fontSize:14, letterSpacing:-0.3, marginBottom:12 }}>📋 Recall Compliance</div>
+                  <div style={{ display:"flex", alignItems:"center", gap:16, marginBottom:10 }}>
+                    <div style={{ fontSize:36, fontWeight:800, color:complianceRate>=80?C.green:complianceRate>=60?C.amber:C.red, letterSpacing:-1 }}>{complianceRate}%</div>
+                    <div>
+                      <div style={{ fontSize:12, fontWeight:700, color:complianceRate>=80?C.green:complianceRate>=60?C.amber:C.red }}>
+                        {complianceRate>=80?"Compliant":complianceRate>=60?"Review Required":"Action Required"}
+                      </div>
+                      <div style={{ fontSize:11, color:C.slate }}>GOC compliance target: 80%</div>
+                    </div>
+                  </div>
+                  <button onClick={()=>{goNav("recalls");setRecallTab("compliance");}} style={{ background:"none", border:"none", color:C.teal, fontSize:12, cursor:"pointer", fontWeight:600, fontFamily:F, padding:0 }}>View Report →</button>
+                </div>
+
+                {/* Lens Plan Conversion */}
+                <div style={{ background:C.white, borderRadius:16, padding:20, border:`1px solid ${C.border}`, boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
+                  <div style={{ fontWeight:700, fontSize:14, letterSpacing:-0.3, marginBottom:12 }}>👁 Lens Plan Conversion</div>
+                  <div style={{ display:"flex", alignItems:"center", gap:16, marginBottom:10 }}>
+                    <div style={{ fontSize:36, fontWeight:800, color:C.teal, letterSpacing:-1 }}>{Object.keys(planSent).length}</div>
+                    <div>
+                      <div style={{ fontSize:12, fontWeight:700, color:C.navy }}>Patients nudged</div>
+                      <div style={{ fontSize:11, color:C.slate }}>Potential uplift: <span style={{ color:C.green, fontWeight:700 }}>£{lensUpliftTotal.toLocaleString()}</span></div>
+                    </div>
+                  </div>
+                  <button onClick={()=>{goNav("revenue");setRevenueTab("lens");}} style={{ background:"none", border:"none", color:C.teal, fontSize:12, cursor:"pointer", fontWeight:600, fontFamily:F, padding:0 }}>View Lens Plans →</button>
+                </div>
+              </div>
+
               <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:18 }}>
                 {/* High-risk patients */}
                 <div style={{ background:C.white, borderRadius:16, padding:22, border:`1px solid ${C.border}`, boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
@@ -1005,7 +1108,7 @@ function Dashboard() {
 
               {/* Tabs */}
               <div style={{ display:"flex", gap:8, marginBottom:22 }}>
-                {[{id:"eye-test",label:"👁 Eye Test Recalls"},{id:"lens-reorder",label:"◉ Lens Reorders"}].map(t=>(
+                {[{id:"eye-test",label:"👁 Eye Test Recalls"},{id:"lens-reorder",label:"◉ Lens Reorders"},{id:"compliance",label:"📋 Compliance"}].map(t=>(
                   <button key={t.id} onClick={()=>setRecallTab(t.id)} style={{ padding:"9px 20px", borderRadius:10, cursor:"pointer", fontFamily:F, fontSize:13, fontWeight:recallTab===t.id?700:500, background:recallTab===t.id?C.navy:C.white, color:recallTab===t.id?"#fff":C.slate, border:`1px solid ${recallTab===t.id?C.navy:C.border}`, transition:"all .15s" }}>{t.label}</button>
                 ))}
               </div>
@@ -1112,6 +1215,125 @@ function Dashboard() {
                   </div>
                 </div>
               )}
+
+              {/* ── Compliance tab ── */}
+              {recallTab==="compliance"&&(()=>{
+                const totalPts     = recallPatients.length;
+                const contactedPts = recallPatients.filter(p=>waSent[p.id]).length;
+                const compRate     = complianceRate;
+                const statusColor  = compRate>=80?C.green:compRate>=60?C.amber:C.red;
+                const statusLabel  = compRate>=80?"Compliant":compRate>=60?"Review Required":"Action Required";
+                const timeline     = [
+                  { month:"Oct 2025", rate:72, contacted:5,  total:8  },
+                  { month:"Nov 2025", rate:78, contacted:7,  total:10 },
+                  { month:"Dec 2025", rate:65, contacted:6,  total:11 },
+                  { month:"Jan 2026", rate:80, contacted:8,  total:10 },
+                  { month:"Feb 2026", rate:85, contacted:9,  total:11 },
+                  { month:"Mar 2026", rate:compRate, contacted:contactedPts, total:totalPts },
+                ];
+                const maxTimeRate = 100;
+                return (
+                  <div>
+                    {/* KPI row */}
+                    <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:16, marginBottom:22 }}>
+                      <SC label="Compliance rate"    value={`${compRate}%`}   accent={`linear-gradient(90deg,${statusColor},${compRate>=80?"#34D399":compRate>=60?"#EAB308":"#F97316"})`} />
+                      <SC label="Patients contacted" value={contactedPts}     accent={`linear-gradient(90deg,${C.teal},${C.tealLt})`} sub={`of ${totalPts} recall patients`} />
+                      <SC label="GOC target"         value="80%"              accent={`linear-gradient(90deg,${C.navy},#1E3A5F)`} sub="Minimum acceptable rate" />
+                      <SC label="Status"             value={statusLabel}      accent={`linear-gradient(90deg,${statusColor},${statusColor}88)`} sub={compRate>=80?"On track":"Needs attention"} />
+                    </div>
+
+                    <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:18, marginBottom:22 }}>
+                      {/* Circular compliance indicator */}
+                      <div style={{ background:C.white, borderRadius:16, padding:28, border:`1px solid ${C.border}`, boxShadow:"0 1px 3px rgba(0,0,0,.04)", display:"flex", alignItems:"center", gap:24 }}>
+                        {(()=>{
+                          const r = 52; const circ = 2*Math.PI*r;
+                          const dash = (compRate/100)*circ;
+                          return (
+                            <svg width={130} height={130} style={{ flexShrink:0 }}>
+                              <circle cx={65} cy={65} r={r} fill="none" stroke={C.border} strokeWidth={10} />
+                              <circle cx={65} cy={65} r={r} fill="none" stroke={statusColor} strokeWidth={10}
+                                strokeDasharray={`${dash} ${circ-dash}`} strokeDashoffset={circ*0.25}
+                                strokeLinecap="round" style={{ transition:"stroke-dasharray .6s ease" }} />
+                              <text x={65} y={62} textAnchor="middle" dominantBaseline="middle" fill={statusColor} fontSize={22} fontWeight={800} fontFamily="DM Sans,sans-serif">{compRate}%</text>
+                              <text x={65} y={80} textAnchor="middle" dominantBaseline="middle" fill={C.slate} fontSize={11} fontFamily="DM Sans,sans-serif">compliance</text>
+                            </svg>
+                          );
+                        })()}
+                        <div>
+                          <div style={{ fontWeight:700, fontSize:16, color:C.navy, letterSpacing:-0.4, marginBottom:6 }}>GOC Compliance Status</div>
+                          <div style={{ display:"inline-flex", alignItems:"center", gap:6, background:`${statusColor}18`, color:statusColor, fontWeight:700, fontSize:13, padding:"5px 14px", borderRadius:20, marginBottom:10 }}>
+                            <span style={{ width:7, height:7, borderRadius:"50%", background:statusColor, display:"inline-block" }} />
+                            {statusLabel}
+                          </div>
+                          <div style={{ fontSize:12, color:C.slate, lineHeight:1.6 }}>
+                            {contactedPts} of {totalPts} recall patients contacted.{compRate<80&&<><br/><span style={{ color:C.amber, fontWeight:600 }}>Contact {Math.max(0,Math.ceil(totalPts*0.8)-contactedPts)} more to reach target.</span></>}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Compliance timeline chart */}
+                      <div style={{ background:C.white, borderRadius:16, padding:22, border:`1px solid ${C.border}`, boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
+                        <div style={{ fontWeight:700, fontSize:15, marginBottom:16, letterSpacing:-0.3 }}>Compliance Over Time</div>
+                        {timeline.map((row,i)=>{
+                          const barColor = row.rate>=80?C.green:row.rate>=60?C.amber:C.red;
+                          const isNow = i===timeline.length-1;
+                          return (
+                            <div key={row.month} style={{ marginBottom:10 }}>
+                              <div style={{ display:"flex", justifyContent:"space-between", marginBottom:3 }}>
+                                <span style={{ fontSize:11, color:isNow?C.navy:C.slate, fontWeight:isNow?700:400 }}>{row.month}{isNow?" (now)":""}</span>
+                                <span style={{ fontSize:11, fontWeight:700, color:barColor }}>{row.rate}%</span>
+                              </div>
+                              <div style={{ height:7, background:C.border, borderRadius:4, overflow:"hidden" }}>
+                                <div style={{ width:`${(row.rate/maxTimeRate)*100}%`, height:"100%", background:barColor, borderRadius:4, opacity:isNow?1:0.65 }} />
+                              </div>
+                            </div>
+                          );
+                        })}
+                        <div style={{ marginTop:10, height:1, background:C.border }} />
+                        <div style={{ marginTop:8, display:"flex", alignItems:"center", gap:6 }}>
+                          <div style={{ height:2, width:20, background:C.red, borderRadius:2 }} />
+                          <span style={{ fontSize:11, color:C.slate }}>GOC minimum (80%)</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Summary table */}
+                    <div style={{ background:C.white, borderRadius:16, border:`1px solid ${C.border}`, overflow:"hidden", boxShadow:"0 2px 12px rgba(0,0,0,.06)", marginBottom:18 }}>
+                      <div style={{ display:"grid", gridTemplateColumns:"1fr 120px 100px 120px 160px", gap:12, padding:"12px 20px", borderBottom:`1px solid ${C.border}`, background:"#FAFBFC" }}>
+                        {["Patient","Last Visit","Risk","Status","Action"].map(h=>(
+                          <div key={h} style={{ fontSize:10, fontWeight:700, color:C.slateLight, textTransform:"uppercase", letterSpacing:1 }}>{h}</div>
+                        ))}
+                      </div>
+                      {recallPatients.map((p,i)=>(
+                        <div key={p.id} style={{ display:"grid", gridTemplateColumns:"1fr 120px 100px 120px 160px", gap:12, padding:"13px 20px", borderBottom:i<recallPatients.length-1?`1px solid ${C.border}`:"none", alignItems:"center", background:i%2===0?C.white:"#FAFBFD" }}>
+                          <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+                            <Avatar initials={p.initials} bg={waSent[p.id]?C.green:C.amber} size={30} />
+                            <div style={{ fontWeight:600, fontSize:13 }}>{p.name}</div>
+                          </div>
+                          <div style={{ fontSize:12, color:C.slate }}>{p.lastVisit}</div>
+                          <Chip color={riskFg[p.risk]}>{riskLabel[p.risk]}</Chip>
+                          <div>
+                            {waSent[p.id]
+                              ? <span style={{ fontSize:12, color:C.green, fontWeight:600 }}>✓ Contacted</span>
+                              : <span style={{ fontSize:12, color:C.amber, fontWeight:600 }}>⚠ Not contacted</span>
+                            }
+                          </div>
+                          <div style={{ fontSize:11, color:C.slate }}>{waSent[p.id]?"Recall WhatsApp sent":"Recall pending"}</div>
+                        </div>
+                      ))}
+                      {recallPatients.length===0&&<div style={{ padding:40, textAlign:"center", color:C.slate, fontSize:14 }}>No recall patients found.</div>}
+                    </div>
+
+                    {/* Generate report button */}
+                    <div style={{ display:"flex", justifyContent:"flex-end" }}>
+                      <button onClick={()=>generateComplianceReport(compRate, recallPatients, recallPatients.filter(p=>waSent[p.id]))}
+                        style={{ background:`linear-gradient(135deg,${C.navy},#1E3A5F)`, color:"#fff", border:"none", borderRadius:12, padding:"12px 24px", fontWeight:700, fontSize:14, cursor:"pointer", fontFamily:F, boxShadow:"0 4px 16px rgba(8,15,30,.2)", letterSpacing:-0.2, display:"flex", alignItems:"center", gap:8 }}>
+                        🖨 Generate Compliance Report
+                      </button>
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
           )}
 
@@ -1204,6 +1426,80 @@ function Dashboard() {
           {/* ═══ REVENUE ═══ */}
           {nav==="revenue"&&(
             <div>
+              {/* Tab bar */}
+              <div style={{ display:"flex", gap:4, marginBottom:24, background:C.bg, borderRadius:12, padding:4, width:"fit-content", border:`1px solid ${C.border}` }}>
+                {[["overview","Overview"],["lens","Lens Plans"]].map(([id,label])=>(
+                  <button key={id} onClick={()=>setRevenueTab(id)} style={{ padding:"8px 20px", borderRadius:9, border:"none", fontFamily:F, fontWeight:600, fontSize:13, cursor:"pointer", transition:"all .15s",
+                    background:revenueTab===id?C.white:"transparent", color:revenueTab===id?C.navy:C.slate,
+                    boxShadow:revenueTab===id?"0 1px 4px rgba(0,0,0,.08)":"none" }}>{label}</button>
+                ))}
+              </div>
+
+              {revenueTab==="lens"&&(()=>{
+                const maxLensRev = Math.max(...lensPatients.map(p=>p.revenue), 1);
+                return (
+                  <div>
+                    {/* Uplift banner */}
+                    <div style={{ background:`linear-gradient(135deg,${C.teal} 0%,${C.tealLt} 100%)`, borderRadius:16, padding:"18px 24px", marginBottom:22, display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+                      <div>
+                        <div style={{ fontWeight:800, fontSize:16, color:"#fff", letterSpacing:-0.4 }}>👁 Contact Lens Plan Opportunity</div>
+                        <div style={{ fontSize:13, color:"rgba(255,255,255,.75)", marginTop:4 }}>
+                          {lensPatients.length} patients eligible · upgrade each to a monthly plan and recover an estimated
+                          <span style={{ fontWeight:800, color:"#fff" }}> £{lensUpliftTotal.toLocaleString()}</span> annual uplift
+                        </div>
+                      </div>
+                      <div style={{ fontSize:32, fontWeight:900, color:"#fff", letterSpacing:-1 }}>£{lensUpliftTotal.toLocaleString()}</div>
+                    </div>
+
+                    {/* KPI row */}
+                    <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:16, marginBottom:22 }}>
+                      <SC label="Eligible patients"  value={lensPatients.length}                                    accent={`linear-gradient(90deg,${C.teal},${C.tealLt})`} />
+                      <SC label="Nudges sent"        value={Object.keys(planSent).length}                           accent={`linear-gradient(90deg,${C.green},#34D399)`} />
+                      <SC label="Potential uplift"   value={`£${lensUpliftTotal.toLocaleString()}`}                 accent={`linear-gradient(90deg,${C.amber},#EAB308)`} />
+                      <SC label="Avg uplift / pt"    value={lensPatients.length>0?`£${Math.round(lensUpliftTotal/lensPatients.length)}`:"—"} accent={`linear-gradient(90deg,#8B5CF6,#A78BFA)`} />
+                    </div>
+
+                    {/* Table */}
+                    <div style={{ background:C.white, borderRadius:16, padding:22, border:`1px solid ${C.border}`, boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
+                      <div style={{ fontWeight:700, fontSize:15, marginBottom:16, letterSpacing:-0.3 }}>Contact Lens Patients — Plan Eligibility</div>
+                      {lensPatients.length===0
+                        ? <div style={{ color:C.slate, fontSize:13 }}>No contact lens patients found in current data.</div>
+                        : lensPatients.map((p,i)=>{
+                            const uplift = Math.round(p.revenue*0.2);
+                            const barPct = Math.round((p.revenue/maxLensRev)*100);
+                            return (
+                              <div key={p.id} style={{ display:"flex", alignItems:"center", gap:14, padding:"12px 0", borderBottom:i<lensPatients.length-1?`1px solid ${C.border}`:"none" }}>
+                                <Avatar initials={p.initials} bg={C.teal} size={36} />
+                                <div style={{ flex:1, minWidth:0 }}>
+                                  <div style={{ fontWeight:600, fontSize:13, color:C.navy }}>{p.name}</div>
+                                  <div style={{ fontSize:11, color:C.slate, marginTop:2 }}>{p.product} · {p.lastVisit}</div>
+                                  <div style={{ height:6, background:C.border, borderRadius:3, marginTop:6, overflow:"hidden", maxWidth:200 }}>
+                                    <div style={{ width:`${barPct}%`, height:"100%", background:C.teal, borderRadius:3 }} />
+                                  </div>
+                                </div>
+                                <div style={{ textAlign:"right", flexShrink:0, marginRight:8 }}>
+                                  <div style={{ fontSize:12, color:C.slate }}>Current spend</div>
+                                  <div style={{ fontSize:15, fontWeight:800, color:C.navy }}>£{p.revenue}</div>
+                                  <div style={{ fontSize:11, color:C.green, fontWeight:600 }}>+£{uplift}/yr plan</div>
+                                </div>
+                                {planSent[p.id]
+                                  ? <span style={{ fontSize:12, color:C.green, fontWeight:600, minWidth:80, textAlign:"center" }}>Sent ✓</span>
+                                  : <button onClick={()=>{
+                                      const msg=`Hi ${p.name.split(" ")[0]}, it's Bright Eyes Opticians 👋 We'd love to help you get the most from your contact lenses. Did you know our monthly lens plan could save you money and make re-orders effortless? Reply YES and we'll get the details over to you!`;
+                                      openSendWA({...p, waMsg:msg});
+                                      setPlanSent(s=>({...s,[p.id]:true}));
+                                    }} style={{ background:`linear-gradient(135deg,${C.teal},${C.tealLt})`, color:"#fff", border:"none", borderRadius:9, padding:"7px 14px", fontSize:12, fontWeight:700, cursor:"pointer", fontFamily:F, boxShadow:"0 2px 8px rgba(8,145,178,.3)", minWidth:80 }}>Suggest Plan</button>
+                                }
+                              </div>
+                            );
+                          })
+                      }
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {revenueTab==="overview"&&<div>
               <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:16, marginBottom:26 }}>
                 <SC label="Revenue at risk"       value={`£${atRiskRevenue.toLocaleString()}`}                        accent={`linear-gradient(90deg,${C.red},#F97316)`}    onDrill={()=>setDrill("rev-risk")}      trend="8%" trendUp={false} />
                 <SC label="Recovered this month"  value={`£${recoveredRev.toLocaleString()}`} sub={`${recovered.length} patients`} accent={`linear-gradient(90deg,${C.green},#34D399)`}  onDrill={()=>setDrill("rev-recovered")} trend="12%" trendUp={true} />
@@ -1316,6 +1612,7 @@ function Dashboard() {
                   </div>
                 );
               })()}
+            </div>}
             </div>
           )}
 
@@ -1780,6 +2077,125 @@ function Dashboard() {
 
             </div>
           )}
+
+          {/* ═══ INTELLIGENCE ═══ */}
+          {nav==="intelligence"&&(()=>{
+            const COMP_COLORS = { specsavers:"#7C3AED", "vision express":"#2563EB", boots:"#059669", "optical express":"#DC2626", asda:"#D97706", tesco:"#0891B2", cheaper:"#64748B", "went elsewhere":"#64748B", "another optician":"#64748B", "different optician":"#64748B", "vision direct":"#9333EA", "glasses direct":"#9333EA" };
+            const competitorCounts = COMPETITOR_KW.map(kw=>({
+              kw, label:kw.charAt(0).toUpperCase()+kw.slice(1),
+              count:competitorMentions.filter(m=>m.keyword===kw).length,
+              color:COMP_COLORS[kw]||C.slate
+            })).filter(c=>c.count>0).sort((a,b)=>b.count-a.count);
+            const maxCount = Math.max(...competitorCounts.map(c=>c.count), 1);
+            const lostRevEst = competitorMentions.length * 320;
+            return (
+              <div>
+                {/* KPI row */}
+                <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:16, marginBottom:24 }}>
+                  <SC label="Competitor mentions"  value={competitorMentions.length}                    accent={`linear-gradient(90deg,${C.red},#F97316)`}    sub="Live from inbox" trend={competitorMentions.length>0?"Action needed":null} trendUp={false} />
+                  <SC label="Patients at risk"     value={new Set(competitorMentions.map(m=>m.patient)).size} accent={`linear-gradient(90deg,${C.amber},#EAB308)`} sub="Mentioned a competitor" />
+                  <SC label="Est. revenue at risk" value={`£${lostRevEst.toLocaleString()}`}            accent={`linear-gradient(90deg,${C.red},#F97316)`}    sub="Based on avg £320/patient" />
+                  <SC label="Competitors tracked"  value={COMPETITOR_KW.length}                         accent={`linear-gradient(90deg,${C.navy},#1E3A5F)`}   sub="Keywords monitored" />
+                </div>
+
+                <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:18, marginBottom:22 }}>
+                  {/* Mentions table */}
+                  <div style={{ background:C.white, borderRadius:16, padding:22, border:`1px solid ${C.border}`, boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
+                    <div style={{ fontWeight:700, fontSize:15, marginBottom:16, letterSpacing:-0.3 }}>Competitor Mentions</div>
+                    {competitorMentions.length===0
+                      ? <div style={{ padding:"32px 0", textAlign:"center", color:C.slate, fontSize:14 }}>No competitor mentions detected yet. Iryss is actively monitoring your inbox.</div>
+                      : competitorMentions.map((m,i)=>(
+                          <div key={i} style={{ padding:"12px 0", borderBottom:i<competitorMentions.length-1?`1px solid ${C.border}`:"none" }}>
+                            <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:6 }}>
+                              <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+                                <Avatar initials={m.patient.split(" ").map(w=>w[0]).join("").slice(0,2)} bg={C.red} size={28} />
+                                <div>
+                                  <div style={{ fontWeight:600, fontSize:13, color:C.navy }}>{m.patient}</div>
+                                  <div style={{ fontSize:10, color:C.slate }}>{m.time}</div>
+                                </div>
+                              </div>
+                              <span style={{ background:`${COMP_COLORS[m.keyword]||C.slate}20`, color:COMP_COLORS[m.keyword]||C.slate, fontSize:11, fontWeight:700, padding:"2px 9px", borderRadius:20 }}>{m.keyword}</span>
+                            </div>
+                            <div style={{ fontSize:12, color:C.slate, fontStyle:"italic", marginBottom:8, lineHeight:1.5 }}>
+                              "{m.text.length>120?m.text.slice(0,120)+"…":m.text}"
+                            </div>
+                            {intelSent[`${m.patient}-${i}`]
+                              ? <span style={{ fontSize:12, color:C.green, fontWeight:600 }}>✓ Win-back sent</span>
+                              : <button onClick={()=>{
+                                  const msg=`Hi ${m.patient.split(" ")[0]}, thank you for being a patient at Bright Eyes 👓 We noticed you may be considering your options — we'd love to keep you with us. As a loyalty thank you, we'd like to offer you a complimentary frame styling session and 10% off your next purchase. Just reply YES to claim it!`;
+                                  openSendWA({...PATIENTS.find(p=>p.name===m.patient)||{id:`intel-${i}`,name:m.patient,phone:m.phone}, waMsg:msg});
+                                  setIntelSent(s=>({...s,[`${m.patient}-${i}`]:true}));
+                                }} style={{ background:`linear-gradient(135deg,${C.teal},${C.tealLt})`, color:"#fff", border:"none", borderRadius:8, padding:"6px 13px", fontSize:12, fontWeight:700, cursor:"pointer", fontFamily:F, boxShadow:"0 2px 8px rgba(8,145,178,.3)" }}>
+                                  Win Back →
+                                </button>
+                            }
+                          </div>
+                        ))
+                    }
+                  </div>
+
+                  {/* Right column */}
+                  <div style={{ display:"flex", flexDirection:"column", gap:18 }}>
+                    {/* Competitor breakdown bar chart */}
+                    <div style={{ background:C.white, borderRadius:16, padding:22, border:`1px solid ${C.border}`, boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
+                      <div style={{ fontWeight:700, fontSize:15, marginBottom:16, letterSpacing:-0.3 }}>Competitor Breakdown</div>
+                      {competitorCounts.length===0
+                        ? <div style={{ color:C.slate, fontSize:13 }}>No mentions yet.</div>
+                        : competitorCounts.map(c=>(
+                            <div key={c.kw} style={{ marginBottom:10 }}>
+                              <div style={{ display:"flex", justifyContent:"space-between", marginBottom:4 }}>
+                                <span style={{ fontSize:12, fontWeight:600, color:C.navy }}>{c.label}</span>
+                                <span style={{ fontSize:12, fontWeight:700, color:c.color }}>{c.count} mention{c.count!==1?"s":""}</span>
+                              </div>
+                              <div style={{ height:8, background:C.border, borderRadius:4, overflow:"hidden" }}>
+                                <div style={{ width:`${Math.round((c.count/maxCount)*100)}%`, height:"100%", background:c.color, borderRadius:4 }} />
+                              </div>
+                            </div>
+                          ))
+                      }
+                      {competitorCounts.length===0&&<div style={{ color:C.slate, fontSize:12, marginTop:4 }}>Iryss is scanning all incoming messages for competitor keywords.</div>}
+                    </div>
+
+                    {/* Lost revenue recovery card */}
+                    <div style={{ background:`linear-gradient(135deg,${C.navy} 0%,#0E2040 100%)`, borderRadius:16, padding:22, boxShadow:"0 4px 20px rgba(8,15,30,.15)" }}>
+                      <div style={{ fontWeight:700, fontSize:15, color:C.white, marginBottom:12, letterSpacing:-0.3 }}>💰 Recovery Opportunity</div>
+                      <div style={{ fontSize:32, fontWeight:900, color:C.tealLt, letterSpacing:-1, marginBottom:4 }}>£{lostRevEst.toLocaleString()}</div>
+                      <div style={{ fontSize:12, color:"rgba(255,255,255,.5)", marginBottom:16 }}>estimated revenue at risk from competitor mentions</div>
+                      <div style={{ fontSize:13, color:"rgba(255,255,255,.7)", lineHeight:1.6, marginBottom:16 }}>
+                        Each win-back WhatsApp takes 30 seconds. Recovering just half these patients would add <span style={{ color:C.tealLt, fontWeight:700 }}>£{Math.round(lostRevEst*0.5).toLocaleString()}</span> back to your practice.
+                      </div>
+                      <button onClick={()=>{}} style={{ width:"100%", background:`linear-gradient(135deg,${C.teal},${C.tealLt})`, color:"#fff", border:"none", borderRadius:10, padding:"11px", fontWeight:700, fontSize:13, cursor:"pointer", fontFamily:F, boxShadow:"0 4px 16px rgba(8,145,178,.4)", opacity:competitorMentions.length===0?0.5:1 }}>
+                        {competitorMentions.length===0?"No mentions to action":"Send All Win-Back Messages →"}
+                      </button>
+                    </div>
+
+                    {/* Why patients leave */}
+                    <div style={{ background:C.white, borderRadius:16, padding:22, border:`1px solid ${C.border}`, boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
+                      <div style={{ fontWeight:700, fontSize:15, marginBottom:14, letterSpacing:-0.3 }}>Why Patients Leave</div>
+                      {[
+                        { reason:"Price / cheaper elsewhere", pct:38, color:C.red },
+                        { reason:"Location / convenience",    pct:27, color:C.amber },
+                        { reason:"Waiting times",             pct:18, color:C.teal },
+                        { reason:"Service experience",        pct:10, color:"#8B5CF6" },
+                        { reason:"Other",                     pct:7,  color:C.slate },
+                      ].map(r=>(
+                        <div key={r.reason} style={{ marginBottom:10 }}>
+                          <div style={{ display:"flex", justifyContent:"space-between", marginBottom:3 }}>
+                            <span style={{ fontSize:12, color:C.navy }}>{r.reason}</span>
+                            <span style={{ fontSize:12, fontWeight:700, color:r.color }}>{r.pct}%</span>
+                          </div>
+                          <div style={{ height:6, background:C.border, borderRadius:3, overflow:"hidden" }}>
+                            <div style={{ width:`${r.pct}%`, height:"100%", background:r.color, borderRadius:3 }} />
+                          </div>
+                        </div>
+                      ))}
+                      <div style={{ fontSize:11, color:C.slate, marginTop:10 }}>Source: Optical sector retention study 2024</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
 
           </>)}
         </div>
