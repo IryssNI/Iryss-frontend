@@ -232,7 +232,8 @@ function Dashboard() {
             thread: c.messages.reverse().map(m => ({
               from: m.direction === 'inbound' ? 'patient' : 'practice',
               text: m.message_body,
-              time: new Date(m.sent_at).toLocaleTimeString('en-GB', {hour:'2-digit',minute:'2-digit'})
+              time: new Date(m.sent_at).toLocaleTimeString('en-GB', {hour:'2-digit',minute:'2-digit'}),
+              sent_at: m.sent_at
             }))
           }));
           setLiveInbox(mapped);
