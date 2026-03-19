@@ -5,6 +5,13 @@ const fontStyle = document.createElement('style');
 fontStyle.textContent = `@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&display=swap');`;
 document.head.appendChild(fontStyle);
 
+const pulseStyle = document.createElement('style');
+pulseStyle.textContent = `
+  @keyframes pulseDot { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.4);opacity:.7} }
+  @keyframes pulseRing { 0%{box-shadow:0 0 0 0 rgba(239,68,68,.55)} 70%{box-shadow:0 0 0 7px rgba(239,68,68,0)} 100%{box-shadow:0 0 0 0 rgba(239,68,68,0)} }
+`;
+document.head.appendChild(pulseStyle);
+
 const C = {
   navy:"#080F1E", navyMid:"#0D1829", navyLight:"#132035",
   teal:"#0891B2", tealLt:"#06B6D4", tealPale:"#E0F7FA",
@@ -26,36 +33,6 @@ const PATIENTS = [
   { id:"P-008", name:"Jessica Bayman",  initials:"JB2", phone:"+447572043380", lastVisit:"5 months ago",  product:"Monthly CL + Glasses",      risk:"low",    riskScore:31, revenue:220, status:"recovered" },
 ];
 
-const INBOX = [
-  { id:1, patient:"Margaret Flynn", initials:"MF", preview:"I've been having some issues with my vision…", time:"2m ago", unread:true, urgent:true, thread:[
-    { from:"practice", text:"Hi Margaret 👋 It's been a while since your last visit — we wanted to check in and see how you're getting on with your glasses. Bright Eyes Opticians 😊", time:"09:05" },
-    { from:"patient",  text:"Hi, yes actually I've been having some issues with my vision lately, things seem a bit blurry on the left side", time:"09:18", urgent:true },
-  ]},
-  { id:2, patient:"Tom Bradley", initials:"TB", preview:"Wednesday 2pm works perfectly, thank you!", time:"14m ago", unread:true, urgent:false, thread:[
-    { from:"practice", text:"Hi Tom 👋 Just checking in — it's been 9 months since your last contact lens check. Ready to book in? 😊", time:"09:05" },
-    { from:"patient",  text:"Hi! Yes, I was meaning to get in touch actually. Do you have anything next week?", time:"09:31" },
-    { from:"practice", text:"Of course! I have Wednesday 18th at 2pm or Thursday 19th at 11am — which works best for you? 😊", time:"09:31" },
-    { from:"patient",  text:"Wednesday 2pm works perfectly, thank you!", time:"09:46" },
-    { from:"practice", text:"Brilliant! Wednesday 18th at 2pm is confirmed for you Tom. See you then! 😊", time:"09:46" },
-  ]},
-  { id:3, patient:"James Brew", initials:"JB", preview:"Do you do multifocal contact lenses?", time:"1h ago", unread:false, urgent:false, thread:[
-    { from:"patient",  text:"Hi, do you do multifocal contact lenses? I've been struggling with reading glasses on top of my monthlies", time:"14:32" },
-    { from:"practice", text:"Hi James! Yes we do 😊 Multifocal contact lenses are brilliant for exactly that. We fit daily and monthly multifocals including Acuvue Oasys and CooperVision Biofinity Multifocal.\n\nIt'd be worth a fitting appointment to find the right lens. Shall I check availability?", time:"14:32" },
-    { from:"patient",  text:"Yes please! Friday would be best for me", time:"14:45" },
-    { from:"practice", text:"I have Friday 21st at 3:30pm — does that work? 😊", time:"14:45" },
-    { from:"patient",  text:"Friday 3:30 works perfectly!", time:"15:02" },
-  ]},
-  { id:4, patient:"Ciara Murphy", initials:"CM", preview:"Thanks so much, see you Thursday!", time:"3h ago", unread:false, urgent:false, thread:[
-    { from:"practice", text:"Hi Ciara! Hope you're well. We just wanted to check in — you haven't needed any new glasses or lenses recently so all good, but we're here whenever you need us 😊", time:"11:00" },
-    { from:"patient",  text:"Thanks so much! I'm due an eye test soon actually, I'll call to book in", time:"11:15" },
-    { from:"practice", text:"Wonderful! See you soon Ciara 😊", time:"11:15" },
-    { from:"patient",  text:"Thanks so much, see you Thursday!", time:"13:20" },
-  ]},
-  { id:5, patient:"Sarah Flynn", initials:"SF", preview:"Wednesday at 2pm confirmed ✓", time:"Yesterday", unread:false, urgent:false, thread:[
-    { from:"practice", text:"Hi Sarah 👋 Just a reminder your appointment is tomorrow, Wednesday 18th at 2pm. See you then! 😊", time:"09:00" },
-    { from:"patient",  text:"Wednesday at 2pm confirmed ✓ See you then!", time:"09:47" },
-  ]},
-];
 
 const REVIEWS = [
   { name:"Sarah M.",    stars:5, text:"Got a lovely WhatsApp the day after my appointment — such a personal touch. Couldn't not leave a review!", days:"1 day ago",   via:true  },
@@ -260,6 +237,8 @@ function Dashboard() {
           const mapped = Object.values(grouped).map(c => {
             const sorted = [...c.messages].sort((a, b) => new Date(a.sent_at) - new Date(b.sent_at));
             const latest = sorted[sorted.length - 1];
+            const latestInbound = [...sorted].reverse().find(m => m.direction === 'inbound');
+            const sentiment = latestInbound?.sentiment || null;
             return {
               id: c.name,
               patient: c.name,
@@ -268,7 +247,8 @@ function Dashboard() {
               preview: latest?.message_body || '',
               time: new Date(latest?.sent_at).toLocaleTimeString('en-GB', {hour:'2-digit',minute:'2-digit'}),
               unread: latest?.direction === 'inbound',
-              urgent: c.messages.some(m=>m.sentiment==='urgent'),
+              urgent: latest?.direction === 'inbound' && (sentiment === 'urgent' || sentiment === 'negative'),
+              sentiment,
               thread: sorted.map(m => ({
                 from: m.direction === 'inbound' ? 'patient' : 'practice',
                 text: m.message_body,
@@ -299,8 +279,9 @@ function Dashboard() {
   const recovered     = PATIENTS.filter(p=>p.status==="recovered"||p.status==="booked");
   const atRiskRevenue = PATIENTS.filter(p=>p.risk!=="low").reduce((a,p)=>a+p.revenue,0);
   const recoveredRev  = recovered.reduce((a,p)=>a+p.revenue,0);
-  const unreadCount   = liveInbox.filter(i=>i.unread).length;
-  const urgentCount   = liveInbox.filter(i=>i.urgent).length;
+  const unreadCount     = liveInbox.filter(i=>i.unread).length;
+  const urgentMessages  = liveInbox.filter(i=>i.unread && (i.sentiment==='urgent'||i.sentiment==='negative'));
+  const urgentCount     = urgentMessages.length;
   const filteredPts   = filterRisk==="all"?PATIENTS:PATIENTS.filter(p=>p.risk===filterRisk);
   const noShowRisk     = APPOINTMENTS.filter(a=>!a.confirmed);
   const recallPatients = PATIENTS.filter(p=>parseMonthsAgo(p.lastVisit)>=8).sort((a,b)=>parseMonthsAgo(b.lastVisit)-parseMonthsAgo(a.lastVisit));
@@ -423,7 +404,7 @@ function Dashboard() {
             { id:"dashboard",    label:"Dashboard",        icon:"◈"  },
             { id:"patients",     label:"At-Risk Patients", icon:"◎", badge:highRisk.length },
             { id:"recalls",      label:"Recalls",          icon:"◷", badge:recallPatients.length },
-            { id:"inbox",        label:"Inbox",            icon:"◻", badge:unreadCount },
+            { id:"inbox",        label:"Inbox",            icon:"◻", badge:unreadCount, urgentDot:urgentCount>0, urgentBadge:urgentCount },
             { id:"revenue",      label:"Revenue",          icon:"◇"  },
             { id:"reviews",      label:"Google Reviews",   icon:"◆" },
           ].map(item=>(
@@ -440,7 +421,11 @@ function Dashboard() {
               onMouseLeave={e=>{ if(nav!==item.id){ e.currentTarget.style.background="transparent"; e.currentTarget.style.color="rgba(255,255,255,.42)"; }}}>
               <span style={{ fontSize:14, width:18, textAlign:"center", opacity:nav===item.id?1:0.65 }}>{item.icon}</span>
               <span style={{ flex:1 }}>{item.label}</span>
-              {item.badge>0 && <span style={{ background:C.red, color:"#fff", borderRadius:20, fontSize:10, fontWeight:700, padding:"2px 7px", minWidth:20, textAlign:"center" }}>{item.badge}</span>}
+              {item.urgentDot && <span style={{ width:8, height:8, borderRadius:"50%", background:C.red, flexShrink:0, display:"inline-block", animation:"pulseDot 1.5s ease-in-out infinite, pulseRing 1.5s ease-in-out infinite" }} />}
+              {item.urgentBadge>0
+                ? <span style={{ background:C.red, color:"#fff", borderRadius:20, fontSize:10, fontWeight:700, padding:"2px 7px", minWidth:20, textAlign:"center", animation:"pulseRing 1.5s ease-in-out infinite" }}>{item.urgentBadge}</span>
+                : item.badge>0 && <span style={{ background:"rgba(239,68,68,.7)", color:"#fff", borderRadius:20, fontSize:10, fontWeight:700, padding:"2px 7px", minWidth:20, textAlign:"center" }}>{item.badge}</span>
+              }
             </button>
           ))}
           <div style={{ height:1, background:"rgba(255,255,255,.06)", margin:"10px 4px" }} />
@@ -611,18 +596,39 @@ function Dashboard() {
                 </div>
               </div>
 
-              {/* Urgent alerts */}
-              {INBOX.filter(i=>i.urgent).map(alert=>(
-                <div key={alert.id} onClick={()=>{ setSelectedThread(alert); goNav("inbox"); }}
-                  style={{ background:"rgba(239,68,68,.05)", border:"1px solid rgba(239,68,68,.15)", borderRadius:14, padding:"14px 18px", marginBottom:18, display:"flex", alignItems:"center", gap:12, cursor:"pointer" }}>
-                  <span style={{ fontSize:20 }}>🚨</span>
-                  <div style={{ flex:1 }}>
-                    <div style={{ fontWeight:700, color:C.red, fontSize:14 }}>Urgent — {alert.patient}</div>
-                    <div style={{ fontSize:13, color:C.slate, marginTop:2 }}>{alert.preview} — <span style={{ color:C.teal }}>View conversation →</span></div>
+              {/* Urgent alerts — live from inbox */}
+              {urgentMessages.length>0&&(
+                <div style={{ marginBottom:18 }}>
+                  <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:10 }}>
+                    <span style={{ width:8, height:8, borderRadius:"50%", background:C.red, display:"inline-block", animation:"pulseDot 1.5s ease-in-out infinite, pulseRing 1.5s ease-in-out infinite", flexShrink:0 }} />
+                    <span style={{ fontSize:11, fontWeight:700, color:C.red, textTransform:"uppercase", letterSpacing:1.2 }}>
+                      {urgentMessages.length} urgent message{urgentMessages.length>1?"s":""} need attention
+                    </span>
+                    <button onClick={()=>setDrill("urgent-messages")} style={{ marginLeft:"auto", background:"none", border:`1px solid rgba(239,68,68,.3)`, borderRadius:8, padding:"4px 12px", fontSize:11, fontWeight:700, color:C.red, cursor:"pointer", fontFamily:F }}>
+                      View all →
+                    </button>
                   </div>
-                  <div style={{ fontSize:11, color:C.slateLight }}>{alert.time}</div>
+                  {urgentMessages.map((alert,idx)=>(
+                    <div key={alert.id} onClick={()=>{ setSelectedThread(alert); goNav("inbox"); }}
+                      style={{ background:alert.sentiment==='urgent'?"rgba(239,68,68,.05)":"rgba(245,158,11,.05)", border:`1px solid ${alert.sentiment==='urgent'?"rgba(239,68,68,.18)":"rgba(245,158,11,.2)"}`, borderRadius:14, padding:"13px 18px", marginBottom:idx<urgentMessages.length-1?10:0, display:"flex", alignItems:"center", gap:12, cursor:"pointer", transition:"background .15s", borderLeft:`4px solid ${alert.sentiment==='urgent'?C.red:C.amber}` }}
+                      onMouseEnter={e=>e.currentTarget.style.background=alert.sentiment==='urgent'?"rgba(239,68,68,.09)":"rgba(245,158,11,.09)"}
+                      onMouseLeave={e=>e.currentTarget.style.background=alert.sentiment==='urgent'?"rgba(239,68,68,.05)":"rgba(245,158,11,.05)"}>
+                      <span style={{ fontSize:18, flexShrink:0 }}>{alert.sentiment==='urgent'?'🚨':'⚠️'}</span>
+                      <div style={{ flex:1, minWidth:0 }}>
+                        <div style={{ fontWeight:700, color:alert.sentiment==='urgent'?C.red:C.amber, fontSize:13, display:"flex", alignItems:"center", gap:6 }}>
+                          {alert.sentiment==='urgent'?"Urgent":"Needs attention"} — {alert.patient}
+                          <span style={{ width:6, height:6, borderRadius:"50%", background:alert.sentiment==='urgent'?C.red:C.amber, display:"inline-block", animation:"pulseDot 1.5s ease-in-out infinite" }} />
+                        </div>
+                        <div style={{ fontSize:12, color:C.slate, marginTop:2, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{alert.preview}</div>
+                      </div>
+                      <div style={{ display:"flex", flexDirection:"column", alignItems:"flex-end", gap:4, flexShrink:0 }}>
+                        <div style={{ fontSize:10, color:C.slateLight }}>{alert.time}</div>
+                        <span style={{ fontSize:11, color:C.teal, fontWeight:600 }}>Reply now →</span>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              )}
 
               {/* KPI cards */}
               <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:16, marginBottom:26 }}>
@@ -723,13 +729,16 @@ function Dashboard() {
                 ))}
               </div>
               <div style={{ background:C.white, borderRadius:16, border:`1px solid ${C.border}`, overflow:"hidden", boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
-                <div style={{ display:"grid", gridTemplateColumns:"1fr 130px 130px 120px 160px", gap:12, padding:"12px 20px", borderBottom:`1px solid ${C.border}`, background:"#FAFBFC" }}>
-                  {["Patient","Last Visit","Product","Risk Score","Action"].map(h=>(
+                <div style={{ display:"grid", gridTemplateColumns:"1fr 110px 130px 100px 120px 150px", gap:12, padding:"12px 20px", borderBottom:`1px solid ${C.border}`, background:"#FAFBFC" }}>
+                  {["Patient","Last Visit","Product","Risk Score","Sentiment","Action"].map(h=>(
                     <div key={h} style={{ fontSize:10, fontWeight:700, color:C.slateLight, textTransform:"uppercase", letterSpacing:1 }}>{h}</div>
                   ))}
                 </div>
-                {filteredPts.map((p,i)=>(
-                  <div key={p.id} style={{ display:"grid", gridTemplateColumns:"1fr 130px 130px 120px 160px", gap:12, padding:"15px 20px", borderBottom:i<filteredPts.length-1?`1px solid ${C.border}`:"none", alignItems:"center", background:i%2===0?C.white:"#FAFBFD", transition:"background .12s" }}
+                {filteredPts.map((p,i)=>{
+                  const inboxEntry = liveInbox.find(m=>m.patient===p.name);
+                  const sent = inboxEntry?.sentiment;
+                  return (
+                  <div key={p.id} style={{ display:"grid", gridTemplateColumns:"1fr 110px 130px 100px 120px 150px", gap:12, padding:"15px 20px", borderBottom:i<filteredPts.length-1?`1px solid ${C.border}`:"none", alignItems:"center", background:i%2===0?C.white:"#FAFBFD", transition:"background .12s" }}
                     onMouseEnter={e=>e.currentTarget.style.background="rgba(8,145,178,.04)"}
                     onMouseLeave={e=>e.currentTarget.style.background=i%2===0?C.white:"#FAFBFD"}>
                     <div style={{ display:"flex", alignItems:"center", gap:10 }}>
@@ -746,13 +755,21 @@ function Dashboard() {
                       <div style={{ fontSize:10, color:C.slateLight, marginTop:4 }}>Score: {p.riskScore}</div>
                     </div>
                     <div>
+                      {sent==='urgent'  && <span style={{ fontSize:11, fontWeight:700, color:C.red,   background:"rgba(239,68,68,.1)",   padding:"3px 9px", borderRadius:20, display:"inline-flex", alignItems:"center", gap:4, animation:"pulseDot 1.5s ease-in-out infinite" }}>🚨 Urgent</span>}
+                      {sent==='negative'&& <span style={{ fontSize:11, fontWeight:700, color:C.amber, background:"rgba(245,158,11,.1)", padding:"3px 9px", borderRadius:20, display:"inline-flex", alignItems:"center", gap:4 }}>⚠️ Concerned</span>}
+                      {sent==='positive'&& <span style={{ fontSize:11, fontWeight:700, color:C.green, background:"rgba(16,185,129,.1)", padding:"3px 9px", borderRadius:20, display:"inline-flex", alignItems:"center", gap:4 }}>😊 Positive</span>}
+                      {sent==='neutral' && <span style={{ fontSize:11, fontWeight:600, color:C.slate, background:"rgba(100,116,139,.1)", padding:"3px 9px", borderRadius:20 }}>Neutral</span>}
+                      {!sent           && <span style={{ fontSize:11, color:C.slateLight }}>No messages</span>}
+                    </div>
+                    <div>
                       {waSent[p.id]
                         ? <span style={{ fontSize:12, color:C.green, fontWeight:600 }}>✓ Sent</span>
                         : <button onClick={()=>openSendWA(p)} style={{ background:`linear-gradient(135deg,${C.teal},${C.tealLt})`, color:"#fff", border:"none", borderRadius:8, padding:"6px 13px", fontSize:12, fontWeight:700, cursor:"pointer", fontFamily:F, boxShadow:"0 2px 8px rgba(8,145,178,.3)" }}>Send WhatsApp</button>
                       }
                     </div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}
@@ -901,9 +918,9 @@ function Dashboard() {
                   {liveInbox.map((m,i)=>(
                     <div key={m.id} onClick={()=>setSelectedThread(m)} style={{
                       display:"flex", gap:10, padding:"12px 16px", cursor:"pointer", alignItems:"flex-start",
-                      background:selectedThread?.id===m.id?"rgba(8,145,178,.06)":m.urgent?"rgba(239,68,68,.03)":"transparent",
+                      background:selectedThread?.id===m.id?"rgba(8,145,178,.06)":m.sentiment==='urgent'?"rgba(239,68,68,.03)":m.sentiment==='negative'?"rgba(245,158,11,.03)":"transparent",
                       borderBottom:`1px solid ${C.border}`,
-                      borderLeft:selectedThread?.id===m.id?`3px solid ${C.teal}`:"3px solid transparent",
+                      borderLeft:selectedThread?.id===m.id?`3px solid ${C.teal}`:m.sentiment==='urgent'?`3px solid ${C.red}`:m.sentiment==='negative'?`3px solid ${C.amber}`:m.sentiment==='positive'?`3px solid ${C.green}`:"3px solid transparent",
                       transition:"background .15s"
                     }}>
                       <Avatar initials={m.initials} bg={getColor(i)} size={36} />
@@ -913,7 +930,9 @@ function Dashboard() {
                           <div style={{ fontSize:10, color:C.slateLight, flexShrink:0 }}>{m.time}</div>
                         </div>
                         <div style={{ fontSize:11, color:C.slate, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap", marginTop:2 }}>{m.preview}</div>
-                        {m.urgent&&<span style={{ display:"inline-block", marginTop:4, background:"rgba(239,68,68,.1)", color:C.red, fontSize:10, fontWeight:700, padding:"2px 7px", borderRadius:20 }}>🚨 Urgent</span>}
+                        {m.sentiment==='urgent'&&<span style={{ display:"inline-block", marginTop:4, background:"rgba(239,68,68,.1)", color:C.red, fontSize:10, fontWeight:700, padding:"2px 7px", borderRadius:20, animation:"pulseDot 1.5s ease-in-out infinite" }}>🚨 Urgent</span>}
+                        {m.sentiment==='negative'&&<span style={{ display:"inline-block", marginTop:4, background:"rgba(245,158,11,.1)", color:C.amber, fontSize:10, fontWeight:700, padding:"2px 7px", borderRadius:20 }}>⚠️ Concerned</span>}
+                        {m.sentiment==='positive'&&<span style={{ display:"inline-block", marginTop:4, background:"rgba(16,185,129,.1)", color:C.green, fontSize:10, fontWeight:700, padding:"2px 7px", borderRadius:20 }}>😊 Positive</span>}
                       </div>
                     </div>
                   ))}
@@ -1396,6 +1415,52 @@ function Dashboard() {
               </span>
             </div>
           ))}
+        </DrillPanel>
+      )}
+
+      {drill==="urgent-messages"&&(
+        <DrillPanel title="Urgent Messages" sub={`${urgentMessages.length} conversation${urgentMessages.length!==1?"s":""} need your attention`} onClose={()=>setDrill(null)} onFullPage={()=>{ setDrill(null); goNav("inbox"); }}>
+          {urgentMessages.length===0?(
+            <div style={{ textAlign:"center", padding:"48px 0", color:C.slate, fontSize:14 }}>
+              <div style={{ fontSize:36, marginBottom:12 }}>✅</div>
+              No urgent messages right now — all clear!
+            </div>
+          ):(
+            <>
+              <div style={{ background:"rgba(239,68,68,.05)", border:"1px solid rgba(239,68,68,.12)", borderRadius:12, padding:"14px 16px", marginBottom:20, display:"flex", alignItems:"center", gap:10 }}>
+                <span style={{ width:10, height:10, borderRadius:"50%", background:C.red, display:"inline-block", flexShrink:0, animation:"pulseDot 1.5s ease-in-out infinite, pulseRing 1.5s ease-in-out infinite" }} />
+                <div style={{ fontSize:13, color:C.red, fontWeight:600 }}>These patients have sent inbound messages with urgent or negative sentiment that have not yet been replied to.</div>
+              </div>
+              {[...urgentMessages].sort((a,b)=>new Date(b.thread.slice(-1)[0]?.sent_at||0)-new Date(a.thread.slice(-1)[0]?.sent_at||0)).map((m,i,arr)=>{
+                const lastMsg = m.thread.filter(t=>t.from==='patient').slice(-1)[0];
+                return (
+                  <div key={m.id} style={{ padding:"14px 0", borderBottom:i<arr.length-1?`1px solid ${C.border}`:"none" }}>
+                    <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:8 }}>
+                      <Avatar initials={m.initials} bg={m.sentiment==='urgent'?C.red:C.amber} size={38} />
+                      <div style={{ flex:1 }}>
+                        <div style={{ fontWeight:700, fontSize:14, color:C.navy, display:"flex", alignItems:"center", gap:8 }}>
+                          {m.patient}
+                          {m.sentiment==='urgent'
+                            ? <span style={{ fontSize:10, fontWeight:700, color:C.red, background:"rgba(239,68,68,.1)", padding:"2px 8px", borderRadius:20, animation:"pulseDot 1.5s ease-in-out infinite" }}>🚨 Urgent</span>
+                            : <span style={{ fontSize:10, fontWeight:700, color:C.amber, background:"rgba(245,158,11,.1)", padding:"2px 8px", borderRadius:20 }}>⚠️ Concerned</span>
+                          }
+                        </div>
+                        <div style={{ fontSize:11, color:C.slateLight, marginTop:2 }}>{m.time}</div>
+                      </div>
+                      <button onClick={()=>{ setSelectedThread(m); setDrill(null); goNav("inbox"); }} style={{ background:`linear-gradient(135deg,${C.teal},${C.tealLt})`, color:"#fff", border:"none", borderRadius:10, padding:"8px 16px", fontWeight:700, fontSize:12, cursor:"pointer", fontFamily:F, boxShadow:"0 2px 8px rgba(8,145,178,.3)", flexShrink:0 }}>
+                        Reply Now →
+                      </button>
+                    </div>
+                    {lastMsg&&(
+                      <div style={{ background:"#F7FAFC", border:`1px solid ${C.border}`, borderRadius:10, padding:"10px 14px", fontSize:13, color:C.navy, lineHeight:1.6, marginLeft:50, borderLeft:`3px solid ${m.sentiment==='urgent'?C.red:C.amber}` }}>
+                        "{lastMsg.text}"
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </>
+          )}
         </DrillPanel>
       )}
 
