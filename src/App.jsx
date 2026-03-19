@@ -1210,24 +1210,112 @@ function Dashboard() {
                 <SC label="Recovered YTD"         value="£8,400"                              sub="Since April 2025"  accent={`linear-gradient(90deg,${C.teal},${C.tealLt})`} />
                 <SC label="ROI on Iryss"          value="7.5×"                                sub="£220 plan"         accent={`linear-gradient(90deg,#8B5CF6,#A78BFA)`} />
               </div>
-              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:18 }}>
-                <div style={{ background:C.white, borderRadius:16, padding:22, border:`1px solid ${C.border}`, boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
-                  <div style={{ fontWeight:700, fontSize:15, marginBottom:16, letterSpacing:-0.3 }}>Revenue by patient</div>
-                  {PATIENTS.map((p,i)=>(
-                    <div key={p.id} style={{ display:"flex", alignItems:"center", gap:10, padding:"10px 0", borderBottom:i<PATIENTS.length-1?`1px solid ${C.border}`:"none" }}>
-                      <Avatar initials={p.initials} bg={p.risk==="high"?C.red:p.risk==="medium"?C.amber:C.green} size={30} />
-                      <div style={{ flex:1 }}>
-                        <div style={{ fontSize:13, fontWeight:600 }}>{p.name}</div>
-                        <div style={{ fontSize:11, color:C.slate }}>{p.product}</div>
-                      </div>
-                      <div style={{ textAlign:"right" }}>
-                        <div style={{ fontSize:13, fontWeight:700, color:p.risk==="high"?C.red:p.risk==="medium"?C.amber:C.navy }}>£{p.revenue}</div>
-                        <Chip color={riskFg[p.risk]}>{riskLabel[p.risk]}</Chip>
-                      </div>
+              {(()=>{
+                const totalRev   = PATIENTS.reduce((a,p)=>a+p.revenue, 0);
+                const highRev    = PATIENTS.filter(p=>p.risk==="high").reduce((a,p)=>a+p.revenue, 0);
+                const medRev     = PATIENTS.filter(p=>p.risk==="medium").reduce((a,p)=>a+p.revenue, 0);
+                const lowRev     = PATIENTS.filter(p=>p.risk==="low").reduce((a,p)=>a+p.revenue, 0);
+                const maxRev     = Math.max(...PATIENTS.map(p=>p.revenue));
+                const sortedPts  = [...PATIENTS].sort((a,b)=>b.revenue-a.revenue);
+                const topOppty   = [...PATIENTS].filter(p=>p.risk==="high").sort((a,b)=>b.revenue-a.revenue)[0];
+                return (
+                  <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:18 }}>
+                    {/* Left — revenue table */}
+                    <div style={{ background:C.white, borderRadius:16, padding:22, border:`1px solid ${C.border}`, boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
+                      <div style={{ fontWeight:700, fontSize:15, marginBottom:16, letterSpacing:-0.3 }}>Revenue by patient</div>
+                      {PATIENTS.map((p,i)=>(
+                        <div key={p.id} style={{ display:"flex", alignItems:"center", gap:10, padding:"10px 0", borderBottom:i<PATIENTS.length-1?`1px solid ${C.border}`:"none" }}>
+                          <Avatar initials={p.initials} bg={p.risk==="high"?C.red:p.risk==="medium"?C.amber:C.green} size={30} />
+                          <div style={{ flex:1 }}>
+                            <div style={{ fontSize:13, fontWeight:600 }}>{p.name}</div>
+                            <div style={{ fontSize:11, color:C.slate }}>{p.product}</div>
+                          </div>
+                          <div style={{ textAlign:"right" }}>
+                            <div style={{ fontSize:13, fontWeight:700, color:p.risk==="high"?C.red:p.risk==="medium"?C.amber:C.navy }}>£{p.revenue}</div>
+                            <Chip color={riskFg[p.risk]}>{riskLabel[p.risk]}</Chip>
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              </div>
+
+                    {/* Right — three stacked cards */}
+                    <div style={{ display:"flex", flexDirection:"column", gap:18 }}>
+
+                      {/* 1 — Revenue bar chart */}
+                      <div style={{ background:C.white, borderRadius:16, padding:22, border:`1px solid ${C.border}`, boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
+                        <div style={{ fontWeight:700, fontSize:15, marginBottom:16, letterSpacing:-0.3 }}>Revenue by Patient</div>
+                        {sortedPts.map(p=>{
+                          const barColor = p.risk==="high"?C.red:p.risk==="medium"?C.amber:C.green;
+                          const barPct   = Math.round((p.revenue/maxRev)*100);
+                          return (
+                            <div key={p.id} style={{ marginBottom:10 }}>
+                              <div style={{ display:"flex", justifyContent:"space-between", marginBottom:4 }}>
+                                <span style={{ fontSize:12, fontWeight:600, color:C.navy }}>{p.name}</span>
+                                <span style={{ fontSize:12, fontWeight:700, color:barColor }}>£{p.revenue}</span>
+                              </div>
+                              <div style={{ height:9, background:C.border, borderRadius:5, overflow:"hidden" }}>
+                                <div style={{ width:`${barPct}%`, height:"100%", background:barColor, borderRadius:5, transition:"width .5s ease" }} />
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      {/* 2 — Revenue at risk summary */}
+                      <div style={{ background:C.white, borderRadius:16, padding:22, border:`1px solid ${C.border}`, boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
+                        <div style={{ fontWeight:700, fontSize:15, marginBottom:16, letterSpacing:-0.3 }}>Revenue at Risk Summary</div>
+                        {[
+                          { label:"High risk",   value:highRev, color:C.red,   bg:"rgba(239,68,68,.08)"   },
+                          { label:"Medium risk", value:medRev,  color:C.amber, bg:"rgba(245,158,11,.08)"  },
+                          { label:"Low risk",    value:lowRev,  color:C.green, bg:"rgba(16,185,129,.08)"  },
+                        ].map(row=>(
+                          <div key={row.label} style={{ display:"flex", alignItems:"center", gap:12, marginBottom:12 }}>
+                            <div style={{ width:10, height:10, borderRadius:"50%", background:row.color, flexShrink:0 }} />
+                            <div style={{ flex:1 }}>
+                              <div style={{ display:"flex", justifyContent:"space-between", marginBottom:4 }}>
+                                <span style={{ fontSize:13, fontWeight:600, color:C.navy }}>{row.label}</span>
+                                <span style={{ fontSize:13, fontWeight:800, color:row.color }}>£{row.value.toLocaleString()}</span>
+                              </div>
+                              <div style={{ height:7, background:C.border, borderRadius:4, overflow:"hidden" }}>
+                                <div style={{ width:`${Math.round((row.value/totalRev)*100)}%`, height:"100%", background:row.color, borderRadius:4 }} />
+                              </div>
+                              <div style={{ fontSize:10, color:C.slateLight, marginTop:3 }}>{Math.round((row.value/totalRev)*100)}% of total £{totalRev.toLocaleString()}</div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* 3 — Top opportunity */}
+                      {topOppty&&(
+                        <div style={{ background:`linear-gradient(135deg,${C.navy} 0%,#0E2040 100%)`, borderRadius:16, padding:22, boxShadow:"0 4px 20px rgba(8,15,30,.15)" }}>
+                          <div style={{ fontWeight:700, fontSize:15, color:C.white, marginBottom:16, letterSpacing:-0.3 }}>⚡ Biggest Recovery Opportunity</div>
+                          <div style={{ display:"flex", alignItems:"center", gap:14, marginBottom:16 }}>
+                            <Avatar initials={topOppty.initials} bg={C.red} size={46} />
+                            <div style={{ flex:1 }}>
+                              <div style={{ fontWeight:800, fontSize:16, color:C.white, letterSpacing:-0.4 }}>{topOppty.name}</div>
+                              <div style={{ fontSize:12, color:"rgba(255,255,255,.45)", marginTop:3 }}>{topOppty.product}</div>
+                              <div style={{ display:"flex", gap:8, marginTop:6, alignItems:"center" }}>
+                                <span style={{ fontSize:11, color:"#FCA5A5", fontWeight:700, background:"rgba(239,68,68,.2)", padding:"2px 9px", borderRadius:20 }}>HIGH RISK</span>
+                                <span style={{ fontSize:11, color:"rgba(255,255,255,.4)" }}>Score: {topOppty.riskScore}/100</span>
+                              </div>
+                            </div>
+                            <div style={{ textAlign:"right", flexShrink:0 }}>
+                              <div style={{ fontSize:28, fontWeight:800, color:C.tealLt, letterSpacing:-1 }}>£{topOppty.revenue}</div>
+                              <div style={{ fontSize:11, color:"rgba(255,255,255,.35)", marginTop:2 }}>revenue value</div>
+                            </div>
+                          </div>
+                          {waSent[topOppty.id]
+                            ? <div style={{ textAlign:"center", fontSize:13, color:C.green, fontWeight:600 }}>✓ WhatsApp sent</div>
+                            : <button onClick={()=>openSendWA(topOppty)} style={{ width:"100%", background:`linear-gradient(135deg,${C.teal},${C.tealLt})`, color:"#fff", border:"none", borderRadius:12, padding:"12px", fontWeight:700, fontSize:14, cursor:"pointer", fontFamily:F, boxShadow:"0 4px 16px rgba(8,145,178,.4)", letterSpacing:-0.2 }}>
+                                Send WhatsApp Now →
+                              </button>
+                          }
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
           )}
 
