@@ -208,6 +208,10 @@ function Dashboard() {
   const [liveInbox, setLiveInbox] = useState([]);
 
   useEffect(() => {
+    msgEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [selectedThread]);
+
+  useEffect(() => {
     async function fetchMessages() {
       try {
         const res = await fetch('https://iryss-backend-12fh.onrender.com/api/public/inbox');
