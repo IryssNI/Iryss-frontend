@@ -220,22 +220,26 @@ function Dashboard() {
             if (!grouped[name]) grouped[name] = { name, phone: m.patient_phone, messages: [] };
             grouped[name].messages.push(m);
           });
-          const mapped = Object.values(grouped).map(c => ({
-            id: c.name,
-            patient: c.name,
-            phone: c.phone,
-            initials: c.name.split(' ').map(w=>w[0]).join('').slice(0,2),
-            preview: c.messages[0]?.message_body || '',
-            time: new Date(c.messages[0]?.sent_at).toLocaleTimeString('en-GB', {hour:'2-digit',minute:'2-digit'}),
-            unread: c.messages.some(m=>m.direction==='inbound'),
-            urgent: c.messages.some(m=>m.sentiment==='urgent'),
-            thread: c.messages.reverse().map(m => ({
-              from: m.direction === 'inbound' ? 'patient' : 'practice',
-              text: m.message_body,
-              time: new Date(m.sent_at).toLocaleTimeString('en-GB', {hour:'2-digit',minute:'2-digit'}),
-              sent_at: m.sent_at
-            }))
-          }));
+          const mapped = Object.values(grouped).map(c => {
+            const sorted = [...c.messages].sort((a, b) => new Date(a.sent_at) - new Date(b.sent_at));
+            const latest = sorted[sorted.length - 1];
+            return {
+              id: c.name,
+              patient: c.name,
+              phone: c.phone,
+              initials: c.name.split(' ').map(w=>w[0]).join('').slice(0,2),
+              preview: latest?.message_body || '',
+              time: new Date(latest?.sent_at).toLocaleTimeString('en-GB', {hour:'2-digit',minute:'2-digit'}),
+              unread: latest?.direction === 'inbound',
+              urgent: c.messages.some(m=>m.sentiment==='urgent'),
+              thread: sorted.map(m => ({
+                from: m.direction === 'inbound' ? 'patient' : 'practice',
+                text: m.message_body,
+                time: new Date(m.sent_at).toLocaleTimeString('en-GB', {hour:'2-digit',minute:'2-digit'}),
+                sent_at: m.sent_at
+              }))
+            };
+          });
           setLiveInbox(mapped);
           setSelectedThread(prev =>
             prev ? (mapped.find(m => m.id === prev.id) ?? mapped[0]) : mapped[0]
