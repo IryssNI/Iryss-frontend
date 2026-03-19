@@ -480,28 +480,6 @@ function Dashboard() {
                   ))}
                 </div>
 
-                {/* Inbox preview */}
-                <div style={{ background:C.white, borderRadius:16, padding:22, border:`1px solid ${C.border}`, boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
-                  <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:16 }}>
-                    <div style={{ fontWeight:700, fontSize:15, letterSpacing:-0.3 }}>💬 Recent Inbox</div>
-                    <button onClick={()=>goNav("inbox")} style={{ background:"none", border:"none", color:C.teal, fontSize:12, cursor:"pointer", fontWeight:600, fontFamily:F }}>View all →</button>
-                  </div>
-                  {INBOX.slice(0,4).map((m,i)=>(
-                    <div key={m.id} onClick={()=>{ setSelectedThread(m); goNav("inbox"); }}
-                      style={{ display:"flex", alignItems:"center", gap:12, padding:"10px 0", borderBottom:i<3?`1px solid ${C.border}`:"none", cursor:"pointer" }}>
-                      <Avatar initials={m.initials} bg={getColor(i)} size={36} />
-                      <div style={{ flex:1, minWidth:0 }}>
-                        <div style={{ fontWeight:m.unread?700:500, fontSize:13 }}>{m.patient}</div>
-                        <div style={{ fontSize:11, color:C.slate, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{m.preview}</div>
-                      </div>
-                      <div style={{ flexShrink:0, textAlign:"right" }}>
-                        <div style={{ fontSize:10, color:C.slateLight }}>{m.time}</div>
-                        {m.urgent&&<div style={{ background:"rgba(239,68,68,.1)", color:C.red, fontSize:10, fontWeight:700, padding:"2px 7px", borderRadius:20, marginTop:3 }}>Urgent</div>}
-                        {m.unread&&!m.urgent&&<div style={{ background:`rgba(8,145,178,.1)`, color:C.teal, fontSize:10, fontWeight:700, padding:"2px 7px", borderRadius:20, marginTop:3 }}>New</div>}
-                      </div>
-                    </div>
-                  ))}
-                </div>
 
                 {/* Appointments */}
                 <div style={{ background:C.white, borderRadius:16, padding:22, border:`1px solid ${C.border}`, boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
