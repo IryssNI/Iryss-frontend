@@ -223,6 +223,7 @@ function Dashboard() {
           const mapped = Object.values(grouped).map(c => ({
             id: c.name,
             patient: c.name,
+            phone: c.phone,
             initials: c.name.split(' ').map(w=>w[0]).join('').slice(0,2),
             preview: c.messages[0]?.message_body || '',
             time: new Date(c.messages[0]?.sent_at).toLocaleTimeString('en-GB', {hour:'2-digit',minute:'2-digit'}),
@@ -287,6 +288,27 @@ function Dashboard() {
     }
   }
   function goNav(id) { setDrill(null); setNav(id); }
+
+  async function sendInboxReply() {
+    if (!sendMsg.trim() || !selectedThread?.phone) return;
+    const msg = sendMsg.trim();
+    setSendMsg("");
+    const now = new Date().toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'});
+    setSelectedThread(prev => ({...prev, thread: [...prev.thread, {from:"practice", text:msg, time:now}]}));
+    try {
+      const res = await fetch("https://iryss-backend-12fh.onrender.com/api/send-whatsapp", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ to: selectedThread.phone, message: msg })
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        alert(`Failed to send: ${data.error || res.statusText}`);
+      }
+    } catch(e) {
+      alert(`Failed to send: ${e.message}`);
+    }
+  }
 
   // Polished stat card
   function SC({ label, value, sub, accent, onDrill }) {
@@ -632,9 +654,9 @@ function Dashboard() {
                     <div ref={msgEndRef} />
                   </div>
                   <div style={{ padding:16, borderTop:`1px solid ${C.border}`, display:"flex", gap:10, alignItems:"center" }}>
-                    <input value={sendMsg} onChange={e=>setSendMsg(e.target.value)} placeholder="Type a reply…"
+                    <input value={sendMsg} onChange={e=>setSendMsg(e.target.value)} onKeyDown={e=>e.key==="Enter"&&sendInboxReply()} placeholder="Type a reply…"
                       style={{ flex:1, border:`1px solid ${C.border}`, borderRadius:10, padding:"10px 14px", fontSize:13, fontFamily:F, outline:"none", background:C.offWhite }} />
-                    <button onClick={()=>setSendMsg("")} style={{ background:`linear-gradient(135deg,${C.teal},${C.tealLt})`, color:"#fff", border:"none", borderRadius:10, padding:"10px 18px", fontWeight:700, fontSize:13, cursor:"pointer", fontFamily:F, boxShadow:"0 2px 8px rgba(8,145,178,.3)" }}>Send</button>
+                    <button onClick={sendInboxReply} style={{ background:`linear-gradient(135deg,${C.teal},${C.tealLt})`, color:"#fff", border:"none", borderRadius:10, padding:"10px 18px", fontWeight:700, fontSize:13, cursor:"pointer", fontFamily:F, boxShadow:"0 2px 8px rgba(8,145,178,.3)" }}>Send</button>
                   </div>
                 </div>
               ):(
