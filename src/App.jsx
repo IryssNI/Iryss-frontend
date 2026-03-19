@@ -208,6 +208,8 @@ function Dashboard() {
   const [liveInbox, setLiveInbox] = useState([]);
   const [patientTimeline, setPatientTimeline] = useState(null);
   const [prevNav, setPrevNav] = useState("dashboard");
+  const [recallTab, setRecallTab] = useState("eye-test");
+  const [autoSend, setAutoSend] = useState(false);
 
   useEffect(() => {
     msgEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -258,6 +260,10 @@ function Dashboard() {
     return () => clearInterval(interval);
   }, []);
 
+  function parseMonthsAgo(str) { const m=str.match(/(\d+)\s+month/); return m?parseInt(m[1]):0; }
+  function openRecallWA(p) { setShowSendWA(p); setWaMsg(`Hi ${p.name.split(' ')[0]}, it's been 2 years since your last eye test at Bright Eyes — we'd love to see you again. Would you like to book in? 😊\n\nBright Eyes Opticians`); }
+  function openReorderWA(p) { setShowSendWA(p); setWaMsg(`Hi ${p.name.split(' ')[0]}, your contact lens supply might be running low — would you like to reorder? We can get them sorted quickly for you 😊\n\nBright Eyes Opticians`); }
+
   const highRisk      = PATIENTS.filter(p=>p.risk==="high");
   const medRisk       = PATIENTS.filter(p=>p.risk==="medium");
   const lowRisk       = PATIENTS.filter(p=>p.risk==="low");
@@ -267,6 +273,10 @@ function Dashboard() {
   const unreadCount   = liveInbox.filter(i=>i.unread).length;
   const urgentCount   = liveInbox.filter(i=>i.urgent).length;
   const filteredPts   = filterRisk==="all"?PATIENTS:PATIENTS.filter(p=>p.risk===filterRisk);
+  const recallPatients = PATIENTS.filter(p=>parseMonthsAgo(p.lastVisit)>=8).sort((a,b)=>parseMonthsAgo(b.lastVisit)-parseMonthsAgo(a.lastVisit));
+  const overdueRecall  = recallPatients.filter(p=>parseMonthsAgo(p.lastVisit)>=24);
+  const reorderPatients = PATIENTS.filter(p=>/contact|lens|cl|oasys/i.test(p.product)&&parseMonthsAgo(p.lastVisit)>=3).sort((a,b)=>parseMonthsAgo(b.lastVisit)-parseMonthsAgo(a.lastVisit));
+  const recallRevenue  = recallPatients.reduce((a,p)=>a+p.revenue,0);
 
   const waTemplates = {
     high:   `Hi {name} 👋\n\nWe've been thinking about you and just wanted to check in. It's been a while since your last visit — whenever you're ready, we'd love to welcome you back.\n\nJust reply here and we'll sort everything 😊\n\nBright Eyes Opticians`,
@@ -352,6 +362,7 @@ function Dashboard() {
   const pageTitles = {
     dashboard:"Good morning, Bright Eyes 👋",
     patients:"At-Risk Patients",
+    recalls:"Recall & Reorder Automation",
     inbox:"WhatsApp Inbox",
     revenue:"Revenue Dashboard",
     reviews:"Google Reviews",
@@ -373,6 +384,7 @@ function Dashboard() {
           {[
             { id:"dashboard",    label:"Dashboard",        icon:"◈"  },
             { id:"patients",     label:"At-Risk Patients", icon:"◎", badge:highRisk.length },
+            { id:"recalls",      label:"Recalls",          icon:"◷", badge:recallPatients.length },
             { id:"inbox",        label:"Inbox",            icon:"◻", badge:unreadCount },
             { id:"revenue",      label:"Revenue",          icon:"◇"  },
             { id:"reviews",      label:"Google Reviews",   icon:"◆" },
@@ -704,6 +716,138 @@ function Dashboard() {
                   </div>
                 ))}
               </div>
+            </div>
+          )}
+
+          {/* ═══ RECALLS ═══ */}
+          {nav==="recalls"&&(
+            <div>
+              {/* Auto-send toggle + status */}
+              <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:24, background:C.white, borderRadius:14, padding:"16px 22px", border:`1px solid ${C.border}`, boxShadow:"0 2px 8px rgba(0,0,0,.05)" }}>
+                <div style={{ display:"flex", alignItems:"center", gap:12 }}>
+                  {autoSend
+                    ? <span style={{ background:"rgba(16,185,129,.12)", color:C.green, fontWeight:700, fontSize:12, padding:"5px 14px", borderRadius:20, display:"flex", alignItems:"center", gap:6 }}><span style={{ width:7, height:7, borderRadius:"50%", background:C.green, display:"inline-block", boxShadow:"0 0 6px rgba(16,185,129,.6)" }} />Automation Active</span>
+                    : <span style={{ background:"rgba(100,116,139,.1)", color:C.slate, fontWeight:600, fontSize:12, padding:"5px 14px", borderRadius:20 }}>Manual Mode</span>
+                  }
+                  <span style={{ fontSize:13, color:C.slate }}>Auto-send recalls to patients when they become due</span>
+                </div>
+                <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+                  <span style={{ fontSize:13, fontWeight:600, color:C.navy }}>Auto-send recalls</span>
+                  <div onClick={()=>setAutoSend(v=>!v)} style={{ width:44, height:24, borderRadius:12, background:autoSend?C.teal:C.border, cursor:"pointer", position:"relative", transition:"background .2s", flexShrink:0 }}>
+                    <div style={{ position:"absolute", top:3, left:autoSend?22:3, width:18, height:18, borderRadius:"50%", background:"#fff", boxShadow:"0 1px 4px rgba(0,0,0,.2)", transition:"left .2s" }} />
+                  </div>
+                </div>
+              </div>
+
+              {/* Tabs */}
+              <div style={{ display:"flex", gap:8, marginBottom:22 }}>
+                {[{id:"eye-test",label:"👁 Eye Test Recalls"},{id:"lens-reorder",label:"◉ Lens Reorders"}].map(t=>(
+                  <button key={t.id} onClick={()=>setRecallTab(t.id)} style={{ padding:"9px 20px", borderRadius:10, cursor:"pointer", fontFamily:F, fontSize:13, fontWeight:recallTab===t.id?700:500, background:recallTab===t.id?C.navy:C.white, color:recallTab===t.id?"#fff":C.slate, border:`1px solid ${recallTab===t.id?C.navy:C.border}`, transition:"all .15s" }}>{t.label}</button>
+                ))}
+              </div>
+
+              {/* ── Eye Test Recalls tab ── */}
+              {recallTab==="eye-test"&&(
+                <div>
+                  <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:16, marginBottom:24 }}>
+                    <SC label="Due for recall" value={recallPatients.length} accent={`linear-gradient(90deg,${C.teal},${C.tealLt})`} sub="8+ months since visit" />
+                    <SC label="Overdue" value={overdueRecall.length} accent={`linear-gradient(90deg,${C.red},#F97316)`} sub="24+ months" trend={overdueRecall.length>0?"Action needed":null} trendUp={false} />
+                    <SC label="Sending this week" value={Math.min(recallPatients.length,3)} accent={`linear-gradient(90deg,${C.amber},#EAB308)`} sub="Scheduled" />
+                    <SC label="Est. revenue if all return" value={`£${recallRevenue.toLocaleString()}`} accent={`linear-gradient(90deg,${C.green},#34D399)`} sub={`${recallPatients.length} patients`} />
+                  </div>
+                  <div style={{ background:C.white, borderRadius:16, border:`1px solid ${C.border}`, overflow:"hidden", boxShadow:"0 2px 12px rgba(0,0,0,.06)" }}>
+                    <div style={{ display:"grid", gridTemplateColumns:"1fr 120px 130px 130px 100px 160px", gap:12, padding:"12px 20px", borderBottom:`1px solid ${C.border}`, background:"#FAFBFC" }}>
+                      {["Patient","Last Visit","Due Date","Status","Risk Score","Action"].map(h=>(
+                        <div key={h} style={{ fontSize:10, fontWeight:700, color:C.slateLight, textTransform:"uppercase", letterSpacing:1 }}>{h}</div>
+                      ))}
+                    </div>
+                    {recallPatients.map((p,i)=>{
+                      const months = parseMonthsAgo(p.lastVisit);
+                      const monthsUntilDue = 24-months;
+                      const overdue = monthsUntilDue<0;
+                      const dueSoon = !overdue&&monthsUntilDue<=6;
+                      const dueDate = new Date(); dueDate.setMonth(dueDate.getMonth()+monthsUntilDue);
+                      const dueDateStr = dueDate.toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"});
+                      const statusLabel = overdue?`${Math.abs(monthsUntilDue)} months overdue`:dueSoon?`Due in ${monthsUntilDue} months`:`Due in ${monthsUntilDue} months`;
+                      const statusColor = overdue?C.red:dueSoon?C.amber:C.slate;
+                      const statusBg = overdue?"rgba(239,68,68,.08)":dueSoon?"rgba(245,158,11,.08)":"transparent";
+                      return (
+                        <div key={p.id} style={{ display:"grid", gridTemplateColumns:"1fr 120px 130px 130px 100px 160px", gap:12, padding:"15px 20px", borderBottom:i<recallPatients.length-1?`1px solid ${C.border}`:"none", alignItems:"center", background:i%2===0?C.white:"#FAFBFD", transition:"background .12s" }}
+                          onMouseEnter={e=>e.currentTarget.style.background="rgba(8,145,178,.04)"}
+                          onMouseLeave={e=>e.currentTarget.style.background=i%2===0?C.white:"#FAFBFD"}>
+                          <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+                            <Avatar initials={p.initials} bg={p.risk==="high"?C.red:p.risk==="medium"?C.amber:C.green} size={32} />
+                            <div>
+                              <div onClick={()=>openTimeline(p)} style={{ fontWeight:600, fontSize:13, cursor:"pointer", color:C.navy }} onMouseEnter={e=>e.target.style.color=C.teal} onMouseLeave={e=>e.target.style.color=C.navy}>{p.name}</div>
+                              <div style={{ fontSize:11, color:C.slate }}>{p.product}</div>
+                            </div>
+                          </div>
+                          <div style={{ fontSize:13, color:C.slate }}>{p.lastVisit}</div>
+                          <div style={{ fontSize:12, color:C.navy }}>{dueDateStr}</div>
+                          <div style={{ fontSize:11, fontWeight:700, color:statusColor, background:statusBg, padding:"4px 10px", borderRadius:20, display:"inline-block" }}>{statusLabel}</div>
+                          <div>
+                            <Chip color={riskFg[p.risk]}>{riskLabel[p.risk]}</Chip>
+                            <div style={{ fontSize:10, color:C.slateLight, marginTop:3 }}>{p.riskScore}/100</div>
+                          </div>
+                          <div>
+                            {waSent[p.id]
+                              ?<span style={{ fontSize:12, color:C.green, fontWeight:600 }}>✓ Sent</span>
+                              :<button onClick={()=>openRecallWA(p)} style={{ background:`linear-gradient(135deg,${C.teal},${C.tealLt})`, color:"#fff", border:"none", borderRadius:8, padding:"7px 13px", fontSize:12, fontWeight:700, cursor:"pointer", fontFamily:F, boxShadow:"0 2px 8px rgba(8,145,178,.25)" }}>Send Recall WhatsApp</button>
+                            }
+                          </div>
+                        </div>
+                      );
+                    })}
+                    {recallPatients.length===0&&<div style={{ padding:40, textAlign:"center", color:C.slate, fontSize:14 }}>No patients currently due for recall.</div>}
+                  </div>
+                </div>
+              )}
+
+              {/* ── Lens Reorders tab ── */}
+              {recallTab==="lens-reorder"&&(
+                <div>
+                  <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:16, marginBottom:24 }}>
+                    <SC label="Likely due reorder" value={reorderPatients.length} accent={`linear-gradient(90deg,${C.teal},${C.tealLt})`} sub="Monthly CL patients" />
+                    <SC label="3+ months overdue" value={reorderPatients.filter(p=>parseMonthsAgo(p.lastVisit)>=6).length} accent={`linear-gradient(90deg,${C.red},#F97316)`} sub="Long overdue" />
+                    <SC label="Avg months lapsed" value={Math.round(reorderPatients.reduce((a,p)=>a+parseMonthsAgo(p.lastVisit),0)/(reorderPatients.length||1))} accent={`linear-gradient(90deg,${C.amber},#EAB308)`} sub="Since last visit" />
+                    <SC label="Est. reorder revenue" value={`£${reorderPatients.reduce((a,p)=>a+Math.round(p.revenue*0.4),0).toLocaleString()}`} accent={`linear-gradient(90deg,${C.green},#34D399)`} sub="If all reorder" />
+                  </div>
+                  <div style={{ background:C.white, borderRadius:16, border:`1px solid ${C.border}`, overflow:"hidden", boxShadow:"0 2px 12px rgba(0,0,0,.06)" }}>
+                    <div style={{ display:"grid", gridTemplateColumns:"1fr 130px 160px 100px 160px", gap:12, padding:"12px 20px", borderBottom:`1px solid ${C.border}`, background:"#FAFBFC" }}>
+                      {["Patient","Last Visit","Lens Product","Risk","Action"].map(h=>(
+                        <div key={h} style={{ fontSize:10, fontWeight:700, color:C.slateLight, textTransform:"uppercase", letterSpacing:1 }}>{h}</div>
+                      ))}
+                    </div>
+                    {reorderPatients.map((p,i)=>{
+                      const months = parseMonthsAgo(p.lastVisit);
+                      const urgent = months>=6;
+                      return (
+                        <div key={p.id} style={{ display:"grid", gridTemplateColumns:"1fr 130px 160px 100px 160px", gap:12, padding:"15px 20px", borderBottom:i<reorderPatients.length-1?`1px solid ${C.border}`:"none", alignItems:"center", background:i%2===0?C.white:"#FAFBFD", transition:"background .12s" }}
+                          onMouseEnter={e=>e.currentTarget.style.background="rgba(8,145,178,.04)"}
+                          onMouseLeave={e=>e.currentTarget.style.background=i%2===0?C.white:"#FAFBFD"}>
+                          <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+                            <Avatar initials={p.initials} bg={urgent?C.red:C.teal} size={32} />
+                            <div>
+                              <div onClick={()=>openTimeline(p)} style={{ fontWeight:600, fontSize:13, cursor:"pointer", color:C.navy }} onMouseEnter={e=>e.target.style.color=C.teal} onMouseLeave={e=>e.target.style.color=C.navy}>{p.name}</div>
+                              <div style={{ fontSize:11, color:C.slate }}>{p.phone}</div>
+                            </div>
+                          </div>
+                          <div style={{ fontSize:13, color:urgent?C.red:C.slate, fontWeight:urgent?600:400 }}>{p.lastVisit}</div>
+                          <div style={{ fontSize:12, color:C.navy }}>{p.product}</div>
+                          <Chip color={riskFg[p.risk]}>{riskLabel[p.risk]}</Chip>
+                          <div>
+                            {waSent[p.id]
+                              ?<span style={{ fontSize:12, color:C.green, fontWeight:600 }}>✓ Sent</span>
+                              :<button onClick={()=>openReorderWA(p)} style={{ background:`linear-gradient(135deg,${C.teal},${C.tealLt})`, color:"#fff", border:"none", borderRadius:8, padding:"7px 13px", fontSize:12, fontWeight:700, cursor:"pointer", fontFamily:F, boxShadow:"0 2px 8px rgba(8,145,178,.25)" }}>Send Reorder WhatsApp</button>
+                            }
+                          </div>
+                        </div>
+                      );
+                    })}
+                    {reorderPatients.length===0&&<div style={{ padding:40, textAlign:"center", color:C.slate, fontSize:14 }}>No patients currently due for lens reorder.</div>}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
