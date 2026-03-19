@@ -320,16 +320,19 @@ function Dashboard() {
   }
 
   // Polished stat card
-  function SC({ label, value, sub, accent, onDrill }) {
+  function SC({ label, value, sub, accent, onDrill, trend, trendUp }) {
     return (
-      <div onClick={onDrill} style={{ background:C.white, border:`1px solid ${C.border}`, borderRadius:16, padding:"22px 22px 18px", cursor:onDrill?"pointer":"default", transition:"all .2s", boxShadow:"0 1px 3px rgba(0,0,0,.04), 0 1px 2px rgba(0,0,0,.03)", position:"relative", overflow:"hidden" }}
-        onMouseEnter={e=>{ if(onDrill){ e.currentTarget.style.boxShadow=`0 0 0 2px ${C.teal}, 0 8px 24px rgba(8,145,178,.12)`; e.currentTarget.style.transform="translateY(-1px)"; }}}
-        onMouseLeave={e=>{ e.currentTarget.style.boxShadow="0 1px 3px rgba(0,0,0,.04), 0 1px 2px rgba(0,0,0,.03)"; e.currentTarget.style.transform="translateY(0)"; }}>
-        <div style={{ position:"absolute", top:0, left:0, right:0, height:3, background:accent, borderRadius:"16px 16px 0 0" }} />
-        <div style={{ fontSize:28, fontWeight:800, color:C.navy, letterSpacing:-1, lineHeight:1, marginTop:4 }}>{value}</div>
-        <div style={{ fontSize:12, color:C.slate, marginTop:6, fontWeight:500 }}>{label}</div>
+      <div onClick={onDrill} style={{ background:C.white, border:`1px solid ${C.border}`, borderRadius:16, padding:"22px 22px 20px 26px", cursor:onDrill?"pointer":"default", transition:"all .2s", boxShadow:"0 2px 12px rgba(0,0,0,.06), 0 1px 4px rgba(0,0,0,.04)", position:"relative", overflow:"hidden" }}
+        onMouseEnter={e=>{ if(onDrill){ e.currentTarget.style.boxShadow=`0 0 0 2px ${C.teal}, 0 12px 28px rgba(8,145,178,.14)`; e.currentTarget.style.transform="translateY(-2px)"; }}}
+        onMouseLeave={e=>{ e.currentTarget.style.boxShadow="0 2px 12px rgba(0,0,0,.06), 0 1px 4px rgba(0,0,0,.04)"; e.currentTarget.style.transform="translateY(0)"; }}>
+        <div style={{ position:"absolute", top:0, left:0, bottom:0, width:4, background:accent, borderRadius:"16px 0 0 16px" }} />
+        <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", marginBottom:2 }}>
+          <div style={{ fontSize:32, fontWeight:800, color:C.navy, letterSpacing:-1.5, lineHeight:1 }}>{value}</div>
+          {trend && <span style={{ fontSize:11, fontWeight:700, color:trendUp?C.green:C.red, background:trendUp?"rgba(16,185,129,.1)":"rgba(239,68,68,.1)", padding:"3px 9px", borderRadius:20, flexShrink:0, marginTop:2 }}>{trendUp?"↑":"↓"} {trend}</span>}
+        </div>
+        <div style={{ fontSize:12, color:C.slate, marginTop:8, fontWeight:500, letterSpacing:0.1 }}>{label}</div>
         {sub && <div style={{ fontSize:11, color:C.teal, marginTop:5, fontWeight:600 }}>{sub}</div>}
-        {onDrill && <div style={{ fontSize:10, color:C.slateLight, marginTop:8, display:"flex", alignItems:"center", gap:3 }}>View breakdown <span style={{ fontSize:12 }}>↗</span></div>}
+        {onDrill && <div style={{ fontSize:10, color:C.slateLight, marginTop:10, display:"flex", alignItems:"center", gap:3 }}>View breakdown <span style={{ fontSize:11 }}>↗</span></div>}
       </div>
     );
   }
@@ -353,44 +356,64 @@ function Dashboard() {
     <div style={{ display:"flex", height:"100vh", fontFamily:F, background:"#EEF2F7", color:C.navy, overflow:"hidden" }}>
 
       {/* ── Sidebar ── */}
-      <div style={{ width:236, background:C.navy, display:"flex", flexDirection:"column", flexShrink:0, padding:"0 10px 16px", borderRight:"1px solid rgba(255,255,255,.04)" }}>
-        <div style={{ padding:"24px 8px 20px", borderBottom:"1px solid rgba(255,255,255,.06)", marginBottom:10 }}>
+      <div style={{ width:236, background:C.navy, display:"flex", flexDirection:"column", flexShrink:0, padding:"0 12px 20px", borderRight:"1px solid rgba(255,255,255,.05)" }}>
+        <div style={{ padding:"28px 8px 22px", borderBottom:"1px solid rgba(255,255,255,.07)", marginBottom:14 }}>
           <img src="/iryss-logo.png" alt="Iryss" style={{ height:"36px", objectFit:"contain" }} />
-          <div style={{ display:"flex", alignItems:"center", gap:8, marginTop:6 }}><div style={{ fontSize:10, color:"rgba(255,255,255,.3)", letterSpacing:2, textTransform:"uppercase" }}>Bright Eyes Opticians</div></div>
+          <div style={{ fontSize:11, color:"rgba(255,255,255,.28)", letterSpacing:1.5, textTransform:"uppercase", marginTop:10, fontWeight:600 }}>Bright Eyes Opticians</div>
         </div>
 
-        <nav style={{ display:"flex", flexDirection:"column", gap:2, flex:1 }}>
+        <nav style={{ display:"flex", flexDirection:"column", gap:1, flex:1 }}>
           {[
-            { id:"dashboard",    label:"Dashboard",        icon:"⬡"  },
-            { id:"patients",     label:"At-Risk Patients", icon:"🎯", badge:highRisk.length },
-            { id:"inbox",        label:"Inbox",            icon:"💬", badge:unreadCount },
-            { id:"revenue",      label:"Revenue",          icon:"£"  },
-            { id:"reviews",      label:"Google Reviews",   icon:"⭐" },
-            { id:"appointments", label:"Appointments",     icon:"📅" },
-            { id:"receptionist", label:"AI Receptionist",  icon:"🤖" },
+            { id:"dashboard",    label:"Dashboard",        icon:"◈"  },
+            { id:"patients",     label:"At-Risk Patients", icon:"◎", badge:highRisk.length },
+            { id:"inbox",        label:"Inbox",            icon:"◻", badge:unreadCount },
+            { id:"revenue",      label:"Revenue",          icon:"◇"  },
+            { id:"reviews",      label:"Google Reviews",   icon:"◆" },
           ].map(item=>(
             <button key={item.id} onClick={()=>goNav(item.id)} style={{
-              display:"flex", alignItems:"center", gap:10, width:"100%", padding:"10px 12px",
-              border:"none", background:nav===item.id?"rgba(8,145,178,.18)":"transparent",
+              display:"flex", alignItems:"center", gap:11, width:"100%", padding:"11px 12px",
+              border:"none", background:nav===item.id?"rgba(8,145,178,.2)":"transparent",
               borderRadius:10, cursor:"pointer",
-              color:nav===item.id?"#fff":"rgba(255,255,255,.45)",
+              color:nav===item.id?"#fff":"rgba(255,255,255,.42)",
               fontWeight:nav===item.id?700:400, fontSize:13.5, fontFamily:F, textAlign:"left",
               borderLeft:nav===item.id?`3px solid ${C.teal}`:"3px solid transparent",
               transition:"all .15s", letterSpacing:-0.1
-            }}>
-              <span style={{ fontSize:15, width:20, textAlign:"center", opacity:nav===item.id?1:0.7 }}>{item.icon}</span>
+            }}
+              onMouseEnter={e=>{ if(nav!==item.id){ e.currentTarget.style.background="rgba(255,255,255,.05)"; e.currentTarget.style.color="rgba(255,255,255,.75)"; }}}
+              onMouseLeave={e=>{ if(nav!==item.id){ e.currentTarget.style.background="transparent"; e.currentTarget.style.color="rgba(255,255,255,.42)"; }}}>
+              <span style={{ fontSize:14, width:18, textAlign:"center", opacity:nav===item.id?1:0.65 }}>{item.icon}</span>
               <span style={{ flex:1 }}>{item.label}</span>
               {item.badge>0 && <span style={{ background:C.red, color:"#fff", borderRadius:20, fontSize:10, fontWeight:700, padding:"2px 7px", minWidth:20, textAlign:"center" }}>{item.badge}</span>}
             </button>
           ))}
+          <div style={{ height:1, background:"rgba(255,255,255,.06)", margin:"10px 4px" }} />
+          {[
+            { id:"appointments", label:"Appointments",     icon:"▦" },
+            { id:"receptionist", label:"AI Receptionist",  icon:"⬡" },
+          ].map(item=>(
+            <button key={item.id} onClick={()=>goNav(item.id)} style={{
+              display:"flex", alignItems:"center", gap:11, width:"100%", padding:"11px 12px",
+              border:"none", background:nav===item.id?"rgba(8,145,178,.2)":"transparent",
+              borderRadius:10, cursor:"pointer",
+              color:nav===item.id?"#fff":"rgba(255,255,255,.42)",
+              fontWeight:nav===item.id?700:400, fontSize:13.5, fontFamily:F, textAlign:"left",
+              borderLeft:nav===item.id?`3px solid ${C.teal}`:"3px solid transparent",
+              transition:"all .15s", letterSpacing:-0.1
+            }}
+              onMouseEnter={e=>{ if(nav!==item.id){ e.currentTarget.style.background="rgba(255,255,255,.05)"; e.currentTarget.style.color="rgba(255,255,255,.75)"; }}}
+              onMouseLeave={e=>{ if(nav!==item.id){ e.currentTarget.style.background="transparent"; e.currentTarget.style.color="rgba(255,255,255,.42)"; }}}>
+              <span style={{ fontSize:14, width:18, textAlign:"center", opacity:nav===item.id?1:0.65 }}>{item.icon}</span>
+              <span style={{ flex:1 }}>{item.label}</span>
+            </button>
+          ))}
         </nav>
 
-        <div style={{ borderTop:"1px solid rgba(255,255,255,.06)", paddingTop:14, marginTop:8 }}>
-          <div style={{ display:"flex", alignItems:"center", gap:8, padding:"6px 12px" }}>
-            <div style={{ width:7, height:7, borderRadius:"50%", background:C.green, boxShadow:"0 0 6px rgba(16,185,129,.6)" }} />
-            <span style={{ fontSize:12, color:"rgba(255,255,255,.35)" }}>All systems live</span>
+        <div style={{ borderTop:"1px solid rgba(255,255,255,.07)", paddingTop:16, marginTop:8 }}>
+          <div style={{ display:"flex", alignItems:"center", gap:8, padding:"6px 10px", background:"rgba(16,185,129,.08)", borderRadius:8, marginBottom:6 }}>
+            <div style={{ width:7, height:7, borderRadius:"50%", background:C.green, boxShadow:"0 0 8px rgba(16,185,129,.7)", flexShrink:0 }} />
+            <span style={{ fontSize:12, color:"rgba(255,255,255,.5)", fontWeight:500 }}>All systems live</span>
           </div>
-          <div style={{ fontSize:11, color:"rgba(255,255,255,.18)", padding:"2px 12px" }}>Next AI scoring: 02:00</div>
+          <div style={{ fontSize:11, color:"rgba(255,255,255,.2)", padding:"2px 10px" }}>Next AI scoring: 02:00</div>
         </div>
       </div>
 
@@ -398,24 +421,30 @@ function Dashboard() {
       <div style={{ flex:1, overflow:"auto", display:"flex", flexDirection:"column" }}>
 
         {/* Topbar */}
-        <div style={{ background:C.white, borderBottom:`1px solid ${C.border}`, padding:"14px 28px", display:"flex", alignItems:"center", justifyContent:"space-between", flexShrink:0, boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
+        <div style={{ background:C.white, borderBottom:`1px solid ${C.border}`, padding:"16px 32px", display:"flex", alignItems:"center", justifyContent:"space-between", flexShrink:0, boxShadow:"0 1px 4px rgba(0,0,0,.05)" }}>
           <div>
-            <div style={{ fontSize:18, fontWeight:700, color:C.navy, letterSpacing:-0.4 }}>{pageTitles[nav]}</div>
-            <div style={{ fontSize:12, color:C.slateLight, marginTop:2 }}>Tuesday, 10 March 2026</div>
+            <div style={{ fontSize:22, fontWeight:800, color:C.navy, letterSpacing:-0.6 }}>{pageTitles[nav]}</div>
+            <div style={{ fontSize:12, color:C.slateLight, marginTop:3, fontWeight:500 }}>
+              {new Date().toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long",year:"numeric"})}
+            </div>
           </div>
-          <div style={{ display:"flex", alignItems:"center", gap:12 }}>
+          <div style={{ display:"flex", alignItems:"center", gap:14 }}>
             {urgentCount>0&&(
-              <div onClick={()=>goNav("inbox")} style={{ background:"rgba(239,68,68,.07)", border:"1px solid rgba(239,68,68,.18)", borderRadius:10, padding:"7px 14px", cursor:"pointer", display:"flex", alignItems:"center", gap:7 }}>
+              <div onClick={()=>goNav("inbox")} style={{ background:"rgba(239,68,68,.07)", border:"1px solid rgba(239,68,68,.18)", borderRadius:10, padding:"8px 16px", cursor:"pointer", display:"flex", alignItems:"center", gap:7, transition:"background .15s" }}>
                 <span style={{ fontSize:14 }}>🚨</span>
                 <span style={{ fontSize:12, fontWeight:700, color:C.red }}>{urgentCount} urgent alert{urgentCount>1?"s":""}</span>
               </div>
             )}
-            <Avatar initials="BE" bg={C.teal} size={34} />
+            <div onClick={()=>goNav("inbox")} style={{ position:"relative", cursor:"pointer", width:36, height:36, display:"flex", alignItems:"center", justifyContent:"center", background:C.offWhite, borderRadius:10, border:`1px solid ${C.border}` }}>
+              <span style={{ fontSize:17 }}>🔔</span>
+              {unreadCount>0&&<span style={{ position:"absolute", top:-4, right:-4, background:C.red, color:"#fff", borderRadius:20, fontSize:9, fontWeight:800, padding:"2px 5px", minWidth:16, textAlign:"center", lineHeight:1.4 }}>{unreadCount}</span>}
+            </div>
+            <Avatar initials="BE" bg={C.teal} size={36} />
           </div>
         </div>
 
         {/* Content */}
-        <div style={{ flex:1, overflow:"auto", padding:28 }}>
+        <div style={{ flex:1, overflow:"auto", padding:32, background:"linear-gradient(160deg,#F0F4F8 0%,#F8FBFD 100%)" }}>
 
           {/* ═══ DASHBOARD ═══ */}
           {nav==="dashboard"&&(
@@ -452,11 +481,11 @@ function Dashboard() {
               ))}
 
               {/* KPI cards */}
-              <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:14, marginBottom:22 }}>
-                <SC label="Patients at risk"   value={PATIENTS.filter(p=>p.risk!=="low").length} sub={`${highRisk.length} high · ${medRisk.length} medium`} accent={`linear-gradient(90deg,${C.red},#F97316)`}    onDrill={()=>setDrill("at-risk")} />
-                <SC label="Revenue at risk"    value={`£${atRiskRevenue.toLocaleString()}`}       sub="This month"     accent={`linear-gradient(90deg,${C.amber},#EAB308)`}  onDrill={()=>setDrill("rev-risk")} />
-                <SC label="Patients recovered" value={recovered.length}                           sub="This month"     accent={`linear-gradient(90deg,${C.green},#34D399)`}  onDrill={()=>setDrill("recovered")} />
-                <SC label="Revenue recovered"  value={`£${recoveredRev.toLocaleString()}`}        sub="↑ This month"   accent={`linear-gradient(90deg,${C.teal},${C.tealLt})`} onDrill={()=>setDrill("rev-recovered")} />
+              <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:16, marginBottom:26 }}>
+                <SC label="Patients at risk"   value={PATIENTS.filter(p=>p.risk!=="low").length} sub={`${highRisk.length} high · ${medRisk.length} medium`} accent={`linear-gradient(90deg,${C.red},#F97316)`}    onDrill={()=>setDrill("at-risk")}      trend="2 new" trendUp={false} />
+                <SC label="Revenue at risk"    value={`£${atRiskRevenue.toLocaleString()}`}       sub="This month"     accent={`linear-gradient(90deg,${C.amber},#EAB308)`}  onDrill={()=>setDrill("rev-risk")}    trend="8%" trendUp={false} />
+                <SC label="Patients recovered" value={recovered.length}                           sub="This month"     accent={`linear-gradient(90deg,${C.green},#34D399)`}  onDrill={()=>setDrill("recovered")}   trend="33%" trendUp={true} />
+                <SC label="Revenue recovered"  value={`£${recoveredRev.toLocaleString()}`}        sub="This month"     accent={`linear-gradient(90deg,${C.teal},${C.tealLt})`} onDrill={()=>setDrill("rev-recovered")} trend="12%" trendUp={true} />
               </div>
 
               <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:18 }}>
@@ -530,11 +559,11 @@ function Dashboard() {
           {/* ═══ AT-RISK PATIENTS ═══ */}
           {nav==="patients"&&(
             <div>
-              <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:14, marginBottom:22 }}>
-                <SC label="High risk"             value={highRisk.length}    accent={`linear-gradient(90deg,${C.red},#F97316)`}    onDrill={()=>setDrill("high-risk")} />
+              <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:16, marginBottom:26 }}>
+                <SC label="High risk"             value={highRisk.length}    accent={`linear-gradient(90deg,${C.red},#F97316)`}    onDrill={()=>setDrill("high-risk")} trend="1 new" trendUp={false} />
                 <SC label="Medium risk"           value={medRisk.length}     accent={`linear-gradient(90deg,${C.amber},#EAB308)`}  onDrill={()=>setDrill("med-risk")} />
-                <SC label="Total revenue at risk" value={`£${atRiskRevenue.toLocaleString()}`} accent={`linear-gradient(90deg,${C.teal},${C.tealLt})`} onDrill={()=>setDrill("rev-risk")} />
-                <SC label="Patients recovered"    value={recovered.length}   sub="This month" accent={`linear-gradient(90deg,${C.green},#34D399)`} onDrill={()=>setDrill("recovered")} />
+                <SC label="Total revenue at risk" value={`£${atRiskRevenue.toLocaleString()}`} accent={`linear-gradient(90deg,${C.teal},${C.tealLt})`} onDrill={()=>setDrill("rev-risk")} trend="8%" trendUp={false} />
+                <SC label="Patients recovered"    value={recovered.length}   sub="This month" accent={`linear-gradient(90deg,${C.green},#34D399)`} onDrill={()=>setDrill("recovered")} trend="33%" trendUp={true} />
               </div>
               <div style={{ display:"flex", gap:8, marginBottom:18 }}>
                 {["all","high","medium"].map(r=>(
@@ -556,7 +585,9 @@ function Dashboard() {
                   ))}
                 </div>
                 {filteredPts.map((p,i)=>(
-                  <div key={p.id} style={{ display:"grid", gridTemplateColumns:"1fr 130px 130px 120px 160px", gap:12, padding:"14px 20px", borderBottom:i<filteredPts.length-1?`1px solid ${C.border}`:"none", alignItems:"center" }}>
+                  <div key={p.id} style={{ display:"grid", gridTemplateColumns:"1fr 130px 130px 120px 160px", gap:12, padding:"15px 20px", borderBottom:i<filteredPts.length-1?`1px solid ${C.border}`:"none", alignItems:"center", background:i%2===0?C.white:"#FAFBFD", transition:"background .12s" }}
+                    onMouseEnter={e=>e.currentTarget.style.background="rgba(8,145,178,.04)"}
+                    onMouseLeave={e=>e.currentTarget.style.background=i%2===0?C.white:"#FAFBFD"}>
                     <div style={{ display:"flex", alignItems:"center", gap:10 }}>
                       <Avatar initials={p.initials} bg={p.risk==="high"?C.red:p.risk==="medium"?C.amber:C.green} size={32} />
                       <div>
@@ -669,9 +700,9 @@ function Dashboard() {
           {/* ═══ REVENUE ═══ */}
           {nav==="revenue"&&(
             <div>
-              <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:14, marginBottom:22 }}>
-                <SC label="Revenue at risk"       value={`£${atRiskRevenue.toLocaleString()}`}                        accent={`linear-gradient(90deg,${C.red},#F97316)`}    onDrill={()=>setDrill("rev-risk")} />
-                <SC label="Recovered this month"  value={`£${recoveredRev.toLocaleString()}`} sub={`${recovered.length} patients`} accent={`linear-gradient(90deg,${C.green},#34D399)`}  onDrill={()=>setDrill("rev-recovered")} />
+              <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:16, marginBottom:26 }}>
+                <SC label="Revenue at risk"       value={`£${atRiskRevenue.toLocaleString()}`}                        accent={`linear-gradient(90deg,${C.red},#F97316)`}    onDrill={()=>setDrill("rev-risk")}      trend="8%" trendUp={false} />
+                <SC label="Recovered this month"  value={`£${recoveredRev.toLocaleString()}`} sub={`${recovered.length} patients`} accent={`linear-gradient(90deg,${C.green},#34D399)`}  onDrill={()=>setDrill("rev-recovered")} trend="12%" trendUp={true} />
                 <SC label="Recovered YTD"         value="£8,400"                              sub="Since April 2025"  accent={`linear-gradient(90deg,${C.teal},${C.tealLt})`} />
                 <SC label="ROI on Iryss"          value="7.5×"                                sub="£220 plan"         accent={`linear-gradient(90deg,#8B5CF6,#A78BFA)`} />
               </div>
@@ -753,7 +784,9 @@ function Dashboard() {
                   ))}
                 </div>
                 {APPOINTMENTS.map((a,i)=>(
-                  <div key={i} style={{ display:"grid", gridTemplateColumns:"80px 1fr 180px 160px 120px", gap:12, padding:"14px 20px", borderBottom:i<APPOINTMENTS.length-1?`1px solid ${C.border}`:"none", alignItems:"center" }}>
+                  <div key={i} style={{ display:"grid", gridTemplateColumns:"80px 1fr 180px 160px 120px", gap:12, padding:"15px 20px", borderBottom:i<APPOINTMENTS.length-1?`1px solid ${C.border}`:"none", alignItems:"center", background:i%2===0?C.white:"#FAFBFD", transition:"background .12s" }}
+                    onMouseEnter={e=>e.currentTarget.style.background="rgba(8,145,178,.04)"}
+                    onMouseLeave={e=>e.currentTarget.style.background=i%2===0?C.white:"#FAFBFD"}>
                     <div style={{ fontWeight:700, fontSize:14 }}>{a.time}</div>
                     <div>
                       <div style={{ fontWeight:600, fontSize:13 }}>{a.patient}</div>
