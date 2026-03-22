@@ -23,13 +23,13 @@ const C = {
 };
 
 const PATIENTS = [
-  { id:"P-001", name:"Louise Everden",  initials:"LE",  phone:"+447827322027", lastVisit:"6 months ago",  product:"Acuvue Oasys Astigmatism", age:33, risk:"low",    riskScore:28, revenue:280, status:"checkin"   },
+  { id:"P-001", name:"Louise Everton",  initials:"LE",  phone:"+447827322027", lastVisit:"6 months ago",  product:"Acuvue Oasys Astigmatism", age:33, risk:"low",    riskScore:28, revenue:280, status:"checkin"   },
   { id:"P-002", name:"Tom Bradley",     initials:"TB",  phone:"+447827001002", lastVisit:"9 months ago",  product:"Monthly Contact Lenses",    risk:"medium", riskScore:61, revenue:185, status:"sent"      },
   { id:"P-003", name:"Margaret Flynn",  initials:"MF",  phone:"+447827001003", lastVisit:"11 months ago", product:"Glasses + Contact Lenses",  risk:"high",   riskScore:88, revenue:410, status:"alert"     },
   { id:"P-004", name:"Ciara Murphy",    initials:"CM",  phone:"+447827001004", lastVisit:"4 months ago",  product:"Glasses",                   risk:"low",    riskScore:24, revenue:240, status:"checkin"   },
-  { id:"P-005", name:"James Brew",      initials:"JB",  phone:"+447803003472", lastVisit:"8 months ago",  product:"No current spectacles or CL", age:44, risk:"medium", riskScore:61, revenue:150, status:"sent"      },
+  { id:"P-005", name:"Jim Bru",         initials:"JB",  phone:"+447803003472", lastVisit:"8 months ago",  product:"No current spectacles or CL", age:44, risk:"medium", riskScore:61, revenue:150, status:"sent"      },
   { id:"P-006", name:"Sarah Flynn",     initials:"SF",  phone:"+447827001006", lastVisit:"3 months ago",  product:"Varifocals",                risk:"low",    riskScore:18, revenue:380, status:"booked"    },
-  { id:"P-007", name:"Shona Everden",   initials:"SE",  phone:"+447711552094", lastVisit:"13 months ago", product:"Varifocals + Acuvue Oasys Max", age:62, risk:"high",   riskScore:82, revenue:420, status:"pending"   },
+  { id:"P-007", name:"Shona Kay",       initials:"SK",  phone:"+447711552094", lastVisit:"13 months ago", product:"Varifocals + Acuvue Oasys Max", age:62, risk:"high",   riskScore:82, revenue:420, status:"pending"   },
   { id:"P-008", name:"Jess Brown",       initials:"JB2", phone:"+447572043380", lastVisit:"5 months ago",  product:"Monthly CL + Glasses",      risk:"low",    riskScore:31, revenue:220, status:"recovered" },
 ];
 
@@ -45,10 +45,10 @@ const REVIEW_REQUESTS = [
   { patient:"Emma Wilson",    date:"18 Mar", trigger:"Appointment confirmed", status:"left",    phone:"+447827001010" },
   { patient:"Tom Bradley",    date:"18 Mar", trigger:"Positive reply",        status:"pending", phone:"+447827001002" },
   { patient:"Priya Sharma",   date:"17 Mar", trigger:"Appointment confirmed", status:"left",    phone:"+447827001011" },
-  { patient:"James Brew",     date:"15 Mar", trigger:"Positive reply",        status:"pending", phone:"+447803003472" },
+  { patient:"Jim Bru",     date:"15 Mar", trigger:"Positive reply",        status:"pending", phone:"+447803003472" },
   { patient:"Sarah Flynn",    date:"14 Mar", trigger:"Appointment confirmed", status:"none",    phone:"+447827001006" },
   { patient:"Ciara Murphy",   date:"12 Mar", trigger:"Positive reply",        status:"left",    phone:"+447827001004" },
-  { patient:"Louise Everden", date:"10 Mar", trigger:"Appointment confirmed", status:"none",    phone:"+447827322027" },
+  { patient:"Louise Everton", date:"10 Mar", trigger:"Appointment confirmed", status:"none",    phone:"+447827322027" },
   { patient:"Margaret Flynn", date:"8 Mar",  trigger:"Positive reply",        status:"pending", phone:"+447827001003" },
 ];
 
@@ -66,7 +66,7 @@ const APPOINTMENTS = [
   { patient:"Emma Wilson",    type:"Eye Test",              time:"09:00", optician:"Dr. Patel", confirmed:true,  viaIryss:false, revenue:45,  phone:"+447827001010" },
   { patient:"Tom Bradley",    type:"Contact Lens Fitting",  time:"10:30", optician:"Dr. Chen",  confirmed:true,  viaIryss:true,  revenue:120, phone:"+447827001002" },
   { patient:"Priya Sharma",   type:"Glasses Collection",    time:"11:15", optician:"Dr. Patel", confirmed:true,  viaIryss:false, revenue:340, phone:"+447827001011" },
-  { patient:"James Brew",     type:"Multifocal CL Trial",   time:"15:30", optician:"Dr. Chen",  confirmed:true,  viaIryss:true,  revenue:85,  phone:"+447803003472" },
+  { patient:"Jim Bru",     type:"Multifocal CL Trial",   time:"15:30", optician:"Dr. Chen",  confirmed:true,  viaIryss:true,  revenue:85,  phone:"+447803003472" },
   { patient:"Carol Mitchell", type:"Follow-Up",             time:"17:00", optician:"Dr. Patel", confirmed:false, viaIryss:false, revenue:30,  phone:"+447827001012" },
 ];
 
@@ -81,8 +81,8 @@ const UPCOMING_WEEK = [
     { patient:"Brian Walsh",    type:"Contact Lens Fitting", time:"14:00", optician:"Dr. Patel", confirmed:false, revenue:120 },
   ]},
   { day:"Wednesday", date:"25 March", appts:[
-    { patient:"Louise Everden", type:"Contact Lens Check",   time:"09:00", optician:"Dr. Chen",  confirmed:true,  revenue:65  },
-    { patient:"Shona Everden",  type:"Eye Test",             time:"11:30", optician:"Dr. Patel", confirmed:false, revenue:45  },
+    { patient:"Louise Everton", type:"Contact Lens Check",   time:"09:00", optician:"Dr. Chen",  confirmed:true,  revenue:65  },
+    { patient:"Shona Kay",  type:"Eye Test",             time:"11:30", optician:"Dr. Patel", confirmed:false, revenue:45  },
     { patient:"Mark Graham",    type:"Glasses Collection",   time:"15:00", optician:"Dr. Chen",  confirmed:true,  revenue:280 },
   ]},
   { day:"Thursday",  date:"26 March", appts:[
@@ -90,7 +90,7 @@ const UPCOMING_WEEK = [
     { patient:"Jess Brown",     type:"Eye Test",             time:"13:00", optician:"Dr. Chen",  confirmed:false, revenue:45  },
   ]},
   { day:"Friday",    date:"27 March", appts:[
-    { patient:"James Brew",     type:"Multifocal CL Review", time:"09:00", optician:"Dr. Patel", confirmed:true,  revenue:80  },
+    { patient:"Jim Bru",     type:"Multifocal CL Review", time:"09:00", optician:"Dr. Patel", confirmed:true,  revenue:80  },
     { patient:"Patricia Ross",  type:"Varifocal Dispense",   time:"11:00", optician:"Dr. Chen",  confirmed:false, revenue:340 },
     { patient:"David Kelly",    type:"Eye Test",             time:"14:30", optician:"Dr. Patel", confirmed:true,  revenue:45  },
   ]},
@@ -2705,7 +2705,7 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
             ))}
           </div>
           {[
-            { patient:"James Brew",     topic:"Multifocal contact lens enquiry → appointment booked", time:"Today 14:32",  resolved:true  },
+            { patient:"Jim Bru",     topic:"Multifocal contact lens enquiry → appointment booked", time:"Today 14:32",  resolved:true  },
             { patient:"Ciara Murphy",   topic:"Asked about eye test frequency for children",           time:"Today 11:00",  resolved:true  },
             { patient:"Sarah Flynn",    topic:"Appointment reminder confirmation",                     time:"Today 09:00",  resolved:true  },
             { patient:"Robert Hughes",  topic:"Query about varifocal adaptation period",               time:"Yesterday",    resolved:true  },
