@@ -30,7 +30,7 @@ const PATIENTS = [
   { id:"P-005", name:"James Brew",      initials:"JB",  phone:"+447803003472", lastVisit:"8 months ago",  product:"No current spectacles or CL", age:44, risk:"medium", riskScore:61, revenue:150, status:"sent"      },
   { id:"P-006", name:"Sarah Flynn",     initials:"SF",  phone:"+447827001006", lastVisit:"3 months ago",  product:"Varifocals",                risk:"low",    riskScore:18, revenue:380, status:"booked"    },
   { id:"P-007", name:"Shona Everden",   initials:"SE",  phone:"+447711552094", lastVisit:"13 months ago", product:"Varifocals + Acuvue Oasys Max", age:62, risk:"high",   riskScore:82, revenue:420, status:"pending"   },
-  { id:"P-008", name:"Jessica Bayman",  initials:"JB2", phone:"+447572043380", lastVisit:"5 months ago",  product:"Monthly CL + Glasses",      risk:"low",    riskScore:31, revenue:220, status:"recovered" },
+  { id:"P-008", name:"Jess Brown",       initials:"JB2", phone:"+447572043380", lastVisit:"5 months ago",  product:"Monthly CL + Glasses",      risk:"low",    riskScore:31, revenue:220, status:"recovered" },
 ];
 
 
@@ -87,7 +87,7 @@ const UPCOMING_WEEK = [
   ]},
   { day:"Thursday",  date:"26 March", appts:[
     { patient:"Tom Bradley",    type:"CL Annual Review",     time:"10:30", optician:"Dr. Patel", confirmed:true,  revenue:85  },
-    { patient:"Jessica Bayman", type:"Eye Test",             time:"13:00", optician:"Dr. Chen",  confirmed:false, revenue:45  },
+    { patient:"Jess Brown",     type:"Eye Test",             time:"13:00", optician:"Dr. Chen",  confirmed:false, revenue:45  },
   ]},
   { day:"Friday",    date:"27 March", appts:[
     { patient:"James Brew",     type:"Multifocal CL Review", time:"09:00", optician:"Dr. Patel", confirmed:true,  revenue:80  },
