@@ -575,8 +575,8 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
 
       {/* ── Sidebar ── */}
       <div style={{ width:236, background:C.navy, display:"flex", flexDirection:"column", flexShrink:0, padding:"0 12px 20px", borderRight:"1px solid rgba(255,255,255,.05)" }}>
-        <div style={{ padding:"28px 8px 22px", borderBottom:"1px solid rgba(255,255,255,.07)", marginBottom:14 }}>
-          <img src="/iryss-logo.svg" alt="Iryss" style={{ height:"48px", objectFit:"contain" }} />
+        <div style={{ padding:"10px 0 18px", borderBottom:"1px solid rgba(255,255,255,.07)", marginBottom:14 }}>
+          <img src="/iryss-logo.svg" alt="Iryss" style={{ height:"96px", objectFit:"contain" }} />
           <div style={{ fontSize:11, color:"rgba(255,255,255,.28)", letterSpacing:1.5, textTransform:"uppercase", marginTop:10, fontWeight:600 }}>Bright Eyes Opticians</div>
         </div>
 
@@ -663,14 +663,11 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
       <div style={{ flex:1, overflow:"auto", display:"flex", flexDirection:"column" }}>
 
         {/* Topbar */}
-        <div style={{ background:C.white, borderBottom:`1px solid ${C.border}`, padding:"8px 32px 8px 8px", display:"flex", alignItems:"center", justifyContent:"space-between", flexShrink:0, boxShadow:"0 1px 4px rgba(0,0,0,.05)" }}>
-          <div style={{ display:"flex", alignItems:"center", gap:18 }}>
-            <img src="/iryss-logo.svg" alt="Iryss" style={{ height:"160px", objectFit:"contain", flexShrink:0 }} />
-            <div>
-              <div style={{ fontSize:22, fontWeight:800, color:C.navy, letterSpacing:-0.6 }}>{patientTimeline ? (patientTimeline.name||patientTimeline.patient||"Patient") : pageTitles[nav]}</div>
-              <div style={{ fontSize:12, color:C.slateLight, marginTop:3, fontWeight:500 }}>
-                {new Date().toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long",year:"numeric"})}
-              </div>
+        <div style={{ background:C.white, borderBottom:`1px solid ${C.border}`, padding:"16px 32px", display:"flex", alignItems:"center", justifyContent:"space-between", flexShrink:0, boxShadow:"0 1px 4px rgba(0,0,0,.05)" }}>
+          <div>
+            <div style={{ fontSize:22, fontWeight:800, color:C.navy, letterSpacing:-0.6 }}>{patientTimeline ? (patientTimeline.name||patientTimeline.patient||"Patient") : pageTitles[nav]}</div>
+            <div style={{ fontSize:12, color:C.slateLight, marginTop:3, fontWeight:500 }}>
+              {new Date().toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long",year:"numeric"})}
             </div>
           </div>
           <div style={{ display:"flex", alignItems:"center", gap:14 }}>
