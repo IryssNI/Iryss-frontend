@@ -576,7 +576,7 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
       {/* ── Sidebar ── */}
       <div style={{ width:236, background:C.navy, display:"flex", flexDirection:"column", flexShrink:0, padding:"0 12px 20px", borderRight:"1px solid rgba(255,255,255,.05)" }}>
         <div style={{ padding:"28px 8px 22px", borderBottom:"1px solid rgba(255,255,255,.07)", marginBottom:14 }}>
-          <img src="/iryss-logo.png" alt="Iryss" style={{ height:"36px", objectFit:"contain" }} />
+          <img src="/iryss-logo.svg" alt="Iryss" style={{ height:"48px", objectFit:"contain" }} />
           <div style={{ fontSize:11, color:"rgba(255,255,255,.28)", letterSpacing:1.5, textTransform:"uppercase", marginTop:10, fontWeight:600 }}>Bright Eyes Opticians</div>
         </div>
 
