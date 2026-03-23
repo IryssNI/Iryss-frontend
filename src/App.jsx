@@ -223,6 +223,7 @@ function Dashboard() {
   const [nav, setNav]               = useState("dashboard");
   const [drill, setDrill]           = useState(null);
   const [filterRisk, setFilterRisk] = useState("all");
+  const [patientSearch, setPatientSearch] = useState("");
   const [selectedThread, setSelectedThread] = useState(null);
   const [sendMsg, setSendMsg]       = useState("");
   const [showSendWA, setShowSendWA] = useState(null);
@@ -331,7 +332,10 @@ function Dashboard() {
   const unreadCount     = liveInbox.filter(i=>i.unread).length;
   const urgentMessages  = liveInbox.filter(i=>i.unread && (i.sentiment==='urgent'||i.sentiment==='negative'));
   const urgentCount     = urgentMessages.length;
-  const filteredPts   = filterRisk==="all"?PATIENTS:PATIENTS.filter(p=>p.risk===filterRisk);
+  const allPatients   = PATIENTS.map(p=>({...p, risk:p.risk||"low"}));
+  const filteredPts   = allPatients
+    .filter(p=>filterRisk==="all"||p.risk===filterRisk)
+    .filter(p=>!patientSearch||p.name.toLowerCase().includes(patientSearch.toLowerCase()));
   const noShowRisk     = APPOINTMENTS.filter(a=>!a.confirmed);
   const recallPatients = PATIENTS.filter(p=>parseMonthsAgo(p.lastVisit)>=8).sort((a,b)=>parseMonthsAgo(b.lastVisit)-parseMonthsAgo(a.lastVisit));
   const overdueRecall  = recallPatients.filter(p=>parseMonthsAgo(p.lastVisit)>=24);
@@ -446,7 +450,7 @@ function Dashboard() {
 
   const pageTitles = {
     dashboard:"Good morning, Bright Eyes 👋",
-    patients:"At-Risk Patients",
+    patients:"All Patients",
     recalls:"Recall & Reorder Automation",
     inbox:"WhatsApp Inbox",
     revenue:"Revenue Dashboard",
@@ -583,7 +587,7 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
         <nav style={{ display:"flex", flexDirection:"column", gap:1, flex:1 }}>
           {[
             { id:"dashboard",    label:"Dashboard",        icon:"◈"  },
-            { id:"patients",     label:"At-Risk Patients", icon:"◎", badge:highRisk.length },
+            { id:"patients",     label:"All Patients",      icon:"◎", badge:PATIENTS.length },
             { id:"recalls",      label:"Recalls",          icon:"◷", badge:recallPatients.length, warnDot:complianceRate<80&&recallPatients.length>0 },
             { id:"inbox",        label:"Inbox",            icon:"◻", badge:unreadCount, urgentDot:urgentCount>0, urgentBadge:urgentCount },
             { id:"revenue",      label:"Revenue",          icon:"◇"  },
@@ -1024,21 +1028,32 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
               <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:16, marginBottom:26 }}>
                 <SC label="High risk"             value={highRisk.length}    accent={`linear-gradient(90deg,${C.red},#F97316)`}    onDrill={()=>setDrill("high-risk")} trend="1 new" trendUp={false} />
                 <SC label="Medium risk"           value={medRisk.length}     accent={`linear-gradient(90deg,${C.amber},#EAB308)`}  onDrill={()=>setDrill("med-risk")} />
-                <SC label="Total revenue at risk" value={`£${atRiskRevenue.toLocaleString()}`} accent={`linear-gradient(90deg,${C.teal},${C.tealLt})`} onDrill={()=>setDrill("rev-risk")} trend="8%" trendUp={false} />
-                <SC label="Patients recovered"    value={recovered.length}   sub="This month" accent={`linear-gradient(90deg,${C.green},#34D399)`} onDrill={()=>setDrill("recovered")} trend="33%" trendUp={true} />
+                <SC label="Low risk"              value={lowRisk.length}     accent={`linear-gradient(90deg,${C.green},#34D399)`} />
+                <SC label="Total patients"        value={PATIENTS.length}    accent={`linear-gradient(90deg,${C.teal},${C.tealLt})`} />
               </div>
-              <div style={{ display:"flex", gap:8, marginBottom:18 }}>
-                {["all","high","medium"].map(r=>(
-                  <button key={r} onClick={()=>setFilterRisk(r)} style={{
-                    padding:"7px 16px", borderRadius:20, cursor:"pointer", fontFamily:F,
-                    background:filterRisk===r?C.navy:C.white, color:filterRisk===r?C.white:C.slate,
-                    fontWeight:filterRisk===r?700:500, fontSize:13,
-                    border:`1px solid ${filterRisk===r?C.navy:C.border}`,
-                    boxShadow:filterRisk===r?"0 2px 8px rgba(8,15,30,.2)":"none", transition:"all .15s"
-                  }}>
-                    {r==="all"?"All patients":r.charAt(0).toUpperCase()+r.slice(1)+" risk"}
-                  </button>
-                ))}
+              <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:18 }}>
+                <div style={{ position:"relative", flex:1, maxWidth:340 }}>
+                  <span style={{ position:"absolute", left:12, top:"50%", transform:"translateY(-50%)", fontSize:15, pointerEvents:"none" }}>🔍</span>
+                  <input
+                    value={patientSearch}
+                    onChange={e=>setPatientSearch(e.target.value)}
+                    placeholder="Search patients…"
+                    style={{ width:"100%", padding:"9px 12px 9px 36px", border:`1px solid ${C.border}`, borderRadius:10, fontSize:13, fontFamily:F, outline:"none", background:C.white, color:C.navy, boxSizing:"border-box" }}
+                  />
+                </div>
+                <div style={{ display:"flex", gap:8 }}>
+                  {["all","high","medium","low"].map(r=>(
+                    <button key={r} onClick={()=>setFilterRisk(r)} style={{
+                      padding:"7px 16px", borderRadius:20, cursor:"pointer", fontFamily:F,
+                      background:filterRisk===r?C.navy:C.white, color:filterRisk===r?C.white:C.slate,
+                      fontWeight:filterRisk===r?700:500, fontSize:13,
+                      border:`1px solid ${filterRisk===r?C.navy:C.border}`,
+                      boxShadow:filterRisk===r?"0 2px 8px rgba(8,15,30,.2)":"none", transition:"all .15s"
+                    }}>
+                      {r==="all"?"All":r.charAt(0).toUpperCase()+r.slice(1)+" risk"}
+                    </button>
+                  ))}
+                </div>
               </div>
               <div style={{ background:C.white, borderRadius:16, border:`1px solid ${C.border}`, overflow:"hidden", boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
                 <div style={{ display:"grid", gridTemplateColumns:"1fr 110px 130px 100px 120px 150px", gap:12, padding:"12px 20px", borderBottom:`1px solid ${C.border}`, background:"#FAFBFC" }}>
