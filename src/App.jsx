@@ -664,10 +664,13 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
 
         {/* Topbar */}
         <div style={{ background:C.white, borderBottom:`1px solid ${C.border}`, padding:"16px 32px", display:"flex", alignItems:"center", justifyContent:"space-between", flexShrink:0, boxShadow:"0 1px 4px rgba(0,0,0,.05)" }}>
-          <div>
-            <div style={{ fontSize:22, fontWeight:800, color:C.navy, letterSpacing:-0.6 }}>{patientTimeline ? (patientTimeline.name||patientTimeline.patient||"Patient") : pageTitles[nav]}</div>
-            <div style={{ fontSize:12, color:C.slateLight, marginTop:3, fontWeight:500 }}>
-              {new Date().toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long",year:"numeric"})}
+          <div style={{ display:"flex", alignItems:"center", gap:18 }}>
+            <img src="/iryss-logo.svg" alt="Iryss" style={{ height:"40px", objectFit:"contain", flexShrink:0 }} />
+            <div>
+              <div style={{ fontSize:22, fontWeight:800, color:C.navy, letterSpacing:-0.6 }}>{patientTimeline ? (patientTimeline.name||patientTimeline.patient||"Patient") : pageTitles[nav]}</div>
+              <div style={{ fontSize:12, color:C.slateLight, marginTop:3, fontWeight:500 }}>
+                {new Date().toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long",year:"numeric"})}
+              </div>
             </div>
           </div>
           <div style={{ display:"flex", alignItems:"center", gap:14 }}>
