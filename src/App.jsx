@@ -352,11 +352,20 @@ function Dashboard() {
 
   // Competitor intelligence
   const COMPETITOR_KW = ["specsavers","vision express","boots","optical express","asda","tesco","cheaper","went elsewhere","another optician","different optician","vision direct","glasses direct"];
-  const competitorMentions = liveInbox.flatMap(conv=>
+  const DEMO_COMPETITOR_MENTIONS = [
+    { patient:"Margaret Flynn",  phone:"+447827001003", text:"I've been looking at Specsavers for my next pair of glasses — they seem to have some good deals on at the moment. Are you able to price match at all?", time:"Today 09:14",   keyword:"specsavers"       },
+    { patient:"Tom Bradley",     phone:"+447827001002", text:"My partner went to Vision Express last week and said it was really quick and easy. I'm just wondering if you offer the same kind of express service?",    time:"Today 08:47",   keyword:"vision express"   },
+    { patient:"Shona Kay",       phone:"+447711552094", text:"I've seen some cheaper options online through Glasses Direct. Would you be able to do anything on price for my varifocals?",                          time:"Yesterday 16:32", keyword:"glasses direct"   },
+    { patient:"Jim Bru",         phone:"+447803003472", text:"I was in Boots Opticians on Saturday and they mentioned a 2-for-1 offer — do you do anything similar for multifocal lenses?",                        time:"Yesterday 11:05", keyword:"boots"            },
+    { patient:"Ciara Murphy",    phone:"+447827001004", text:"I nearly went elsewhere last time as the wait was quite long — just wanted to flag that in case it helps. I do still prefer coming here though!",     time:"Mon 14:22",       keyword:"went elsewhere"   },
+    { patient:"Louise Everton",  phone:"+447827322027", text:"A friend recommended Optical Express for laser eye surgery — is that something you can advise on or refer me for?",                                   time:"Mon 10:58",       keyword:"optical express"  },
+  ];
+  const liveMentions = liveInbox.flatMap(conv=>
     conv.thread.filter(m=>m.from==='patient'&&COMPETITOR_KW.some(kw=>m.text.toLowerCase().includes(kw)))
       .map(m=>({ patient:conv.patient, phone:conv.phone, convId:conv.id, text:m.text, time:m.time,
         keyword:COMPETITOR_KW.find(kw=>m.text.toLowerCase().includes(kw)) }))
   );
+  const competitorMentions = [...DEMO_COMPETITOR_MENTIONS, ...liveMentions];
 
   const waTemplates = {
     high:   `Hi {name} 👋\n\nWe've been thinking about you and just wanted to check in. It's been a while since your last visit — whenever you're ready, we'd love to welcome you back.\n\nJust reply here and we'll sort everything 😊\n\nBright Eyes Opticians`,
