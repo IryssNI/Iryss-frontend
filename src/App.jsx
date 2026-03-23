@@ -261,8 +261,8 @@ function Dashboard() {
   const [intelSent, setIntelSent]               = useState({});
 
   useEffect(() => {
-    msgEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [selectedThread]);
+    msgEndRef.current?.scrollIntoView({ behavior: "instant", block: "nearest" });
+  }, []);
 
   useEffect(() => {
     async function fetchMessages() {
@@ -1394,7 +1394,7 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                       {selectedThread.urgent&&<span style={{ fontSize:11, color:C.red, fontWeight:600 }}>⚠ Urgent — requires human review</span>}
                     </div>
                   </div>
-                  <div style={{ flex:1, overflow:"auto", padding:20, display:"flex", flexDirection:"column", gap:10, background:"#F7FAFC" }}>
+                  <div style={{ flex:1, overflowY:"scroll", padding:20, display:"flex", flexDirection:"column", gap:10, background:"#F7FAFC" }}>
                     {selectedThread.urgent&&(
                       <div style={{ background:"rgba(239,68,68,.06)", border:"1px solid rgba(239,68,68,.15)", borderRadius:12, padding:"10px 14px", display:"flex", gap:10, alignItems:"center" }}>
                         <span>🚨</span>
