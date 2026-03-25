@@ -1141,10 +1141,10 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
               {recallTab==="eye-test"&&(
                 <div>
                   <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:16, marginBottom:24 }}>
-                    <SC label="Due for recall" value={recallPatients.length} accent={`linear-gradient(90deg,${C.teal},${C.tealLt})`} sub="8+ months since visit" />
-                    <SC label="Overdue" value={overdueRecall.length} accent={`linear-gradient(90deg,${C.red},#F97316)`} sub="24+ months" trend={overdueRecall.length>0?"Action needed":null} trendUp={false} />
-                    <SC label="Sending this week" value={Math.min(recallPatients.length,3)} accent={`linear-gradient(90deg,${C.amber},#EAB308)`} sub="Scheduled" />
-                    <SC label="Est. revenue if all return" value={`£${recallRevenue.toLocaleString()}`} accent={`linear-gradient(90deg,${C.green},#34D399)`} sub={`${recallPatients.length} patients`} />
+                    <SC label="Due for recall" value={recallPatients.length} accent={`linear-gradient(90deg,${C.teal},${C.tealLt})`} sub="8+ months since visit" onDrill={()=>setDrill("recall-due")} />
+                    <SC label="Overdue" value={overdueRecall.length} accent={`linear-gradient(90deg,${C.red},#F97316)`} sub="24+ months" trend={overdueRecall.length>0?"Action needed":null} trendUp={false} onDrill={()=>setDrill("recall-overdue")} />
+                    <SC label="Sending this week" value={Math.min(recallPatients.length,3)} accent={`linear-gradient(90deg,${C.amber},#EAB308)`} sub="Scheduled" onDrill={()=>setDrill("recall-this-week")} />
+                    <SC label="Est. revenue if all return" value={`£${recallRevenue.toLocaleString()}`} accent={`linear-gradient(90deg,${C.green},#34D399)`} sub={`${recallPatients.length} patients`} onDrill={()=>setDrill("recall-revenue")} />
                   </div>
                   <div style={{ background:C.white, borderRadius:16, border:`1px solid ${C.border}`, overflow:"hidden", boxShadow:"0 2px 12px rgba(0,0,0,.06)" }}>
                     <div style={{ display:"grid", gridTemplateColumns:"1fr 120px 130px 130px 100px 160px", gap:12, padding:"12px 20px", borderBottom:`1px solid ${C.border}`, background:"#FAFBFC" }}>
@@ -2775,6 +2775,135 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
           ))}
         </DrillPanel>
       )}
+
+      {/* ── Recall drill panels ── */}
+      {drill==="recall-due"&&(()=>{
+        return (
+          <DrillPanel title="Patients Due for Recall" sub={`${recallPatients.length} patients · 8+ months since last visit`} onClose={()=>setDrill(null)} onFullPage={()=>{setDrill(null);goNav("recalls");}}>
+            <div style={{ background:`rgba(8,145,178,.06)`, border:`1px solid rgba(8,145,178,.15)`, borderRadius:12, padding:"10px 14px", marginBottom:20 }}>
+              <div style={{ fontSize:12, color:C.slate }}>These patients are due or approaching their recall date. Sending a WhatsApp now increases return rate by up to 60%.</div>
+            </div>
+            {recallPatients.map((p,i)=>{
+              const months = parseMonthsAgo(p.lastVisit);
+              const monthsUntilDue = 24-months;
+              const dueDate = new Date(); dueDate.setMonth(dueDate.getMonth()+monthsUntilDue);
+              const dueDateStr = dueDate.toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"});
+              return (
+                <div key={p.id} style={{ display:"flex", alignItems:"center", gap:12, padding:"13px 0", borderBottom:i<recallPatients.length-1?`1px solid ${C.border}`:"none" }}>
+                  <Avatar initials={p.initials} bg={p.risk==="high"?C.red:p.risk==="medium"?C.amber:C.green} size={36} />
+                  <div style={{ flex:1 }}>
+                    <div style={{ fontWeight:600, fontSize:14, color:C.navy }}>{p.name}</div>
+                    <div style={{ fontSize:12, color:C.slate, marginTop:2 }}>Last visit: {p.lastVisit} · Due: {dueDateStr}</div>
+                    <div style={{ fontSize:11, color:C.slateLight, marginTop:1 }}>Risk score: {p.riskScore}/100</div>
+                  </div>
+                  <div style={{ display:"flex", flexDirection:"column", alignItems:"flex-end", gap:5 }}>
+                    <Chip color={riskFg[p.risk]}>{riskLabel[p.risk]}</Chip>
+                    {waSent[p.id]
+                      ? <span style={{ fontSize:11, color:C.green, fontWeight:600 }}>Sent ✓</span>
+                      : <button onClick={()=>{setDrill(null);openRecallWA(p);}} style={{ background:`linear-gradient(135deg,${C.teal},${C.tealLt})`, color:"#fff", border:"none", borderRadius:8, padding:"5px 11px", fontSize:11, fontWeight:700, cursor:"pointer", fontFamily:F }}>Send Recall WhatsApp</button>
+                    }
+                  </div>
+                </div>
+              );
+            })}
+            {recallPatients.length===0&&<div style={{ textAlign:"center", color:C.slate, padding:"40px 0", fontSize:14 }}>No patients currently due for recall.</div>}
+          </DrillPanel>
+        );
+      })()}
+
+      {drill==="recall-overdue"&&(()=>{
+        return (
+          <DrillPanel title="Overdue Recalls" sub={`${overdueRecall.length} patients · past 24-month recall date`} onClose={()=>setDrill(null)} onFullPage={()=>{setDrill(null);goNav("recalls");}}>
+            <div style={{ background:"rgba(239,68,68,.06)", border:"1px solid rgba(239,68,68,.15)", borderRadius:12, padding:"10px 14px", marginBottom:20 }}>
+              <div style={{ fontSize:12, color:C.red, fontWeight:600 }}>These patients are past their recall date and should be contacted urgently.</div>
+            </div>
+            {overdueRecall.map((p,i)=>{
+              const monthsOverdue = Math.abs(24 - parseMonthsAgo(p.lastVisit));
+              return (
+                <div key={p.id} style={{ display:"flex", alignItems:"center", gap:12, padding:"13px 0", borderBottom:i<overdueRecall.length-1?`1px solid ${C.border}`:"none" }}>
+                  <Avatar initials={p.initials} bg={C.red} size={36} />
+                  <div style={{ flex:1 }}>
+                    <div style={{ fontWeight:600, fontSize:14, color:C.navy }}>{p.name}</div>
+                    <div style={{ fontSize:12, color:C.slate, marginTop:2 }}>{p.product} · Last visit: {p.lastVisit}</div>
+                    <div style={{ fontSize:12, color:C.red, fontWeight:600, marginTop:2 }}>{monthsOverdue} month{monthsOverdue!==1?"s":""} overdue</div>
+                  </div>
+                  <div style={{ display:"flex", flexDirection:"column", alignItems:"flex-end", gap:5 }}>
+                    <span style={{ fontSize:11, color:C.slate }}>Score: {p.riskScore}/100</span>
+                    {waSent[p.id]
+                      ? <span style={{ fontSize:11, color:C.green, fontWeight:600 }}>Sent ✓</span>
+                      : <button onClick={()=>{setDrill(null);openRecallWA(p);}} style={{ background:`linear-gradient(135deg,${C.red},#F97316)`, color:"#fff", border:"none", borderRadius:8, padding:"5px 11px", fontSize:11, fontWeight:700, cursor:"pointer", fontFamily:F }}>Send Urgent Recall</button>
+                    }
+                  </div>
+                </div>
+              );
+            })}
+            {overdueRecall.length===0&&<div style={{ textAlign:"center", color:C.slate, padding:"40px 0", fontSize:14 }}>No overdue patients — great work!</div>}
+          </DrillPanel>
+        );
+      })()}
+
+      {drill==="recall-this-week"&&(()=>{
+        const thisWeek = recallPatients.slice(0,3);
+        const days = ["Mon","Tue","Wed","Thu","Fri"];
+        return (
+          <DrillPanel title="Sending This Week" sub={`${thisWeek.length} recalls scheduled · automated by Iryss`} onClose={()=>setDrill(null)}>
+            <div style={{ background:"rgba(245,158,11,.06)", border:"1px solid rgba(245,158,11,.2)", borderRadius:12, padding:"10px 14px", marginBottom:20 }}>
+              <div style={{ fontSize:12, color:C.slate }}>Iryss will automatically send these recall WhatsApp messages on the scheduled day. You can also send them manually now.</div>
+            </div>
+            {thisWeek.map((p,i)=>{
+              const sendDay = days[i % days.length];
+              const msgPreview = `Hi ${p.name.split(" ")[0]} 👋 It's been a while since your last eye test at Bright Eyes — we'd love to welcome you back! Reply to book your appointment 😊`;
+              return (
+                <div key={p.id} style={{ padding:"14px 0", borderBottom:i<thisWeek.length-1?`1px solid ${C.border}`:"none" }}>
+                  <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:10 }}>
+                    <Avatar initials={p.initials} bg={C.amber} size={36} />
+                    <div style={{ flex:1 }}>
+                      <div style={{ fontWeight:600, fontSize:14, color:C.navy }}>{p.name}</div>
+                      <div style={{ fontSize:12, color:C.slate, marginTop:1 }}>Last visit: {p.lastVisit} · {p.phone}</div>
+                    </div>
+                    <div style={{ background:"rgba(245,158,11,.12)", color:C.amber, fontWeight:700, fontSize:12, padding:"4px 10px", borderRadius:20, flexShrink:0 }}>📅 {sendDay}</div>
+                  </div>
+                  <div style={{ background:"#F7FAFC", borderRadius:10, padding:"10px 14px", fontSize:12, color:C.slate, fontStyle:"italic", lineHeight:1.6 }}>
+                    "{msgPreview}"
+                  </div>
+                </div>
+              );
+            })}
+            {thisWeek.length===0&&<div style={{ textAlign:"center", color:C.slate, padding:"40px 0", fontSize:14 }}>No recalls scheduled this week.</div>}
+          </DrillPanel>
+        );
+      })()}
+
+      {drill==="recall-revenue"&&(()=>{
+        const total = recallPatients.reduce((a,p)=>a+p.revenue,0);
+        return (
+          <DrillPanel title="Recall Revenue Breakdown" sub={`£${total.toLocaleString()} potential if all patients return`} onClose={()=>setDrill(null)} onFullPage={()=>{setDrill(null);goNav("revenue");}}>
+            <div style={{ background:"rgba(16,185,129,.06)", border:"1px solid rgba(16,185,129,.2)", borderRadius:12, padding:"10px 14px", marginBottom:20 }}>
+              <div style={{ fontSize:12, color:C.slate }}>Revenue shown is each patient's last spend value — a strong indicator of their next appointment value.</div>
+            </div>
+            {[...recallPatients].sort((a,b)=>b.revenue-a.revenue).map((p,i,arr)=>(
+              <div key={p.id} style={{ display:"flex", alignItems:"center", gap:12, padding:"13px 0", borderBottom:i<arr.length-1?`1px solid ${C.border}`:"none" }}>
+                <Avatar initials={p.initials} bg={p.risk==="high"?C.red:p.risk==="medium"?C.amber:C.green} size={36} />
+                <div style={{ flex:1 }}>
+                  <div style={{ fontWeight:600, fontSize:14, color:C.navy }}>{p.name}</div>
+                  <div style={{ fontSize:12, color:C.slate, marginTop:2 }}>{p.product}</div>
+                  <div style={{ height:5, background:C.border, borderRadius:3, marginTop:6, overflow:"hidden", maxWidth:160 }}>
+                    <div style={{ width:`${Math.round((p.revenue/Math.max(...recallPatients.map(x=>x.revenue)))*100)}%`, height:"100%", background:p.risk==="high"?C.red:p.risk==="medium"?C.amber:C.green, borderRadius:3 }} />
+                  </div>
+                </div>
+                <div style={{ textAlign:"right" }}>
+                  <div style={{ fontSize:16, fontWeight:800, color:C.navy }}>£{p.revenue}</div>
+                  <Chip color={riskFg[p.risk]}>{riskLabel[p.risk]}</Chip>
+                </div>
+              </div>
+            ))}
+            <div style={{ marginTop:18, paddingTop:16, borderTop:`2px solid ${C.border}`, display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+              <div style={{ fontWeight:700, fontSize:15, color:C.navy }}>Total potential revenue</div>
+              <div style={{ fontSize:22, fontWeight:900, color:C.green, letterSpacing:-0.5 }}>£{total.toLocaleString()}</div>
+            </div>
+          </DrillPanel>
+        );
+      })()}
 
       {/* ── WhatsApp modal ── */}
       {showSendWA&&(
