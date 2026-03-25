@@ -9,6 +9,10 @@ const pulseStyle = document.createElement('style');
 pulseStyle.textContent = `
   @keyframes pulseDot { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.4);opacity:.7} }
   @keyframes pulseRing { 0%{box-shadow:0 0 0 0 rgba(239,68,68,.55)} 70%{box-shadow:0 0 0 7px rgba(239,68,68,0)} 100%{box-shadow:0 0 0 0 rgba(239,68,68,0)} }
+  .inbox-thread::-webkit-scrollbar { width:8px; }
+  .inbox-thread::-webkit-scrollbar-track { background:#E8EEF4; border-radius:8px; }
+  .inbox-thread::-webkit-scrollbar-thumb { background:#0891B2; border-radius:8px; }
+  .inbox-thread::-webkit-scrollbar-thumb:hover { background:#06B6D4; }
 `;
 document.head.appendChild(pulseStyle);
 
@@ -224,8 +228,9 @@ function Dashboard() {
   const [drill, setDrill]           = useState(null);
   const [filterRisk, setFilterRisk] = useState("all");
   const [patientSearch, setPatientSearch] = useState("");
-  const [inboxSearch, setInboxSearch]     = useState("");
-  const [inboxSort, setInboxSort]         = useState("default");
+  const [inboxSearch, setInboxSearch]       = useState("");
+  const [inboxSort, setInboxSort]           = useState("default");
+  const [readConversations, setReadConversations] = useState({});
   const [selectedThread, setSelectedThread] = useState(null);
   const [sendMsg, setSendMsg]       = useState("");
   const [showSendWA, setShowSendWA] = useState(null);
@@ -268,51 +273,68 @@ function Dashboard() {
     }
   }, [selectedThread]);
 
+  const fetchInbox = async () => {
+    try {
+      const res = await fetch('https://iryss-backend-12fh.onrender.com/api/public/inbox');
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data && data.messages && data.messages.length > 0) {
+        const grouped = {};
+        data.messages.forEach(m => {
+          const name = m.patient_name;
+          if (!grouped[name]) grouped[name] = { name, phone: m.patient_phone, messages: [] };
+          grouped[name].messages.push(m);
+        });
+        const mapped = Object.values(grouped).map(c => {
+          const sorted = [...c.messages].sort((a, b) => new Date(a.sent_at) - new Date(b.sent_at));
+          const latest = sorted[sorted.length - 1];
+          const latestInbound = [...sorted].reverse().find(m => m.direction === 'inbound');
+          const sentiment = latestInbound?.sentiment || null;
+          return {
+            id: c.name,
+            patient: c.name,
+            phone: c.phone,
+            initials: c.name.split(' ').map(w=>w[0]).join('').slice(0,2),
+            preview: latest?.message_body || '',
+            time: new Date(latest?.sent_at).toLocaleTimeString('en-GB', {hour:'2-digit',minute:'2-digit'}),
+            unread: latest?.direction === 'inbound',
+            urgent: latest?.direction === 'inbound' && (sentiment === 'urgent' || sentiment === 'negative'),
+            sentiment,
+            thread: sorted.map(m => ({
+              from: m.direction === 'inbound' ? 'patient' : 'practice',
+              text: m.message_body,
+              time: new Date(m.sent_at).toLocaleTimeString('en-GB', {hour:'2-digit',minute:'2-digit'}),
+              sent_at: m.sent_at
+            }))
+          };
+        });
+        // If a patient has a newer inbound message than before, remove from readConversations
+        setLiveInbox(prev => {
+          setReadConversations(prevRead => {
+            const updated = {...prevRead};
+            mapped.forEach(newConv => {
+              if (!newConv.unread) return;
+              const oldConv = prev.find(p => p.id === newConv.id);
+              const oldLatestInbound = oldConv?.thread.filter(m=>m.from==='patient').slice(-1)[0]?.sent_at;
+              const newLatestInbound = newConv.thread.filter(m=>m.from==='patient').slice(-1)[0]?.sent_at;
+              if (!oldLatestInbound || newLatestInbound !== oldLatestInbound) {
+                delete updated[newConv.patient];
+              }
+            });
+            return updated;
+          });
+          return mapped;
+        });
+        setSelectedThread(prev =>
+          prev ? (mapped.find(m => m.id === prev.id) ?? null) : null
+        );
+      }
+    } catch(e) { console.log('Using demo inbox', e); }
+  };
+
   useEffect(() => {
-    async function fetchMessages() {
-      try {
-        const res = await fetch('https://iryss-backend-12fh.onrender.com/api/public/inbox');
-        if (!res.ok) return;
-        const data = await res.json();
-        if (data && data.messages && data.messages.length > 0) {
-          const grouped = {};
-          data.messages.forEach(m => {
-            const name = m.patient_name;
-            if (!grouped[name]) grouped[name] = { name, phone: m.patient_phone, messages: [] };
-            grouped[name].messages.push(m);
-          });
-          const mapped = Object.values(grouped).map(c => {
-            const sorted = [...c.messages].sort((a, b) => new Date(a.sent_at) - new Date(b.sent_at));
-            const latest = sorted[sorted.length - 1];
-            const latestInbound = [...sorted].reverse().find(m => m.direction === 'inbound');
-            const sentiment = latestInbound?.sentiment || null;
-            return {
-              id: c.name,
-              patient: c.name,
-              phone: c.phone,
-              initials: c.name.split(' ').map(w=>w[0]).join('').slice(0,2),
-              preview: latest?.message_body || '',
-              time: new Date(latest?.sent_at).toLocaleTimeString('en-GB', {hour:'2-digit',minute:'2-digit'}),
-              unread: latest?.direction === 'inbound',
-              urgent: latest?.direction === 'inbound' && (sentiment === 'urgent' || sentiment === 'negative'),
-              sentiment,
-              thread: sorted.map(m => ({
-                from: m.direction === 'inbound' ? 'patient' : 'practice',
-                text: m.message_body,
-                time: new Date(m.sent_at).toLocaleTimeString('en-GB', {hour:'2-digit',minute:'2-digit'}),
-                sent_at: m.sent_at
-              }))
-            };
-          });
-          setLiveInbox(mapped);
-          setSelectedThread(prev =>
-            prev ? (mapped.find(m => m.id === prev.id) ?? mapped[0]) : mapped[0]
-          );
-        }
-      } catch(e) { console.log('Using demo inbox', e); }
-    }
-    fetchMessages();
-    const interval = setInterval(fetchMessages, 15000);
+    fetchInbox();
+    const interval = setInterval(fetchInbox, 15000);
     return () => clearInterval(interval);
   }, []);
 
@@ -333,8 +355,9 @@ function Dashboard() {
   const recovered     = PATIENTS.filter(p=>p.status==="recovered"||p.status==="booked");
   const atRiskRevenue = PATIENTS.filter(p=>p.risk!=="low").reduce((a,p)=>a+p.revenue,0);
   const recoveredRev  = recovered.reduce((a,p)=>a+p.revenue,0);
-  const unreadCount     = liveInbox.filter(i=>i.unread).length;
-  const urgentMessages  = liveInbox.filter(i=>i.unread && (i.sentiment==='urgent'||i.sentiment==='negative'));
+  const isUnread        = (m) => m.unread && !readConversations[m.patient];
+  const unreadCount     = liveInbox.filter(isUnread).length;
+  const urgentMessages  = liveInbox.filter(i=>isUnread(i) && (i.sentiment==='urgent'||i.sentiment==='negative'));
   const urgentCount     = urgentMessages.length;
   const allPatients   = PATIENTS.map(p=>({...p, risk:p.risk||"low"}));
   const filteredPts   = allPatients
@@ -420,9 +443,17 @@ function Dashboard() {
   async function sendInboxReply() {
     if (!sendMsg.trim() || !selectedThread?.phone) return;
     const msg = sendMsg.trim();
-    setSendMsg("");
     const now = new Date().toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'});
-    setSelectedThread(prev => ({...prev, thread: [...prev.thread, {from:"practice", text:msg, time:now}]}));
+    const nowIso = new Date().toISOString();
+    const newMsg = {from:"practice", text:msg, time:now, sent_at:nowIso};
+    setSendMsg("");
+    // Optimistically add message to thread immediately
+    setSelectedThread(prev => ({...prev, thread: [...prev.thread, newMsg]}));
+    setLiveInbox(prev => prev.map(conv =>
+      conv.id === selectedThread.id
+        ? {...conv, thread:[...conv.thread, newMsg], preview:msg, time:now, unread:false}
+        : conv
+    ));
     try {
       const res = await fetch("https://iryss-backend-12fh.onrender.com/api/send-whatsapp", {
         method: "POST",
@@ -432,6 +463,9 @@ function Dashboard() {
       if (!res.ok) {
         const data = await res.json();
         alert(`Failed to send: ${data.error || res.statusText}`);
+      } else {
+        // Re-fetch to sync with backend
+        setTimeout(fetchInbox, 2000);
       }
     } catch(e) {
       alert(`Failed to send: ${e.message}`);
@@ -1370,12 +1404,12 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
             // Filter + sort conversation list
             const searched = liveInbox.filter(m=>!inboxSearch||m.patient.toLowerCase().includes(inboxSearch.toLowerCase()));
             const sortedInbox = inboxSort==="unread"
-              ? searched.filter(m=>m.unread).sort((a,b)=>new Date(b.sent_at||0)-new Date(a.sent_at||0))
+              ? searched.filter(m=>isUnread(m)).sort((a,b)=>new Date(b.sent_at||0)-new Date(a.sent_at||0))
               : inboxSort==="date"
               ? [...searched].sort((a,b)=>new Date(b.sent_at||0)-new Date(a.sent_at||0))
               : [
-                  ...searched.filter(m=>m.unread).sort((a,b)=>new Date(b.sent_at||0)-new Date(a.sent_at||0)),
-                  ...searched.filter(m=>!m.unread).sort((a,b)=>new Date(b.sent_at||0)-new Date(a.sent_at||0)),
+                  ...searched.filter(m=>isUnread(m)).sort((a,b)=>new Date(b.sent_at||0)-new Date(a.sent_at||0)),
+                  ...searched.filter(m=>!isUnread(m)).sort((a,b)=>new Date(b.sent_at||0)-new Date(a.sent_at||0)),
                 ];
             // Sort thread messages oldest→newest
             const sortedThread = selectedThread
@@ -1406,7 +1440,7 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                   <div style={{ overflow:"auto", flex:1 }}>
                     {sortedInbox.length===0&&<div style={{ padding:24, textAlign:"center", color:C.slate, fontSize:13 }}>No conversations found</div>}
                     {sortedInbox.map((m,i)=>(
-                      <div key={m.id} onClick={()=>setSelectedThread(m)} style={{
+                      <div key={m.id} onClick={()=>{setSelectedThread(m);setReadConversations(prev=>({...prev,[m.patient]:true}));}} style={{
                         display:"flex", gap:10, padding:"12px 14px", cursor:"pointer", alignItems:"flex-start",
                         background:selectedThread?.id===m.id?"rgba(8,145,178,.06)":m.sentiment==='urgent'?"rgba(239,68,68,.03)":m.sentiment==='negative'?"rgba(245,158,11,.03)":"transparent",
                         borderBottom:`1px solid ${C.border}`,
@@ -1415,11 +1449,11 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                       }}>
                         <div style={{ position:"relative", flexShrink:0 }}>
                           <Avatar initials={m.initials} bg={getColor(liveInbox.indexOf(m))} size={36} />
-                          {m.unread&&<span style={{ position:"absolute", top:0, right:0, width:9, height:9, borderRadius:"50%", background:C.green, border:"2px solid #fff" }} />}
+                          {isUnread(m)&&<span style={{ position:"absolute", top:0, right:0, width:9, height:9, borderRadius:"50%", background:C.green, border:"2px solid #fff" }} />}
                         </div>
                         <div style={{ flex:1, minWidth:0 }}>
                           <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
-                            <div onClick={e=>{e.stopPropagation();openTimeline(m);}} style={{ fontWeight:m.unread?700:500, fontSize:13, cursor:"pointer", display:"inline" }} onMouseEnter={e=>e.target.style.color=C.teal} onMouseLeave={e=>e.target.style.color=""}>{m.patient}</div>
+                            <div onClick={e=>{e.stopPropagation();openTimeline(m);}} style={{ fontWeight:isUnread(m)?700:500, fontSize:13, cursor:"pointer", display:"inline" }} onMouseEnter={e=>e.target.style.color=C.teal} onMouseLeave={e=>e.target.style.color=""}>{m.patient}</div>
                             <div style={{ fontSize:10, color:C.slateLight, flexShrink:0 }}>{m.time}</div>
                           </div>
                           <div style={{ fontSize:11, color:C.slate, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap", marginTop:2 }}>{m.preview}</div>
@@ -1442,7 +1476,7 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                         {selectedThread.urgent&&<span style={{ fontSize:11, color:C.red, fontWeight:600 }}>⚠ Urgent — requires human review</span>}
                       </div>
                     </div>
-                    <div style={{ flex:1, overflowY:"scroll", padding:20, display:"flex", flexDirection:"column", gap:10, background:"#F7FAFC" }}>
+                    <div className="inbox-thread" style={{ flex:1, overflowY:"scroll", padding:20, display:"flex", flexDirection:"column", gap:10, background:"#F7FAFC" }}>
                       {selectedThread.urgent&&(
                         <div style={{ background:"rgba(239,68,68,.06)", border:"1px solid rgba(239,68,68,.15)", borderRadius:12, padding:"10px 14px", display:"flex", gap:10, alignItems:"center" }}>
                           <span>🚨</span>
