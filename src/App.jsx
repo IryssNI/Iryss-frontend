@@ -224,6 +224,8 @@ function Dashboard() {
   const [drill, setDrill]           = useState(null);
   const [filterRisk, setFilterRisk] = useState("all");
   const [patientSearch, setPatientSearch] = useState("");
+  const [inboxSearch, setInboxSearch]     = useState("");
+  const [inboxSort, setInboxSort]         = useState("default");
   const [selectedThread, setSelectedThread] = useState(null);
   const [sendMsg, setSendMsg]       = useState("");
   const [showSendWA, setShowSendWA] = useState(null);
@@ -261,8 +263,10 @@ function Dashboard() {
   const [intelSent, setIntelSent]               = useState({});
 
   useEffect(() => {
-    msgEndRef.current?.scrollIntoView({ behavior: "instant", block: "nearest" });
-  }, []);
+    if (msgEndRef.current) {
+      msgEndRef.current.scrollIntoView({ behavior: "instant" });
+    }
+  }, [selectedThread]);
 
   useEffect(() => {
     async function fetchMessages() {
@@ -598,7 +602,7 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
             { id:"dashboard",    label:"Dashboard",        icon:"◈"  },
             { id:"patients",     label:"All Patients",      icon:"◎", badge:PATIENTS.length },
             { id:"recalls",      label:"Recalls",          icon:"◷", badge:recallPatients.length, warnDot:complianceRate<80&&recallPatients.length>0 },
-            { id:"inbox",        label:"Inbox",            icon:"◻", badge:unreadCount, urgentDot:urgentCount>0, urgentBadge:urgentCount },
+            { id:"inbox",        label:"Inbox",            icon:"◻", urgentDot:urgentCount>0, urgentBadge:urgentCount },
             { id:"revenue",      label:"Revenue",          icon:"◇"  },
             { id:"intelligence", label:"Intelligence",     icon:"🎯", badge:competitorMentions.length>0?competitorMentions.length:0 },
             { id:"reviews",      label:"Google Reviews",   icon:"◆" },
@@ -1362,90 +1366,126 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
           )}
 
           {/* ═══ INBOX ═══ */}
-          {nav==="inbox"&&(
-            <div style={{ display:"grid", gridTemplateColumns:"300px 1fr", gap:18, height:"calc(100vh - 160px)" }}>
-              <div style={{ background:C.white, borderRadius:16, border:`1px solid ${C.border}`, overflow:"hidden", display:"flex", flexDirection:"column", boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
-                <div style={{ padding:"16px 16px 12px", borderBottom:`1px solid ${C.border}`, fontWeight:700, fontSize:14, display:"flex", alignItems:"center", gap:8 }}>
-                  Conversations
-                  <span style={{ background:C.red, color:"#fff", borderRadius:20, fontSize:10, fontWeight:700, padding:"2px 7px" }}>{unreadCount}</span>
-                </div>
-                <div style={{ overflow:"auto", flex:1 }}>
-                  {liveInbox.map((m,i)=>(
-                    <div key={m.id} onClick={()=>setSelectedThread(m)} style={{
-                      display:"flex", gap:10, padding:"12px 16px", cursor:"pointer", alignItems:"flex-start",
-                      background:selectedThread?.id===m.id?"rgba(8,145,178,.06)":m.sentiment==='urgent'?"rgba(239,68,68,.03)":m.sentiment==='negative'?"rgba(245,158,11,.03)":"transparent",
-                      borderBottom:`1px solid ${C.border}`,
-                      borderLeft:selectedThread?.id===m.id?`3px solid ${C.teal}`:m.sentiment==='urgent'?`3px solid ${C.red}`:m.sentiment==='negative'?`3px solid ${C.amber}`:m.sentiment==='positive'?`3px solid ${C.green}`:"3px solid transparent",
-                      transition:"background .15s"
-                    }}>
-                      <Avatar initials={m.initials} bg={getColor(i)} size={36} />
-                      <div style={{ flex:1, minWidth:0 }}>
-                        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
-                          <div onClick={e=>{e.stopPropagation();openTimeline(m);}} style={{ fontWeight:m.unread?700:500, fontSize:13, cursor:"pointer", display:"inline" }} onMouseEnter={e=>e.target.style.color=C.teal} onMouseLeave={e=>e.target.style.color=""}>{m.patient}</div>
-                          <div style={{ fontSize:10, color:C.slateLight, flexShrink:0 }}>{m.time}</div>
-                        </div>
-                        <div style={{ fontSize:11, color:C.slate, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap", marginTop:2 }}>{m.preview}</div>
-                        {m.sentiment==='urgent'&&<span style={{ display:"inline-block", marginTop:4, background:"rgba(239,68,68,.1)", color:C.red, fontSize:10, fontWeight:700, padding:"2px 7px", borderRadius:20, animation:"pulseDot 1.5s ease-in-out infinite" }}>🚨 Urgent</span>}
-                        {m.sentiment==='negative'&&<span style={{ display:"inline-block", marginTop:4, background:"rgba(245,158,11,.1)", color:C.amber, fontSize:10, fontWeight:700, padding:"2px 7px", borderRadius:20 }}>⚠️ Concerned</span>}
-                        {m.sentiment==='positive'&&<span style={{ display:"inline-block", marginTop:4, background:"rgba(16,185,129,.1)", color:C.green, fontSize:10, fontWeight:700, padding:"2px 7px", borderRadius:20 }}>😊 Positive</span>}
-                      </div>
+          {nav==="inbox"&&(()=>{
+            // Filter + sort conversation list
+            const searched = liveInbox.filter(m=>!inboxSearch||m.patient.toLowerCase().includes(inboxSearch.toLowerCase()));
+            const sortedInbox = inboxSort==="unread"
+              ? searched.filter(m=>m.unread).sort((a,b)=>new Date(b.sent_at||0)-new Date(a.sent_at||0))
+              : inboxSort==="date"
+              ? [...searched].sort((a,b)=>new Date(b.sent_at||0)-new Date(a.sent_at||0))
+              : [
+                  ...searched.filter(m=>m.unread).sort((a,b)=>new Date(b.sent_at||0)-new Date(a.sent_at||0)),
+                  ...searched.filter(m=>!m.unread).sort((a,b)=>new Date(b.sent_at||0)-new Date(a.sent_at||0)),
+                ];
+            // Sort thread messages oldest→newest
+            const sortedThread = selectedThread
+              ? [...selectedThread.thread].sort((a,b)=>new Date(a.sent_at||0)-new Date(b.sent_at||0))
+              : [];
+            return (
+              <div style={{ display:"grid", gridTemplateColumns:"300px 1fr", gap:18, height:"calc(100vh - 160px)" }}>
+                {/* Conversation list */}
+                <div style={{ background:C.white, borderRadius:16, border:`1px solid ${C.border}`, overflow:"hidden", display:"flex", flexDirection:"column", boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
+                  {/* Header + search + sort */}
+                  <div style={{ padding:"14px 14px 10px", borderBottom:`1px solid ${C.border}`, flexShrink:0 }}>
+                    <div style={{ fontWeight:700, fontSize:14, marginBottom:10, display:"flex", alignItems:"center", gap:8 }}>
+                      Conversations
+                      {unreadCount>0&&<span style={{ background:C.green, color:"#fff", borderRadius:20, fontSize:10, fontWeight:700, padding:"2px 7px" }}>{unreadCount}</span>}
                     </div>
-                  ))}
-                </div>
-              </div>
-
-              {selectedThread?(
-                <div style={{ background:C.white, borderRadius:16, border:`1px solid ${C.border}`, display:"flex", flexDirection:"column", overflow:"hidden", boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
-                  <div style={{ padding:"16px 20px", borderBottom:`1px solid ${C.border}`, display:"flex", alignItems:"center", gap:12 }}>
-                    <Avatar initials={selectedThread.initials} bg={getColor(liveInbox.indexOf(selectedThread))} size={38} />
-                    <div style={{ flex:1 }}>
-                      <div onClick={()=>openTimeline(selectedThread)} style={{ fontWeight:700, fontSize:15, letterSpacing:-0.3, cursor:"pointer" }} onMouseEnter={e=>e.target.style.color=C.teal} onMouseLeave={e=>e.target.style.color=""}>{selectedThread.patient}</div>
-                      {selectedThread.urgent&&<span style={{ fontSize:11, color:C.red, fontWeight:600 }}>⚠ Urgent — requires human review</span>}
+                    <div style={{ position:"relative", marginBottom:8 }}>
+                      <span style={{ position:"absolute", left:9, top:"50%", transform:"translateY(-50%)", fontSize:13, pointerEvents:"none" }}>🔍</span>
+                      <input value={inboxSearch} onChange={e=>setInboxSearch(e.target.value)} placeholder="Search patients…"
+                        style={{ width:"100%", padding:"7px 9px 7px 28px", border:`1px solid ${C.border}`, borderRadius:8, fontSize:12, fontFamily:F, outline:"none", background:"#F7FAFC", boxSizing:"border-box" }} />
+                    </div>
+                    <div style={{ display:"flex", gap:5 }}>
+                      {[["default","All"],["unread","Unread"],["date","Date"]].map(([val,label])=>(
+                        <button key={val} onClick={()=>setInboxSort(val)} style={{ padding:"4px 11px", borderRadius:20, border:`1px solid ${inboxSort===val?C.teal:C.border}`, background:inboxSort===val?C.teal:"transparent", color:inboxSort===val?"#fff":C.slate, fontSize:11, fontWeight:inboxSort===val?700:500, cursor:"pointer", fontFamily:F, transition:"all .15s" }}>{label}</button>
+                      ))}
                     </div>
                   </div>
-                  <div style={{ flex:1, overflowY:"scroll", padding:20, display:"flex", flexDirection:"column", gap:10, background:"#F7FAFC" }}>
-                    {selectedThread.urgent&&(
-                      <div style={{ background:"rgba(239,68,68,.06)", border:"1px solid rgba(239,68,68,.15)", borderRadius:12, padding:"10px 14px", display:"flex", gap:10, alignItems:"center" }}>
-                        <span>🚨</span>
-                        <div style={{ fontSize:12, color:C.red, fontWeight:600 }}>AI flagged this as urgent — patient may need a clinical callback today.</div>
-                      </div>
-                    )}
-                    {selectedThread.thread.reduce((acc, msg, i, arr) => {
-                      const msgDate = msg.sent_at ? new Date(msg.sent_at) : null;
-                      const prevDate = i > 0 && arr[i-1].sent_at ? new Date(arr[i-1].sent_at) : null;
-                      const showSeparator = msgDate && (!prevDate || msgDate.toDateString() !== prevDate.toDateString());
-                      if (showSeparator) {
-                        const today = new Date();
-                        const yesterday = new Date(); yesterday.setDate(yesterday.getDate()-1);
-                        let label = msgDate.toDateString()===today.toDateString() ? "Today" : msgDate.toDateString()===yesterday.toDateString() ? "Yesterday" : msgDate.toLocaleDateString("en-GB",{day:"numeric",month:"long"});
-                        acc.push(<div key={"sep-"+i} style={{ textAlign:"center", margin:"12px 0" }}><span style={{ fontSize:11, color:C.slate, background:C.border, borderRadius:10, padding:"3px 12px" }}>{label}</span></div>);
-                      }
-                      acc.push(
-                        <div key={i} style={{ display:"flex", justifyContent:msg.from==="practice"?"flex-end":"flex-start" }}>
-                          <div style={{ maxWidth:"70%", background:msg.from==="practice"?`linear-gradient(135deg,${C.teal},${C.tealLt})`:C.white, color:msg.from==="practice"?"#fff":C.navy, borderRadius:msg.from==="practice"?"16px 16px 4px 16px":"16px 16px 16px 4px", padding:"10px 14px", fontSize:13, lineHeight:1.6, border:msg.from==="patient"?`1px solid ${C.border}`:"none", boxShadow:"0 2px 8px rgba(0,0,0,.06)", whiteSpace:"pre-wrap" }}>
-                            {msg.from==="practice"&&<div style={{ fontSize:9, opacity:0.7, marginBottom:4, textTransform:"uppercase", letterSpacing:1 }}>Bright Eyes · Iryss AI</div>}
-                            {msg.text}
-                            <div style={{ fontSize:10, opacity:0.55, textAlign:"right", marginTop:4 }}>{msg.time}{msg.from==="practice"?" ✓✓":""}</div>
+                  {/* List */}
+                  <div style={{ overflow:"auto", flex:1 }}>
+                    {sortedInbox.length===0&&<div style={{ padding:24, textAlign:"center", color:C.slate, fontSize:13 }}>No conversations found</div>}
+                    {sortedInbox.map((m,i)=>(
+                      <div key={m.id} onClick={()=>setSelectedThread(m)} style={{
+                        display:"flex", gap:10, padding:"12px 14px", cursor:"pointer", alignItems:"flex-start",
+                        background:selectedThread?.id===m.id?"rgba(8,145,178,.06)":m.sentiment==='urgent'?"rgba(239,68,68,.03)":m.sentiment==='negative'?"rgba(245,158,11,.03)":"transparent",
+                        borderBottom:`1px solid ${C.border}`,
+                        borderLeft:selectedThread?.id===m.id?`3px solid ${C.teal}`:m.sentiment==='urgent'?`3px solid ${C.red}`:m.sentiment==='negative'?`3px solid ${C.amber}`:m.sentiment==='positive'?`3px solid ${C.green}`:"3px solid transparent",
+                        transition:"background .15s"
+                      }}>
+                        <div style={{ position:"relative", flexShrink:0 }}>
+                          <Avatar initials={m.initials} bg={getColor(liveInbox.indexOf(m))} size={36} />
+                          {m.unread&&<span style={{ position:"absolute", top:0, right:0, width:9, height:9, borderRadius:"50%", background:C.green, border:"2px solid #fff" }} />}
+                        </div>
+                        <div style={{ flex:1, minWidth:0 }}>
+                          <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+                            <div onClick={e=>{e.stopPropagation();openTimeline(m);}} style={{ fontWeight:m.unread?700:500, fontSize:13, cursor:"pointer", display:"inline" }} onMouseEnter={e=>e.target.style.color=C.teal} onMouseLeave={e=>e.target.style.color=""}>{m.patient}</div>
+                            <div style={{ fontSize:10, color:C.slateLight, flexShrink:0 }}>{m.time}</div>
                           </div>
+                          <div style={{ fontSize:11, color:C.slate, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap", marginTop:2 }}>{m.preview}</div>
+                          {m.sentiment==='urgent'&&<span style={{ display:"inline-block", marginTop:4, background:"rgba(239,68,68,.1)", color:C.red, fontSize:10, fontWeight:700, padding:"2px 7px", borderRadius:20, animation:"pulseDot 1.5s ease-in-out infinite" }}>🚨 Urgent</span>}
+                          {m.sentiment==='negative'&&<span style={{ display:"inline-block", marginTop:4, background:"rgba(245,158,11,.1)", color:C.amber, fontSize:10, fontWeight:700, padding:"2px 7px", borderRadius:20 }}>⚠️ Concerned</span>}
+                          {m.sentiment==='positive'&&<span style={{ display:"inline-block", marginTop:4, background:"rgba(16,185,129,.1)", color:C.green, fontSize:10, fontWeight:700, padding:"2px 7px", borderRadius:20 }}>😊 Positive</span>}
                         </div>
-                      );
-                      return acc;
-                    }, [])}
-                    <div ref={msgEndRef} />
-                  </div>
-                  <div style={{ padding:16, borderTop:`1px solid ${C.border}`, display:"flex", gap:10, alignItems:"center" }}>
-                    <input value={sendMsg} onChange={e=>setSendMsg(e.target.value)} onKeyDown={e=>e.key==="Enter"&&sendInboxReply()} placeholder="Type a reply…"
-                      style={{ flex:1, border:`1px solid ${C.border}`, borderRadius:10, padding:"10px 14px", fontSize:13, fontFamily:F, outline:"none", background:C.offWhite }} />
-                    <button onClick={sendInboxReply} style={{ background:`linear-gradient(135deg,${C.teal},${C.tealLt})`, color:"#fff", border:"none", borderRadius:10, padding:"10px 18px", fontWeight:700, fontSize:13, cursor:"pointer", fontFamily:F, boxShadow:"0 2px 8px rgba(8,145,178,.3)" }}>Send</button>
+                      </div>
+                    ))}
                   </div>
                 </div>
-              ):(
-                <div style={{ background:C.white, borderRadius:16, border:`1px solid ${C.border}`, display:"flex", alignItems:"center", justifyContent:"center" }}>
-                  <div style={{ color:C.slate, fontSize:14 }}>Select a conversation</div>
-                </div>
-              )}
-            </div>
-          )}
+
+                {/* Thread panel */}
+                {selectedThread?(
+                  <div style={{ background:C.white, borderRadius:16, border:`1px solid ${C.border}`, display:"flex", flexDirection:"column", overflow:"hidden", boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
+                    <div style={{ padding:"16px 20px", borderBottom:`1px solid ${C.border}`, display:"flex", alignItems:"center", gap:12, flexShrink:0 }}>
+                      <Avatar initials={selectedThread.initials} bg={getColor(liveInbox.indexOf(selectedThread))} size={38} />
+                      <div style={{ flex:1 }}>
+                        <div onClick={()=>openTimeline(selectedThread)} style={{ fontWeight:700, fontSize:15, letterSpacing:-0.3, cursor:"pointer" }} onMouseEnter={e=>e.target.style.color=C.teal} onMouseLeave={e=>e.target.style.color=""}>{selectedThread.patient}</div>
+                        {selectedThread.urgent&&<span style={{ fontSize:11, color:C.red, fontWeight:600 }}>⚠ Urgent — requires human review</span>}
+                      </div>
+                    </div>
+                    <div style={{ flex:1, overflowY:"scroll", padding:20, display:"flex", flexDirection:"column", gap:10, background:"#F7FAFC" }}>
+                      {selectedThread.urgent&&(
+                        <div style={{ background:"rgba(239,68,68,.06)", border:"1px solid rgba(239,68,68,.15)", borderRadius:12, padding:"10px 14px", display:"flex", gap:10, alignItems:"center" }}>
+                          <span>🚨</span>
+                          <div style={{ fontSize:12, color:C.red, fontWeight:600 }}>AI flagged this as urgent — patient may need a clinical callback today.</div>
+                        </div>
+                      )}
+                      {sortedThread.reduce((acc, msg, i, arr) => {
+                        const msgDate = msg.sent_at ? new Date(msg.sent_at) : null;
+                        const prevDate = i > 0 && arr[i-1].sent_at ? new Date(arr[i-1].sent_at) : null;
+                        const showSeparator = msgDate && (!prevDate || msgDate.toDateString() !== prevDate.toDateString());
+                        if (showSeparator) {
+                          const today = new Date();
+                          const yesterday = new Date(); yesterday.setDate(yesterday.getDate()-1);
+                          const label = msgDate.toDateString()===today.toDateString() ? "Today" : msgDate.toDateString()===yesterday.toDateString() ? "Yesterday" : msgDate.toLocaleDateString("en-GB",{day:"numeric",month:"long"});
+                          acc.push(<div key={"sep-"+i} style={{ textAlign:"center", margin:"12px 0" }}><span style={{ fontSize:11, color:C.slate, background:C.border, borderRadius:10, padding:"3px 12px" }}>{label}</span></div>);
+                        }
+                        acc.push(
+                          <div key={i} style={{ display:"flex", justifyContent:msg.from==="practice"?"flex-end":"flex-start" }}>
+                            <div style={{ maxWidth:"70%", background:msg.from==="practice"?`linear-gradient(135deg,${C.teal},${C.tealLt})`:C.white, color:msg.from==="practice"?"#fff":C.navy, borderRadius:msg.from==="practice"?"16px 16px 4px 16px":"16px 16px 16px 4px", padding:"10px 14px", fontSize:13, lineHeight:1.6, border:msg.from==="patient"?`1px solid ${C.border}`:"none", boxShadow:"0 2px 8px rgba(0,0,0,.06)", whiteSpace:"pre-wrap" }}>
+                              {msg.from==="practice"&&<div style={{ fontSize:9, opacity:0.7, marginBottom:4, textTransform:"uppercase", letterSpacing:1 }}>Bright Eyes · Iryss AI</div>}
+                              {msg.text}
+                              <div style={{ fontSize:10, opacity:0.55, textAlign:"right", marginTop:4 }}>{msg.time}{msg.from==="practice"?" ✓✓":""}</div>
+                            </div>
+                          </div>
+                        );
+                        return acc;
+                      }, [])}
+                      <div ref={msgEndRef} />
+                    </div>
+                    <div style={{ padding:16, borderTop:`1px solid ${C.border}`, display:"flex", gap:10, alignItems:"center", flexShrink:0 }}>
+                      <input value={sendMsg} onChange={e=>setSendMsg(e.target.value)} onKeyDown={e=>e.key==="Enter"&&sendInboxReply()} placeholder="Type a reply…"
+                        style={{ flex:1, border:`1px solid ${C.border}`, borderRadius:10, padding:"10px 14px", fontSize:13, fontFamily:F, outline:"none", background:C.offWhite }} />
+                      <button onClick={sendInboxReply} style={{ background:`linear-gradient(135deg,${C.teal},${C.tealLt})`, color:"#fff", border:"none", borderRadius:10, padding:"10px 18px", fontWeight:700, fontSize:13, cursor:"pointer", fontFamily:F, boxShadow:"0 2px 8px rgba(8,145,178,.3)" }}>Send</button>
+                    </div>
+                  </div>
+                ):(
+                  <div style={{ background:C.white, borderRadius:16, border:`1px solid ${C.border}`, display:"flex", alignItems:"center", justifyContent:"center" }}>
+                    <div style={{ color:C.slate, fontSize:14 }}>Select a conversation</div>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
 
           {/* ═══ REVENUE ═══ */}
           {nav==="revenue"&&(
