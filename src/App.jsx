@@ -228,9 +228,15 @@ function Dashboard() {
   const [drill, setDrill]           = useState(null);
   const [filterRisk, setFilterRisk] = useState("all");
   const [patientSearch, setPatientSearch] = useState("");
-  const [inboxSearch, setInboxSearch]       = useState("");
-  const [inboxSort, setInboxSort]           = useState("default");
+  const [inboxSearch, setInboxSearch]             = useState("");
+  const [inboxSort, setInboxSort]                 = useState("all");
   const [readConversations, setReadConversations] = useState({});
+  const [pinnedMessages, setPinnedMessages]       = useState({});
+  const [msgMenuOpen, setMsgMenuOpen]             = useState(null);
+  const [hoveredMsg, setHoveredMsg]               = useState(null);
+  const [highlightedMsg, setHighlightedMsg]       = useState(null);
+  const threadContainerRef = useRef(null);
+  const textareaRef        = useRef(null);
   const [selectedThread, setSelectedThread] = useState(null);
   const [sendMsg, setSendMsg]       = useState("");
   const [showSendWA, setShowSendWA] = useState(null);
@@ -269,9 +275,9 @@ function Dashboard() {
 
   useEffect(() => {
     if (msgEndRef.current) {
-      msgEndRef.current.scrollIntoView({ behavior: "instant" });
+      msgEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [selectedThread]);
+  }, [selectedThread?.id]);
 
   const fetchInbox = async () => {
     try {
@@ -1401,104 +1407,193 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
 
           {/* ═══ INBOX ═══ */}
           {nav==="inbox"&&(()=>{
-            // Filter + sort conversation list
+            // Filter + sort conversation list — unread always float to top
             const searched = liveInbox.filter(m=>!inboxSearch||m.patient.toLowerCase().includes(inboxSearch.toLowerCase()));
             const sortedInbox = inboxSort==="unread"
               ? searched.filter(m=>isUnread(m)).sort((a,b)=>new Date(b.sent_at||0)-new Date(a.sent_at||0))
-              : inboxSort==="date"
-              ? [...searched].sort((a,b)=>new Date(b.sent_at||0)-new Date(a.sent_at||0))
               : [
                   ...searched.filter(m=>isUnread(m)).sort((a,b)=>new Date(b.sent_at||0)-new Date(a.sent_at||0)),
                   ...searched.filter(m=>!isUnread(m)).sort((a,b)=>new Date(b.sent_at||0)-new Date(a.sent_at||0)),
                 ];
-            // Sort thread messages oldest→newest
+            // Thread messages sorted oldest → newest
             const sortedThread = selectedThread
               ? [...selectedThread.thread].sort((a,b)=>new Date(a.sent_at||0)-new Date(b.sent_at||0))
               : [];
+            // Pinned message for current conversation
+            const pinned = selectedThread ? pinnedMessages[selectedThread.id] : null;
             return (
               <div style={{ display:"grid", gridTemplateColumns:"300px 1fr", gap:18, height:"calc(100vh - 160px)" }}>
-                {/* Conversation list */}
-                <div style={{ background:C.white, borderRadius:16, border:`1px solid ${C.border}`, overflow:"hidden", display:"flex", flexDirection:"column", boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
-                  {/* Header + search + sort */}
-                  <div style={{ padding:"14px 14px 10px", borderBottom:`1px solid ${C.border}`, flexShrink:0 }}>
-                    <div style={{ fontWeight:700, fontSize:14, marginBottom:10, display:"flex", alignItems:"center", gap:8 }}>
-                      Conversations
-                      {unreadCount>0&&<span style={{ background:C.green, color:"#fff", borderRadius:20, fontSize:10, fontWeight:700, padding:"2px 7px" }}>{unreadCount}</span>}
+
+                {/* ── CONVERSATION LIST ── */}
+                <div style={{ background:C.white, borderRadius:16, border:`1px solid ${C.border}`, overflow:"hidden", display:"flex", flexDirection:"column", boxShadow:"0 1px 4px rgba(0,0,0,.05)" }}>
+                  {/* Header */}
+                  <div style={{ padding:"14px 14px 10px", borderBottom:`1px solid ${C.border}`, flexShrink:0, background:C.white }}>
+                    <div style={{ fontWeight:700, fontSize:15, marginBottom:10, color:C.navy, letterSpacing:-0.3 }}>Messages</div>
+                    {/* Search */}
+                    <div style={{ position:"relative", marginBottom:10 }}>
+                      <span style={{ position:"absolute", left:10, top:"50%", transform:"translateY(-50%)", fontSize:12, pointerEvents:"none", color:C.slateLight }}>🔍</span>
+                      <input value={inboxSearch} onChange={e=>setInboxSearch(e.target.value)} placeholder="Search…"
+                        style={{ width:"100%", padding:"8px 10px 8px 30px", border:`1px solid ${C.border}`, borderRadius:22, fontSize:12, fontFamily:F, outline:"none", background:"#F0F2F5", boxSizing:"border-box", color:C.navy }} />
                     </div>
-                    <div style={{ position:"relative", marginBottom:8 }}>
-                      <span style={{ position:"absolute", left:9, top:"50%", transform:"translateY(-50%)", fontSize:13, pointerEvents:"none" }}>🔍</span>
-                      <input value={inboxSearch} onChange={e=>setInboxSearch(e.target.value)} placeholder="Search patients…"
-                        style={{ width:"100%", padding:"7px 9px 7px 28px", border:`1px solid ${C.border}`, borderRadius:8, fontSize:12, fontFamily:F, outline:"none", background:"#F7FAFC", boxSizing:"border-box" }} />
-                    </div>
-                    <div style={{ display:"flex", gap:5 }}>
-                      {[["default","All"],["unread","Unread"],["date","Date"]].map(([val,label])=>(
-                        <button key={val} onClick={()=>setInboxSort(val)} style={{ padding:"4px 11px", borderRadius:20, border:`1px solid ${inboxSort===val?C.teal:C.border}`, background:inboxSort===val?C.teal:"transparent", color:inboxSort===val?"#fff":C.slate, fontSize:11, fontWeight:inboxSort===val?700:500, cursor:"pointer", fontFamily:F, transition:"all .15s" }}>{label}</button>
+                    {/* Filter tabs */}
+                    <div style={{ display:"flex", gap:6 }}>
+                      {[["default","All"],["unread","Unread"]].map(([val,label])=>(
+                        <button key={val} onClick={()=>setInboxSort(val)} style={{ padding:"5px 16px", borderRadius:20, border:`1.5px solid ${inboxSort===val?"#25D366":C.border}`, background:inboxSort===val?"#25D366":"transparent", color:inboxSort===val?"#fff":C.slate, fontSize:12, fontWeight:inboxSort===val?700:500, cursor:"pointer", fontFamily:F, transition:"all .15s" }}>{label}{val==="unread"&&unreadCount>0?` (${unreadCount})`:""}</button>
                       ))}
                     </div>
                   </div>
-                  {/* List */}
-                  <div style={{ overflow:"auto", flex:1 }}>
-                    {sortedInbox.length===0&&<div style={{ padding:24, textAlign:"center", color:C.slate, fontSize:13 }}>No conversations found</div>}
-                    {sortedInbox.map((m,i)=>(
-                      <div key={m.id} onClick={()=>{setSelectedThread(m);setReadConversations(prev=>({...prev,[m.patient]:true}));}} style={{
-                        display:"flex", gap:10, padding:"12px 14px", cursor:"pointer", alignItems:"flex-start",
-                        background:selectedThread?.id===m.id?"rgba(8,145,178,.06)":m.sentiment==='urgent'?"rgba(239,68,68,.03)":m.sentiment==='negative'?"rgba(245,158,11,.03)":"transparent",
-                        borderBottom:`1px solid ${C.border}`,
-                        borderLeft:selectedThread?.id===m.id?`3px solid ${C.teal}`:m.sentiment==='urgent'?`3px solid ${C.red}`:m.sentiment==='negative'?`3px solid ${C.amber}`:m.sentiment==='positive'?`3px solid ${C.green}`:"3px solid transparent",
-                        transition:"background .15s"
-                      }}>
-                        <div style={{ position:"relative", flexShrink:0 }}>
-                          <Avatar initials={m.initials} bg={getColor(liveInbox.indexOf(m))} size={36} />
-                          {isUnread(m)&&<span style={{ position:"absolute", top:0, right:0, width:9, height:9, borderRadius:"50%", background:C.green, border:"2px solid #fff" }} />}
-                        </div>
-                        <div style={{ flex:1, minWidth:0 }}>
-                          <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
-                            <div onClick={e=>{e.stopPropagation();openTimeline(m);}} style={{ fontWeight:isUnread(m)?700:500, fontSize:13, cursor:"pointer", display:"inline" }} onMouseEnter={e=>e.target.style.color=C.teal} onMouseLeave={e=>e.target.style.color=""}>{m.patient}</div>
-                            <div style={{ fontSize:10, color:C.slateLight, flexShrink:0 }}>{m.time}</div>
-                          </div>
-                          <div style={{ fontSize:11, color:C.slate, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap", marginTop:2 }}>{m.preview}</div>
-                          {m.sentiment==='urgent'&&<span style={{ display:"inline-block", marginTop:4, background:"rgba(239,68,68,.1)", color:C.red, fontSize:10, fontWeight:700, padding:"2px 7px", borderRadius:20, animation:"pulseDot 1.5s ease-in-out infinite" }}>🚨 Urgent</span>}
-                          {m.sentiment==='negative'&&<span style={{ display:"inline-block", marginTop:4, background:"rgba(245,158,11,.1)", color:C.amber, fontSize:10, fontWeight:700, padding:"2px 7px", borderRadius:20 }}>⚠️ Concerned</span>}
-                          {m.sentiment==='positive'&&<span style={{ display:"inline-block", marginTop:4, background:"rgba(16,185,129,.1)", color:C.green, fontSize:10, fontWeight:700, padding:"2px 7px", borderRadius:20 }}>😊 Positive</span>}
-                        </div>
+                  {/* Conversation rows */}
+                  <div style={{ overflowY:"auto", flex:1 }}>
+                    {sortedInbox.length===0&&(
+                      <div style={{ padding:32, textAlign:"center", color:C.slateLight, fontSize:13 }}>
+                        {inboxSort==="unread"?"No unread messages":"No conversations"}
                       </div>
-                    ))}
+                    )}
+                    {sortedInbox.map((m)=>{
+                      const unread = isUnread(m);
+                      const active = selectedThread?.id===m.id;
+                      return (
+                        <div key={m.id} onClick={()=>{setSelectedThread(m);setReadConversations(prev=>({...prev,[m.patient]:true}));}} style={{
+                          display:"flex", gap:11, padding:"12px 14px", cursor:"pointer", alignItems:"center",
+                          background:active?"#F0FDF4":"transparent",
+                          borderBottom:`1px solid ${C.border}`,
+                          transition:"background .1s"
+                        }}>
+                          {/* Avatar + unread dot */}
+                          <div style={{ position:"relative", flexShrink:0 }}>
+                            <Avatar initials={m.initials} bg={getColor(liveInbox.indexOf(m))} size={42} />
+                            {unread&&<span style={{ position:"absolute", bottom:1, right:1, width:11, height:11, borderRadius:"50%", background:"#25D366", border:"2px solid #fff" }} />}
+                          </div>
+                          {/* Content */}
+                          <div style={{ flex:1, minWidth:0 }}>
+                            <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", gap:4, marginBottom:2 }}>
+                              <div style={{ fontWeight:unread?700:500, fontSize:13.5, color:C.navy, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{m.patient}</div>
+                              <div style={{ fontSize:11, color:unread?"#25D366":C.slateLight, flexShrink:0, fontWeight:unread?600:400 }}>{m.time}</div>
+                            </div>
+                            <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", gap:6 }}>
+                              <div style={{ fontSize:12, color:unread?C.navy:C.slateLight, fontWeight:unread?500:400, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap", flex:1 }}>{m.preview}</div>
+                              {unread&&<span style={{ background:"#25D366", color:"#fff", borderRadius:"50%", fontSize:10, fontWeight:700, minWidth:18, height:18, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, padding:"0 2px" }}>1</span>}
+                            </div>
+                            {m.sentiment==='urgent'&&<span style={{ display:"inline-block", marginTop:3, background:"rgba(239,68,68,.1)", color:C.red, fontSize:9.5, fontWeight:700, padding:"2px 7px", borderRadius:20 }}>🚨 Urgent</span>}
+                            {m.sentiment==='negative'&&!m.urgent&&<span style={{ display:"inline-block", marginTop:3, background:"rgba(245,158,11,.08)", color:C.amber, fontSize:9.5, fontWeight:700, padding:"2px 7px", borderRadius:20 }}>⚠️ Concerned</span>}
+                            {m.sentiment==='positive'&&<span style={{ display:"inline-block", marginTop:3, background:"rgba(37,211,102,.08)", color:"#16A34A", fontSize:9.5, fontWeight:700, padding:"2px 7px", borderRadius:20 }}>😊 Positive</span>}
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
 
-                {/* Thread panel */}
+                {/* ── THREAD PANEL ── */}
                 {selectedThread?(
-                  <div style={{ background:C.white, borderRadius:16, border:`1px solid ${C.border}`, display:"flex", flexDirection:"column", overflow:"hidden", boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
-                    <div style={{ padding:"16px 20px", borderBottom:`1px solid ${C.border}`, display:"flex", alignItems:"center", gap:12, flexShrink:0 }}>
-                      <Avatar initials={selectedThread.initials} bg={getColor(liveInbox.indexOf(selectedThread))} size={38} />
+                  <div style={{ background:C.white, borderRadius:16, border:`1px solid ${C.border}`, display:"flex", flexDirection:"column", overflow:"hidden", boxShadow:"0 1px 4px rgba(0,0,0,.05)" }}>
+
+                    {/* Thread header */}
+                    <div style={{ padding:"12px 18px", borderBottom:`1px solid ${C.border}`, display:"flex", alignItems:"center", gap:12, flexShrink:0, background:C.white }}>
+                      <Avatar initials={selectedThread.initials} bg={getColor(liveInbox.indexOf(selectedThread))} size={40} />
                       <div style={{ flex:1 }}>
-                        <div onClick={()=>openTimeline(selectedThread)} style={{ fontWeight:700, fontSize:15, letterSpacing:-0.3, cursor:"pointer" }} onMouseEnter={e=>e.target.style.color=C.teal} onMouseLeave={e=>e.target.style.color=""}>{selectedThread.patient}</div>
-                        {selectedThread.urgent&&<span style={{ fontSize:11, color:C.red, fontWeight:600 }}>⚠ Urgent — requires human review</span>}
+                        <div onClick={()=>openTimeline(selectedThread)} style={{ fontWeight:700, fontSize:15, letterSpacing:-0.3, cursor:"pointer", color:C.navy }} onMouseEnter={e=>e.target.style.color=C.teal} onMouseLeave={e=>e.target.style.color=C.navy}>{selectedThread.patient}</div>
+                        <div style={{ fontSize:11, color:C.slateLight, marginTop:1 }}>{selectedThread.phone||"WhatsApp"}</div>
                       </div>
-                    </div>
-                    <div className="inbox-thread" style={{ flex:1, overflowY:"scroll", padding:20, display:"flex", flexDirection:"column", gap:10, background:"#F7FAFC" }}>
                       {selectedThread.urgent&&(
-                        <div style={{ background:"rgba(239,68,68,.06)", border:"1px solid rgba(239,68,68,.15)", borderRadius:12, padding:"10px 14px", display:"flex", gap:10, alignItems:"center" }}>
+                        <span style={{ fontSize:11, color:C.red, fontWeight:600, background:"rgba(239,68,68,.07)", border:"1px solid rgba(239,68,68,.2)", borderRadius:8, padding:"4px 10px" }}>⚠ Urgent</span>
+                      )}
+                    </div>
+
+                    {/* Pinned message banner */}
+                    {pinned&&(
+                      <div onClick={()=>{setHighlightedMsg({convId:selectedThread.id,idx:pinned.idx});setTimeout(()=>setHighlightedMsg(null),2000);}} style={{ padding:"8px 18px", borderBottom:`1px solid ${C.border}`, background:"#FFFBEB", display:"flex", alignItems:"center", gap:10, cursor:"pointer", flexShrink:0 }}>
+                        <div style={{ width:3, height:32, background:C.amber, borderRadius:2, flexShrink:0 }} />
+                        <div style={{ flex:1, minWidth:0 }}>
+                          <div style={{ fontSize:10, color:C.amber, fontWeight:700, marginBottom:1, textTransform:"uppercase", letterSpacing:.5 }}>📌 Pinned message</div>
+                          <div style={{ fontSize:12, color:C.navy, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{pinned.text}</div>
+                        </div>
+                        <button onClick={e=>{e.stopPropagation();setPinnedMessages(prev=>{const n={...prev};delete n[selectedThread.id];return n;});}} style={{ background:"none", border:"none", fontSize:18, cursor:"pointer", color:C.slateLight, padding:"0 4px", lineHeight:1 }}>×</button>
+                      </div>
+                    )}
+
+                    {/* Message thread */}
+                    <div className="inbox-thread" ref={threadContainerRef} style={{ flex:1, overflowY:"scroll", padding:"14px 16px", display:"flex", flexDirection:"column", gap:4, background:"#ECE5DD" }}>
+
+                      {/* Urgent AI flag */}
+                      {selectedThread.urgent&&(
+                        <div style={{ background:"rgba(239,68,68,.07)", border:"1px solid rgba(239,68,68,.18)", borderRadius:12, padding:"10px 14px", display:"flex", gap:10, alignItems:"center", marginBottom:6 }}>
                           <span>🚨</span>
                           <div style={{ fontSize:12, color:C.red, fontWeight:600 }}>AI flagged this as urgent — patient may need a clinical callback today.</div>
                         </div>
                       )}
+
                       {sortedThread.reduce((acc, msg, i, arr) => {
+                        // Date separator
                         const msgDate = msg.sent_at ? new Date(msg.sent_at) : null;
-                        const prevDate = i > 0 && arr[i-1].sent_at ? new Date(arr[i-1].sent_at) : null;
-                        const showSeparator = msgDate && (!prevDate || msgDate.toDateString() !== prevDate.toDateString());
-                        if (showSeparator) {
-                          const today = new Date();
-                          const yesterday = new Date(); yesterday.setDate(yesterday.getDate()-1);
-                          const label = msgDate.toDateString()===today.toDateString() ? "Today" : msgDate.toDateString()===yesterday.toDateString() ? "Yesterday" : msgDate.toLocaleDateString("en-GB",{day:"numeric",month:"long"});
-                          acc.push(<div key={"sep-"+i} style={{ textAlign:"center", margin:"12px 0" }}><span style={{ fontSize:11, color:C.slate, background:C.border, borderRadius:10, padding:"3px 12px" }}>{label}</span></div>);
+                        const prevDate = i>0&&arr[i-1].sent_at ? new Date(arr[i-1].sent_at) : null;
+                        if (msgDate&&(!prevDate||msgDate.toDateString()!==prevDate.toDateString())) {
+                          const today=new Date(); const yest=new Date(); yest.setDate(yest.getDate()-1);
+                          const label=msgDate.toDateString()===today.toDateString()?"Today":msgDate.toDateString()===yest.toDateString()?"Yesterday":msgDate.toLocaleDateString("en-GB",{day:"numeric",month:"long"});
+                          acc.push(
+                            <div key={"sep"+i} style={{ textAlign:"center", margin:"10px 0" }}>
+                              <span style={{ fontSize:11, color:"#54656F", background:"rgba(255,255,255,.85)", borderRadius:8, padding:"3px 14px", boxShadow:"0 1px 1px rgba(0,0,0,.08)" }}>{label}</span>
+                            </div>
+                          );
                         }
+                        const isPractice = msg.from==="practice";
+                        const isHighlighted = highlightedMsg&&highlightedMsg.convId===selectedThread.id&&highlightedMsg.idx===i;
+                        const menuOpen = msgMenuOpen&&msgMenuOpen.convId===selectedThread.id&&msgMenuOpen.idx===i;
+                        const alreadyPinned = pinnedMessages[selectedThread.id]?.idx===i;
                         acc.push(
-                          <div key={i} style={{ display:"flex", justifyContent:msg.from==="practice"?"flex-end":"flex-start" }}>
-                            <div style={{ maxWidth:"70%", background:msg.from==="practice"?`linear-gradient(135deg,${C.teal},${C.tealLt})`:C.white, color:msg.from==="practice"?"#fff":C.navy, borderRadius:msg.from==="practice"?"16px 16px 4px 16px":"16px 16px 16px 4px", padding:"10px 14px", fontSize:13, lineHeight:1.6, border:msg.from==="patient"?`1px solid ${C.border}`:"none", boxShadow:"0 2px 8px rgba(0,0,0,.06)", whiteSpace:"pre-wrap" }}>
-                              {msg.from==="practice"&&<div style={{ fontSize:9, opacity:0.7, marginBottom:4, textTransform:"uppercase", letterSpacing:1 }}>Bright Eyes · Iryss AI</div>}
-                              {msg.text}
-                              <div style={{ fontSize:10, opacity:0.55, textAlign:"right", marginTop:4 }}>{msg.time}{msg.from==="practice"?" ✓✓":""}</div>
+                          <div key={i} style={{ display:"flex", flexDirection:"column", alignItems:isPractice?"flex-end":"flex-start", marginBottom:2 }}
+                            onMouseEnter={()=>setHoveredMsg({convId:selectedThread.id,idx:i})}
+                            onMouseLeave={()=>{setHoveredMsg(null);if(!menuOpen)setMsgMenuOpen(null);}}>
+                            <div style={{ display:"flex", alignItems:"flex-end", gap:6, flexDirection:isPractice?"row-reverse":"row", maxWidth:"75%", position:"relative" }}>
+                              {/* ⋮ button */}
+                              {hoveredMsg&&hoveredMsg.convId===selectedThread.id&&hoveredMsg.idx===i&&(
+                                <div style={{ position:"relative", flexShrink:0, alignSelf:"center" }}>
+                                  <button
+                                    onClick={e=>{e.stopPropagation();setMsgMenuOpen(menuOpen?null:{convId:selectedThread.id,idx:i});}}
+                                    style={{ background:"rgba(255,255,255,.9)", border:"none", borderRadius:"50%", width:26, height:26, cursor:"pointer", fontSize:15, display:"flex", alignItems:"center", justifyContent:"center", boxShadow:"0 1px 3px rgba(0,0,0,.18)", color:"#54656F", padding:0 }}>⋮</button>
+                                  {menuOpen&&(
+                                    <div onClick={e=>e.stopPropagation()} style={{ position:"absolute", top:30, [isPractice?"right":"left"]:0, background:C.white, border:`1px solid ${C.border}`, borderRadius:10, boxShadow:"0 4px 20px rgba(0,0,0,.14)", minWidth:160, zIndex:50, overflow:"hidden" }}>
+                                      <div
+                                        onClick={()=>{
+                                          if(alreadyPinned){setPinnedMessages(prev=>{const n={...prev};delete n[selectedThread.id];return n;});}
+                                          else{setPinnedMessages(prev=>({...prev,[selectedThread.id]:{text:msg.text,idx:i}}));}
+                                          setMsgMenuOpen(null);
+                                        }}
+                                        style={{ padding:"11px 16px", fontSize:13, cursor:"pointer", color:C.navy, display:"flex", alignItems:"center", gap:8 }}
+                                        onMouseEnter={e=>e.currentTarget.style.background="#F7FAFC"} onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
+                                        📌 {alreadyPinned?"Unpin message":"Pin message"}
+                                      </div>
+                                      <div style={{ height:1, background:C.border }} />
+                                      <div
+                                        onClick={()=>{navigator.clipboard.writeText(msg.text).catch(()=>{});setMsgMenuOpen(null);}}
+                                        style={{ padding:"11px 16px", fontSize:13, cursor:"pointer", color:C.navy, display:"flex", alignItems:"center", gap:8 }}
+                                        onMouseEnter={e=>e.currentTarget.style.background="#F7FAFC"} onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
+                                        📋 Copy text
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+                              {/* Bubble */}
+                              <div style={{
+                                background: isHighlighted?"#FEF3C7":isPractice?"#D9FDD3":C.white,
+                                color: C.navy,
+                                borderRadius: isPractice?"12px 2px 12px 12px":"2px 12px 12px 12px",
+                                padding:"8px 12px 6px",
+                                fontSize:13,
+                                lineHeight:1.45,
+                                boxShadow:"0 1px 2px rgba(0,0,0,.1)",
+                                whiteSpace:"pre-wrap",
+                                transition:"background .4s",
+                                wordBreak:"break-word"
+                              }}>
+                                {isPractice&&<div style={{ fontSize:9.5, color:"#25D366", fontWeight:700, marginBottom:3, textTransform:"uppercase", letterSpacing:.8 }}>Bright Eyes · Iryss AI</div>}
+                                {msg.text}
+                                <div style={{ fontSize:10, color:"#667781", textAlign:"right", marginTop:3, display:"flex", alignItems:"center", justifyContent:"flex-end", gap:3 }}>
+                                  <span>{msg.time}</span>
+                                  {isPractice&&<span style={{ color:"#53BDEB", fontSize:13, lineHeight:1 }}>✓✓</span>}
+                                </div>
+                              </div>
                             </div>
                           </div>
                         );
@@ -1506,15 +1601,28 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                       }, [])}
                       <div ref={msgEndRef} />
                     </div>
-                    <div style={{ padding:16, borderTop:`1px solid ${C.border}`, display:"flex", gap:10, alignItems:"center", flexShrink:0 }}>
-                      <input value={sendMsg} onChange={e=>setSendMsg(e.target.value)} onKeyDown={e=>e.key==="Enter"&&sendInboxReply()} placeholder="Type a reply…"
-                        style={{ flex:1, border:`1px solid ${C.border}`, borderRadius:10, padding:"10px 14px", fontSize:13, fontFamily:F, outline:"none", background:C.offWhite }} />
-                      <button onClick={sendInboxReply} style={{ background:`linear-gradient(135deg,${C.teal},${C.tealLt})`, color:"#fff", border:"none", borderRadius:10, padding:"10px 18px", fontWeight:700, fontSize:13, cursor:"pointer", fontFamily:F, boxShadow:"0 2px 8px rgba(8,145,178,.3)" }}>Send</button>
+
+                    {/* Reply input */}
+                    <div style={{ padding:"10px 14px", borderTop:`1px solid ${C.border}`, display:"flex", gap:8, alignItems:"flex-end", flexShrink:0, background:"#F0F2F5" }}>
+                      <textarea
+                        ref={textareaRef}
+                        value={sendMsg}
+                        onChange={e=>{setSendMsg(e.target.value);const t=e.target;t.style.height="auto";t.style.height=Math.min(t.scrollHeight,96)+"px";}}
+                        onKeyDown={e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendInboxReply();}}}
+                        placeholder="Type a message"
+                        rows={1}
+                        style={{ flex:1, border:"none", borderRadius:22, padding:"10px 16px", fontSize:13, fontFamily:F, outline:"none", background:C.white, resize:"none", lineHeight:1.45, maxHeight:96, overflowY:"auto", boxShadow:"0 1px 3px rgba(0,0,0,.08)", color:C.navy }}
+                      />
+                      <button
+                        onClick={sendInboxReply}
+                        style={{ background:sendMsg.trim()?"#25D366":"#C5E8CE", color:"#fff", border:"none", borderRadius:"50%", width:42, height:42, cursor:sendMsg.trim()?"pointer":"default", display:"flex", alignItems:"center", justifyContent:"center", fontSize:17, flexShrink:0, transition:"background .15s", boxShadow:sendMsg.trim()?"0 2px 8px rgba(37,211,102,.4)":"none" }}>➤</button>
                     </div>
                   </div>
                 ):(
-                  <div style={{ background:C.white, borderRadius:16, border:`1px solid ${C.border}`, display:"flex", alignItems:"center", justifyContent:"center" }}>
-                    <div style={{ color:C.slate, fontSize:14 }}>Select a conversation</div>
+                  /* Empty state */
+                  <div style={{ background:C.white, borderRadius:16, border:`1px solid ${C.border}`, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:14 }}>
+                    <img src="/iryss-logo.svg" alt="Iryss" style={{ height:52, opacity:0.15 }} />
+                    <div style={{ color:C.slateLight, fontSize:14, fontWeight:500 }}>Select a conversation to start messaging</div>
                   </div>
                 )}
               </div>
