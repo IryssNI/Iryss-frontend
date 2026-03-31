@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 
 // ── Google Font import via style injection ───────────────────────────
 const fontStyle = document.createElement('style');
-fontStyle.textContent = `@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&display=swap');`;
+fontStyle.textContent = `@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap');`;
 document.head.appendChild(fontStyle);
 
 const pulseStyle = document.createElement('style');
@@ -17,13 +17,14 @@ pulseStyle.textContent = `
 document.head.appendChild(pulseStyle);
 
 const C = {
-  navy:"#080F1E", navyMid:"#0D1829", navyLight:"#132035",
-  teal:"#0891B2", tealLt:"#06B6D4", tealPale:"#E0F7FA",
-  cream:"#F7FAFC", border:"#E8EEF4", borderDark:"#1E2D42",
-  slate:"#64748B", slateLight:"#94A3B8",
-  white:"#FFFFFF", offWhite:"#F8FBFD",
-  red:"#EF4444", redDark:"#DC2626",
-  amber:"#F59E0B", green:"#10B981", purple:"#8B5CF6",
+  // New design tokens
+  sidebar:"#111827", bg:"#FAFAFA", card:"#FFFFFF", border:"#F0F0F0",
+  text:"#0A0A0A", secondary:"#6B7280",
+  teal:"#0891B2", green:"#059669", amber:"#D97706", red:"#E11D48",
+  // Aliases for existing references
+  navy:"#0A0A0A", cream:"#FAFAFA", offWhite:"#FAFAFA", white:"#FFFFFF",
+  slate:"#6B7280", slateLight:"#9CA3AF",
+  tealLt:"#0891B2", tealPale:"#E0F7FA", purple:"#8B5CF6",
 };
 
 const PATIENTS = [
@@ -105,7 +106,7 @@ const riskBg    = { high:"rgba(239,68,68,.12)", medium:"rgba(245,158,11,.12)", l
 const riskFg    = { high:"#EF4444", medium:"#D97706", low:"#059669" };
 const avatarColors = ["#0891B2","#8B5CF6","#F59E0B","#10B981","#EF4444","#EC4899","#6366F1","#14B8A6"];
 const getColor = i => avatarColors[i % avatarColors.length];
-const F = "'DM Sans', system-ui, sans-serif";
+const F = "'Inter', system-ui, sans-serif";
 
 function Avatar({ initials, bg=C.teal, size=36 }) {
   return <div style={{ width:size, height:size, borderRadius:"50%", background:bg, display:"flex", alignItems:"center", justifyContent:"center", fontWeight:700, fontSize:size*0.33, color:"#fff", flexShrink:0, fontFamily:F, letterSpacing:-0.3 }}>{initials}</div>;
@@ -272,6 +273,9 @@ function Dashboard() {
   const [revenueTab, setRevenueTab]             = useState("overview");
   const [planSent, setPlanSent]                 = useState({});
   const [intelSent, setIntelSent]               = useState({});
+  const [tasksDone, setTasksDone]               = useState({});
+  const [completedCollapsed, setCompletedCollapsed] = useState(false);
+  const [taskJustCompleted, setTaskJustCompleted] = useState({});
 
   useEffect(() => {
     if (msgEndRef.current) {
@@ -439,7 +443,14 @@ function Dashboard() {
     setShowSendWA({ id:`appt-${idx}`, name:a.patient, risk:'low', lastVisit:'Today', phone:a.phone||'' });
     setWaMsg(`Hi ${firstName}, just a reminder that you have an appointment at Bright Eyes Opticians tomorrow. Please reply YES to confirm or call us to rearrange 😊`);
   }
-  function goNav(id) { setDrill(null); setNav(id); }
+  function goNav(id) { setDrill(null); setNav(id); setPatientTimeline(null); }
+  function completeTask(id) {
+    setTaskJustCompleted(prev=>({...prev,[id]:true}));
+    setTimeout(()=>{
+      setTasksDone(prev=>({...prev,[id]:true}));
+      setTaskJustCompleted(prev=>{ const n={...prev}; delete n[id]; return n; });
+    }, 500);
+  }
   function openTimeline(p) {
     const match = PATIENTS.find(pt => pt.name === (p.name || p.patient));
     setPrevNav(nav);
@@ -478,20 +489,56 @@ function Dashboard() {
     }
   }
 
+  // ── Today's tasks (computed every render from live data) ─────────────
+  const urgentTasks = urgentMessages.map(m=>({
+    id:`urgent-${m.patient}`, category:'urgent', color:'#E11D48',
+    label:`Reply to ${m.patient}`,
+    sub: m.preview ? `"${m.preview.slice(0,60)}${m.preview.length>60?'…':''}"` : 'Unread urgent message',
+    action:'Reply Now →', onAction:()=>{ setSelectedThread(m); goNav('inbox'); }
+  }));
+  const recallTasksList = recallPatients.filter(p=>!waSent[p.id]).slice(0,4).map(p=>({
+    id:`recall-${p.id}`, category:'recalls', color:'#D97706',
+    label:`Send recall to ${p.name}`, sub:`Last visit ${p.lastVisit}`,
+    action:'Send WhatsApp →', onAction:()=>openRecallWA(p)
+  }));
+  const apptTasks = APPOINTMENTS.filter(a=>!a.confirmed).map((a,i)=>({
+    id:`appt-${i}`, category:'appointments', color:'#0891B2',
+    label:`Confirm appointment — ${a.patient} at ${a.time}`, sub:`${a.type} · ${a.optician}`,
+    action:'Send Confirmation →', onAction:()=>openConfirmationWA(a,i)
+  }));
+  const highRiskTasksList = highRisk.filter(p=>!waSent[p.id]).map(p=>({
+    id:`risk-${p.id}`, category:'highRisk', color:'#D97706',
+    label:`Re-engage ${p.name}`, sub:`Risk score ${p.riskScore}/100`,
+    action:'Send WhatsApp →', onAction:()=>openSendWA(p)
+  }));
+  const reviewTasksList = REVIEW_REQUESTS.filter(r=>r.status==='none').map(r=>({
+    id:`review-${r.patient}`, category:'reviews', color:'#D97706',
+    label:`Request Google review from ${r.patient}`, sub:`${r.trigger} · ${r.date}`,
+    action:'Send Request →', onAction:()=>openReviewWA(r.patient, r.phone)
+  }));
+  const orderTasksList = [
+    {id:'order-0', label:'Chase Acuvue Oasys trial order — Jim Bru',            sub:'Outstanding 3 days'},
+    {id:'order-1', label:'Confirm varifocal lens delivery — Shona Kay',          sub:'Delivery expected this week'},
+    {id:'order-2', label:'Order daily trial lenses — new patient fitting Thursday', sub:'Fitting: Thursday 03 April'},
+  ].map(t=>({...t, category:'orders', color:'#3B82F6', action:'Mark as chased →', onAction:()=>{}}));
+  const allTasks = [...urgentTasks, ...recallTasksList, ...apptTasks, ...highRiskTasksList, ...reviewTasksList, ...orderTasksList];
+  const incompleteTaskCount = allTasks.filter(t=>!tasksDone[t.id]).length;
+
   // Polished stat card
   function SC({ label, value, sub, accent, onDrill, trend, trendUp }) {
     return (
-      <div onClick={onDrill} style={{ background:C.white, border:`1px solid ${C.border}`, borderRadius:16, padding:"22px 22px 20px 26px", cursor:onDrill?"pointer":"default", transition:"all .2s", boxShadow:"0 2px 12px rgba(0,0,0,.06), 0 1px 4px rgba(0,0,0,.04)", position:"relative", overflow:"hidden" }}
-        onMouseEnter={e=>{ if(onDrill){ e.currentTarget.style.boxShadow=`0 0 0 2px ${C.teal}, 0 12px 28px rgba(8,145,178,.14)`; e.currentTarget.style.transform="translateY(-2px)"; }}}
-        onMouseLeave={e=>{ e.currentTarget.style.boxShadow="0 2px 12px rgba(0,0,0,.06), 0 1px 4px rgba(0,0,0,.04)"; e.currentTarget.style.transform="translateY(0)"; }}>
-        <div style={{ position:"absolute", top:0, left:0, bottom:0, width:4, background:accent, borderRadius:"16px 0 0 16px" }} />
-        <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", marginBottom:2 }}>
-          <div style={{ fontSize:32, fontWeight:800, color:C.navy, letterSpacing:-1.5, lineHeight:1 }}>{value}</div>
-          {trend && <span style={{ fontSize:11, fontWeight:700, color:trendUp?C.green:C.red, background:trendUp?"rgba(16,185,129,.1)":"rgba(239,68,68,.1)", padding:"3px 9px", borderRadius:20, flexShrink:0, marginTop:2 }}>{trendUp?"↑":"↓"} {trend}</span>}
+      <div onClick={onDrill} style={{ background:"#FFFFFF", border:"1px solid #F0F0F0", borderLeft:`3px solid ${accent}`, borderRadius:12, padding:"20px 24px", cursor:onDrill?"pointer":"default", transition:"box-shadow .2s, transform .2s" }}
+        onMouseEnter={e=>{ if(onDrill){ e.currentTarget.style.boxShadow=`0 4px 20px rgba(0,0,0,.08)`; e.currentTarget.style.transform="translateY(-1px)"; }}}
+        onMouseLeave={e=>{ e.currentTarget.style.boxShadow="none"; e.currentTarget.style.transform="translateY(0)"; }}>
+        <div style={{ fontSize:11, fontWeight:600, color:"#9CA3AF", textTransform:"uppercase", letterSpacing:0.8, marginBottom:10 }}>{label}</div>
+        <div style={{ fontSize:40, fontFamily:"'Instrument Serif', Georgia, serif", fontStyle:"italic", color:"#0A0A0A", lineHeight:1, marginBottom:12 }}>{value}</div>
+        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+          <div>
+            {trend && <span style={{ fontSize:11, fontWeight:600, color:trendUp?C.green:C.red, background:trendUp?"rgba(5,150,105,.08)":"rgba(225,29,72,.08)", padding:"3px 8px", borderRadius:20 }}>{trendUp?"↑":"↓"} {trend}</span>}
+            {sub && <span style={{ fontSize:11, color:C.slate, fontWeight:500 }}>{sub}</span>}
+          </div>
+          {onDrill && <span style={{ fontSize:11, fontWeight:600, color:"#0891B2", cursor:"pointer" }}>View breakdown →</span>}
         </div>
-        <div style={{ fontSize:12, color:C.slate, marginTop:8, fontWeight:500, letterSpacing:0.1 }}>{label}</div>
-        {sub && <div style={{ fontSize:11, color:C.teal, marginTop:5, fontWeight:600 }}>{sub}</div>}
-        {onDrill && <div style={{ fontSize:10, color:C.slateLight, marginTop:10, display:"flex", alignItems:"center", gap:3 }}>View breakdown <span style={{ fontSize:11 }}>↗</span></div>}
       </div>
     );
   }
@@ -503,6 +550,7 @@ function Dashboard() {
 
   const pageTitles = {
     dashboard:"Good morning, Bright Eyes 👋",
+    tasks:"Today's Tasks",
     patients:"All Patients",
     recalls:"Recall & Reorder Automation",
     inbox:"WhatsApp Inbox",
@@ -631,112 +679,113 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
     <div onClick={()=>setShowBellDropdown(false)} style={{ display:"flex", height:"100vh", fontFamily:F, background:"#EEF2F7", color:C.navy, overflow:"hidden" }}>
 
       {/* ── Sidebar ── */}
-      <div style={{ width:236, background:C.navy, display:"flex", flexDirection:"column", flexShrink:0, padding:"0 12px 20px", borderRight:"1px solid rgba(255,255,255,.05)" }}>
-        <div style={{ padding:"10px 0 18px", borderBottom:"1px solid rgba(255,255,255,.07)", marginBottom:14 }}>
+      <div style={{ width:236, background:C.sidebar, display:"flex", flexDirection:"column", flexShrink:0, padding:"0 0 20px" }}>
+        <div style={{ padding:"16px 20px 18px", borderBottom:"1px solid rgba(255,255,255,.08)", marginBottom:8 }}>
           <img src="/iryss-logo.svg" alt="Iryss" style={{ height:"96px", objectFit:"contain" }} />
-          <div style={{ fontSize:11, color:"rgba(255,255,255,.28)", letterSpacing:1.5, textTransform:"uppercase", marginTop:10, fontWeight:600 }}>Bright Eyes Opticians</div>
+          <div style={{ fontSize:11, color:"rgba(255,255,255,.35)", letterSpacing:1.5, textTransform:"uppercase", marginTop:10, fontWeight:600 }}>Bright Eyes Opticians</div>
         </div>
 
-        <nav style={{ display:"flex", flexDirection:"column", gap:1, flex:1 }}>
+        <nav style={{ display:"flex", flexDirection:"column", gap:2, flex:1, padding:"0 8px" }}>
           {[
             { id:"dashboard",    label:"Dashboard",        icon:"◈"  },
+            { id:"tasks",        label:"Today's Tasks",     icon:"✓",  badge:incompleteTaskCount },
             { id:"patients",     label:"All Patients",      icon:"◎", badge:PATIENTS.length },
             { id:"recalls",      label:"Recalls",          icon:"◷", badge:recallPatients.length, warnDot:complianceRate<80&&recallPatients.length>0 },
             { id:"inbox",        label:"Inbox",            icon:"◻", urgentDot:urgentCount>0, urgentBadge:urgentCount },
             { id:"revenue",      label:"Revenue",          icon:"◇"  },
             { id:"intelligence", label:"Intelligence",     icon:"🎯", badge:competitorMentions.length>0?competitorMentions.length:0 },
             { id:"reviews",      label:"Google Reviews",   icon:"◆" },
-          ].map(item=>(
+          ].map(item=>{
+            const active = nav===item.id;
+            return (
             <button key={item.id} onClick={()=>goNav(item.id)} style={{
-              display:"flex", alignItems:"center", gap:11, width:"100%", padding:"11px 12px",
-              border:"none", background:nav===item.id?"rgba(8,145,178,.2)":"transparent",
-              borderRadius:10, cursor:"pointer",
-              color:nav===item.id?"#fff":"rgba(255,255,255,.42)",
-              fontWeight:nav===item.id?700:400, fontSize:13.5, fontFamily:F, textAlign:"left",
-              borderLeft:nav===item.id?`3px solid ${C.teal}`:"3px solid transparent",
+              display:"flex", alignItems:"center", gap:11, width:"100%", padding:"10px 14px",
+              border:"none", borderRadius:8, cursor:"pointer",
+              background:active?"rgba(255,255,255,.06)":"transparent",
+              color:active?"#FFFFFF":"rgba(255,255,255,.55)",
+              fontWeight:active?600:400, fontSize:13.5, fontFamily:F, textAlign:"left",
+              borderLeft:active?"3px solid #14B8A6":"3px solid transparent",
               transition:"all .15s", letterSpacing:-0.1
             }}
-              onMouseEnter={e=>{ if(nav!==item.id){ e.currentTarget.style.background="rgba(255,255,255,.05)"; e.currentTarget.style.color="rgba(255,255,255,.75)"; }}}
-              onMouseLeave={e=>{ if(nav!==item.id){ e.currentTarget.style.background="transparent"; e.currentTarget.style.color="rgba(255,255,255,.42)"; }}}>
-              <span style={{ fontSize:14, width:18, textAlign:"center", opacity:nav===item.id?1:0.65 }}>{item.icon}</span>
+              onMouseEnter={e=>{ if(!active){ e.currentTarget.style.background="rgba(255,255,255,.04)"; e.currentTarget.style.color="rgba(255,255,255,.85)"; }}}
+              onMouseLeave={e=>{ if(!active){ e.currentTarget.style.background="transparent"; e.currentTarget.style.color="rgba(255,255,255,.55)"; }}}>
+              <span style={{ fontSize:14, width:18, textAlign:"center", opacity:active?1:0.6 }}>{item.icon}</span>
               <span style={{ flex:1 }}>{item.label}</span>
               {item.warnDot   && <span style={{ width:8, height:8, borderRadius:"50%", background:C.amber, flexShrink:0, display:"inline-block" }} />}
               {item.urgentDot && <span style={{ width:8, height:8, borderRadius:"50%", background:C.red, flexShrink:0, display:"inline-block", animation:"pulseDot 1.5s ease-in-out infinite, pulseRing 1.5s ease-in-out infinite" }} />}
               {item.urgentBadge>0
                 ? <span style={{ background:C.red, color:"#fff", borderRadius:20, fontSize:10, fontWeight:700, padding:"2px 7px", minWidth:20, textAlign:"center", animation:"pulseRing 1.5s ease-in-out infinite" }}>{item.urgentBadge}</span>
-                : item.badge>0 && <span style={{ background:"rgba(239,68,68,.7)", color:"#fff", borderRadius:20, fontSize:10, fontWeight:700, padding:"2px 7px", minWidth:20, textAlign:"center" }}>{item.badge}</span>
+                : item.badge>0 && <span style={{ background:"rgba(255,255,255,.15)", color:"rgba(255,255,255,.7)", borderRadius:20, fontSize:10, fontWeight:600, padding:"2px 7px", minWidth:20, textAlign:"center" }}>{item.badge}</span>
               }
             </button>
-          ))}
-          <div style={{ height:1, background:"rgba(255,255,255,.06)", margin:"10px 4px" }} />
+            );
+          })}
+          <div style={{ height:1, background:"rgba(255,255,255,.08)", margin:"10px 6px" }} />
           {[
             { id:"appointments", label:"Appointments",     icon:"▦" },
             { id:"receptionist", label:"AI Receptionist",  icon:"⬡" },
-          ].map(item=>(
+          ].map(item=>{
+            const active = nav===item.id;
+            return (
             <button key={item.id} onClick={()=>goNav(item.id)} style={{
-              display:"flex", alignItems:"center", gap:11, width:"100%", padding:"11px 12px",
-              border:"none", background:nav===item.id?"rgba(8,145,178,.2)":"transparent",
-              borderRadius:10, cursor:"pointer",
-              color:nav===item.id?"#fff":"rgba(255,255,255,.42)",
-              fontWeight:nav===item.id?700:400, fontSize:13.5, fontFamily:F, textAlign:"left",
-              borderLeft:nav===item.id?`3px solid ${C.teal}`:"3px solid transparent",
+              display:"flex", alignItems:"center", gap:11, width:"100%", padding:"10px 14px",
+              border:"none", borderRadius:8, cursor:"pointer",
+              background:active?"rgba(255,255,255,.06)":"transparent",
+              color:active?"#FFFFFF":"rgba(255,255,255,.55)",
+              fontWeight:active?600:400, fontSize:13.5, fontFamily:F, textAlign:"left",
+              borderLeft:active?"3px solid #14B8A6":"3px solid transparent",
               transition:"all .15s", letterSpacing:-0.1
             }}
-              onMouseEnter={e=>{ if(nav!==item.id){ e.currentTarget.style.background="rgba(255,255,255,.05)"; e.currentTarget.style.color="rgba(255,255,255,.75)"; }}}
-              onMouseLeave={e=>{ if(nav!==item.id){ e.currentTarget.style.background="transparent"; e.currentTarget.style.color="rgba(255,255,255,.42)"; }}}>
-              <span style={{ fontSize:14, width:18, textAlign:"center", opacity:nav===item.id?1:0.65 }}>{item.icon}</span>
+              onMouseEnter={e=>{ if(!active){ e.currentTarget.style.background="rgba(255,255,255,.04)"; e.currentTarget.style.color="rgba(255,255,255,.85)"; }}}
+              onMouseLeave={e=>{ if(!active){ e.currentTarget.style.background="transparent"; e.currentTarget.style.color="rgba(255,255,255,.55)"; }}}>
+              <span style={{ fontSize:14, width:18, textAlign:"center", opacity:active?1:0.6 }}>{item.icon}</span>
               <span style={{ flex:1 }}>{item.label}</span>
             </button>
-          ))}
+            );
+          })}
           <div style={{ marginTop:"auto" }}>
-            <div style={{ height:1, background:"rgba(255,255,255,.06)", margin:"10px 4px" }} />
-            <button onClick={()=>goNav("settings")} style={{
-              display:"flex", alignItems:"center", gap:11, width:"100%", padding:"11px 12px",
-              border:"none", background:nav==="settings"?"rgba(8,145,178,.2)":"transparent",
-              borderRadius:10, cursor:"pointer",
-              color:nav==="settings"?"#fff":"rgba(255,255,255,.42)",
-              fontWeight:nav==="settings"?700:400, fontSize:13.5, fontFamily:F, textAlign:"left",
-              borderLeft:nav==="settings"?`3px solid ${C.teal}`:"3px solid transparent",
-              transition:"all .15s", letterSpacing:-0.1
-            }}
-              onMouseEnter={e=>{ if(nav!=="settings"){ e.currentTarget.style.background="rgba(255,255,255,.05)"; e.currentTarget.style.color="rgba(255,255,255,.75)"; }}}
-              onMouseLeave={e=>{ if(nav!=="settings"){ e.currentTarget.style.background="transparent"; e.currentTarget.style.color="rgba(255,255,255,.42)"; }}}>
-              <span style={{ fontSize:14, width:18, textAlign:"center", opacity:nav==="settings"?1:0.65 }}>⚙</span>
-              <span style={{ flex:1 }}>Settings</span>
-            </button>
+            <div style={{ height:1, background:"rgba(255,255,255,.08)", margin:"10px 6px" }} />
+            {(()=>{
+              const active = nav==="settings";
+              return (
+              <button onClick={()=>goNav("settings")} style={{
+                display:"flex", alignItems:"center", gap:11, width:"100%", padding:"10px 14px",
+                border:"none", borderRadius:8, cursor:"pointer",
+                background:active?"rgba(255,255,255,.06)":"transparent",
+                color:active?"#FFFFFF":"rgba(255,255,255,.55)",
+                fontWeight:active?600:400, fontSize:13.5, fontFamily:F, textAlign:"left",
+                borderLeft:active?"3px solid #14B8A6":"3px solid transparent",
+                transition:"all .15s", letterSpacing:-0.1
+              }}
+                onMouseEnter={e=>{ if(!active){ e.currentTarget.style.background="rgba(255,255,255,.04)"; e.currentTarget.style.color="rgba(255,255,255,.85)"; }}}
+                onMouseLeave={e=>{ if(!active){ e.currentTarget.style.background="transparent"; e.currentTarget.style.color="rgba(255,255,255,.55)"; }}}>
+                <span style={{ fontSize:14, width:18, textAlign:"center", opacity:active?1:0.6 }}>⚙</span>
+                <span style={{ flex:1 }}>Settings</span>
+              </button>
+              );
+            })()}
           </div>
         </nav>
 
-        <div style={{ borderTop:"1px solid rgba(255,255,255,.07)", paddingTop:16, marginTop:8 }}>
-          <div style={{ display:"flex", alignItems:"center", gap:8, padding:"6px 10px", background:"rgba(16,185,129,.08)", borderRadius:8, marginBottom:6 }}>
-            <div style={{ width:7, height:7, borderRadius:"50%", background:C.green, boxShadow:"0 0 8px rgba(16,185,129,.7)", flexShrink:0 }} />
+        <div style={{ borderTop:"1px solid rgba(255,255,255,.08)", paddingTop:16, marginTop:8, padding:"16px 20px 0" }}>
+          <div style={{ display:"flex", alignItems:"center", gap:8, padding:"6px 10px", background:"rgba(5,150,105,.1)", borderRadius:8, marginBottom:6 }}>
+            <div style={{ width:7, height:7, borderRadius:"50%", background:C.green, boxShadow:"0 0 8px rgba(5,150,105,.7)", flexShrink:0 }} />
             <span style={{ fontSize:12, color:"rgba(255,255,255,.5)", fontWeight:500 }}>All systems live</span>
           </div>
-          <div style={{ fontSize:11, color:"rgba(255,255,255,.2)", padding:"2px 10px" }}>Next AI scoring: 02:00</div>
+          <div style={{ fontSize:11, color:"rgba(255,255,255,.25)", padding:"2px 10px" }}>Next AI scoring: 02:00</div>
         </div>
       </div>
 
       {/* ── Main ── */}
-      <div style={{ flex:1, overflow:"auto", display:"flex", flexDirection:"column" }}>
+      <div style={{ flex:1, overflow:"auto", display:"flex", flexDirection:"column", paddingTop:60 }}>
 
         {/* Topbar */}
-        <div style={{ background:C.white, borderBottom:`1px solid ${C.border}`, padding:"16px 32px", display:"flex", alignItems:"center", justifyContent:"space-between", flexShrink:0, boxShadow:"0 1px 4px rgba(0,0,0,.05)" }}>
-          <div>
-            <div style={{ fontSize:22, fontWeight:800, color:C.navy, letterSpacing:-0.6 }}>{patientTimeline ? (patientTimeline.name||patientTimeline.patient||"Patient") : pageTitles[nav]}</div>
-            <div style={{ fontSize:12, color:C.slateLight, marginTop:3, fontWeight:500 }}>
-              {new Date().toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long",year:"numeric"})}
-            </div>
-          </div>
-          <div style={{ display:"flex", alignItems:"center", gap:14 }}>
-            <button onClick={e=>{ e.stopPropagation(); setShowImport(true); resetImport(); }} style={{ display:"flex", alignItems:"center", gap:7, background:`linear-gradient(135deg,${C.teal},${C.tealLt})`, color:"#fff", border:"none", borderRadius:10, padding:"9px 16px", fontWeight:700, fontSize:13, cursor:"pointer", fontFamily:F, boxShadow:"0 2px 10px rgba(8,145,178,.3)", flexShrink:0 }}>
-              <span style={{ fontSize:15 }}>⬆</span> Import Patients
+        <div style={{ position:"fixed", top:0, left:248, right:0, height:60, background:"#FFFFFF", borderBottom:"1px solid #F0F0F0", zIndex:90, display:"flex", alignItems:"center", justifyContent:"space-between", padding:"0 32px" }}>
+          <div style={{ fontSize:18, fontWeight:600, color:"#0A0A0A", fontFamily:F, letterSpacing:-0.3 }}>{patientTimeline ? (patientTimeline.name||patientTimeline.patient||"Patient") : pageTitles[nav]}</div>
+          <div style={{ display:"flex", alignItems:"center", gap:12 }}>
+            <button onClick={e=>{ e.stopPropagation(); setShowImport(true); resetImport(); }} style={{ display:"flex", alignItems:"center", gap:7, background:"#0891B2", color:"#fff", border:"none", borderRadius:8, padding:"8px 16px", fontWeight:600, fontSize:13, cursor:"pointer", fontFamily:F, flexShrink:0 }}>
+              <span style={{ fontSize:14 }}>⬆</span> Import Patients
             </button>
-            {urgentCount>0&&(
-              <div onClick={()=>goNav("inbox")} style={{ background:"rgba(239,68,68,.07)", border:"1px solid rgba(239,68,68,.18)", borderRadius:10, padding:"8px 16px", cursor:"pointer", display:"flex", alignItems:"center", gap:7, transition:"background .15s" }}>
-                <span style={{ fontSize:14 }}>🚨</span>
-                <span style={{ fontSize:12, fontWeight:700, color:C.red }}>{urgentCount} urgent alert{urgentCount>1?"s":""}</span>
-              </div>
-            )}
             <div style={{ position:"relative" }}>
               <div onClick={()=>setShowBellDropdown(v=>!v)} style={{ position:"relative", cursor:"pointer", width:36, height:36, display:"flex", alignItems:"center", justifyContent:"center", background:showBellDropdown?C.offWhite:C.offWhite, borderRadius:10, border:`1px solid ${showBellDropdown?C.teal:C.border}`, transition:"border .15s" }}>
                 <span style={{ fontSize:17 }}>🔔</span>
@@ -780,7 +829,7 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
               })()}
             </div>
             <div onClick={()=>goNav("settings")} style={{ cursor:"pointer" }}>
-              <Avatar initials="BE" bg={C.teal} size={36} />
+              <Avatar initials="BE" bg="#111827" size={36} />
             </div>
           </div>
         </div>
@@ -880,6 +929,129 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
               </div>
             );
           })() : (<>
+
+          {/* ═══ TODAY'S TASKS ═══ */}
+          {nav==="tasks"&&(()=>{
+            const doneTasks   = allTasks.filter(t=>tasksDone[t.id]);
+            const activeTasks = allTasks.filter(t=>!tasksDone[t.id]);
+            const doneCount   = doneTasks.length;
+            const totalCount  = allTasks.length;
+            const pct = totalCount>0 ? Math.round((doneCount/totalCount)*100) : 0;
+
+            function TaskCard({ task }) {
+              const isJust = !!taskJustCompleted[task.id];
+              return (
+                <div style={{
+                  display:"flex", alignItems:"center", gap:14,
+                  background: isJust ? "rgba(5,150,105,.05)" : "#FFFFFF",
+                  border: isJust ? "1px solid rgba(5,150,105,.25)" : "1px solid #F0F0F0",
+                  borderRadius:12, padding:"14px 20px", marginBottom:8,
+                  transition:"background .4s, border .4s"
+                }}>
+                  <div style={{ width:6, height:6, borderRadius:"50%", background:task.color, flexShrink:0 }} />
+                  <div style={{ flex:1, minWidth:0 }}>
+                    <div style={{ fontSize:14, fontWeight:500, color:"#0A0A0A", lineHeight:1.4 }}>{task.label}</div>
+                    {task.sub && <div style={{ fontSize:12, color:"#6B7280", marginTop:2 }}>{task.sub}</div>}
+                  </div>
+                  <div style={{ display:"flex", alignItems:"center", gap:10, flexShrink:0 }}>
+                    <button onClick={e=>{ e.stopPropagation(); task.onAction(); }} style={{
+                      background:"none", border:`1px solid ${task.color}`, borderRadius:8,
+                      padding:"5px 12px", fontSize:12, fontWeight:600, color:task.color,
+                      cursor:"pointer", fontFamily:F, whiteSpace:"nowrap"
+                    }}
+                      onMouseEnter={e=>{ e.currentTarget.style.background=`${task.color}12`; }}
+                      onMouseLeave={e=>{ e.currentTarget.style.background="none"; }}>
+                      {task.action}
+                    </button>
+                    <div onClick={()=>completeTask(task.id)} style={{
+                      width:22, height:22, borderRadius:"50%", flexShrink:0, cursor:"pointer",
+                      border: isJust ? "none" : "1.5px solid #E5E7EB",
+                      background: isJust ? "#059669" : "transparent",
+                      display:"flex", alignItems:"center", justifyContent:"center",
+                      transition:"background .3s, border .3s"
+                    }}>
+                      {isJust && <span style={{ color:"#fff", fontSize:11, fontWeight:700, lineHeight:1 }}>✓</span>}
+                    </div>
+                  </div>
+                </div>
+              );
+            }
+
+            function Section({ emoji, label, color, tasks }) {
+              const active = tasks.filter(t=>!tasksDone[t.id]);
+              if (active.length===0) return null;
+              return (
+                <div style={{ marginBottom:28 }}>
+                  <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:12 }}>
+                    <span style={{ fontSize:14 }}>{emoji}</span>
+                    <span style={{ fontSize:11, fontWeight:700, color, textTransform:"uppercase", letterSpacing:1 }}>{label}</span>
+                    <span style={{ fontSize:11, color:"#9CA3AF" }}>{active.length} task{active.length!==1?"s":""}</span>
+                  </div>
+                  {active.map(task=><TaskCard key={task.id} task={task} />)}
+                </div>
+              );
+            }
+
+            return (
+              <div>
+                <div style={{ marginBottom:24 }}>
+                  <div style={{ fontSize:22, fontWeight:700, color:"#0A0A0A", letterSpacing:-0.5, fontFamily:F }}>Good morning, Bright Eyes 👋</div>
+                  <div style={{ fontSize:14, color:"#6B7280", marginTop:6 }}>Here's what needs your attention today</div>
+                </div>
+
+                <div style={{ background:"#FFFFFF", border:"1px solid #F0F0F0", borderRadius:12, padding:"16px 20px", marginBottom:28 }}>
+                  <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:10 }}>
+                    <span style={{ fontSize:13, fontWeight:600, color:"#0A0A0A" }}>{doneCount} of {totalCount} tasks completed</span>
+                    <span style={{ fontSize:12, color:"#6B7280" }}>{totalCount-doneCount} remaining</span>
+                  </div>
+                  <div style={{ height:6, background:"#F0F0F0", borderRadius:3, overflow:"hidden" }}>
+                    <div style={{ height:"100%", background:"#0891B2", width:`${pct}%`, borderRadius:3, transition:"width .4s" }} />
+                  </div>
+                </div>
+
+                {activeTasks.length===0 ? (
+                  <div style={{ textAlign:"center", padding:"64px 32px", background:"#FFFFFF", border:"1px solid #F0F0F0", borderRadius:16 }}>
+                    <div style={{ fontSize:56, marginBottom:16 }}>✅</div>
+                    <div style={{ fontSize:22, fontWeight:700, color:"#0A0A0A", marginBottom:8 }}>All done for today! 🎉</div>
+                    <div style={{ fontSize:14, color:"#6B7280" }}>Iryss has your practice covered.</div>
+                  </div>
+                ) : (<>
+                  <Section emoji="🔴" label="URGENT"       color="#E11D48" tasks={urgentTasks} />
+                  <Section emoji="🟠" label="RECALLS"      color="#D97706" tasks={recallTasksList} />
+                  <Section emoji="📅" label="APPOINTMENTS" color="#0891B2" tasks={apptTasks} />
+                  <Section emoji="⚠️" label="HIGH RISK"    color="#D97706" tasks={highRiskTasksList} />
+                  <Section emoji="⭐" label="REVIEWS"      color="#D97706" tasks={reviewTasksList} />
+                  <Section emoji="🔵" label="ORDERS"       color="#3B82F6" tasks={orderTasksList} />
+                </>)}
+
+                {doneCount>0&&(
+                  <div style={{ marginTop:28 }}>
+                    <button onClick={()=>setCompletedCollapsed(c=>!c)} style={{ display:"flex", alignItems:"center", gap:8, background:"none", border:"none", cursor:"pointer", padding:"6px 0", fontFamily:F }}>
+                      <span style={{ fontSize:13, fontWeight:600, color:"#059669" }}>✓ {doneCount} completed today</span>
+                      <span style={{ fontSize:11, color:"#9CA3AF", marginLeft:4 }}>{completedCollapsed?"▼":"▲"}</span>
+                    </button>
+                    {!completedCollapsed&&(
+                      <div style={{ marginTop:8 }}>
+                        {doneTasks.map(task=>(
+                          <div key={task.id} style={{ display:"flex", alignItems:"center", gap:14, background:"#FFFFFF", border:"1px solid #F0F0F0", borderRadius:12, padding:"12px 20px", marginBottom:8, opacity:0.55 }}>
+                            <div style={{ width:6, height:6, borderRadius:"50%", background:task.color, flexShrink:0 }} />
+                            <span style={{ fontSize:14, color:"#6B7280", textDecoration:"line-through", flex:1 }}>{task.label}</span>
+                            <div onClick={()=>setTasksDone(prev=>{ const n={...prev}; delete n[task.id]; return n; })} style={{
+                              width:22, height:22, borderRadius:"50%", background:"#059669",
+                              display:"flex", alignItems:"center", justifyContent:"center",
+                              cursor:"pointer", flexShrink:0
+                            }}>
+                              <span style={{ color:"#fff", fontSize:11, fontWeight:700 }}>✓</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })()}
 
           {/* ═══ DASHBOARD ═══ */}
           {nav==="dashboard"&&(
