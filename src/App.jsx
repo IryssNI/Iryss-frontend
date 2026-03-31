@@ -489,7 +489,7 @@ function Dashboard() {
         onMouseLeave={e=>{ e.currentTarget.style.boxShadow="0 2px 12px rgba(0,0,0,.06), 0 1px 4px rgba(0,0,0,.04)"; e.currentTarget.style.transform="translateY(0)"; }}>
         <div style={{ position:"absolute", top:0, left:0, bottom:0, width:3, background:accent, borderRadius:"16px 0 0 16px" }} />
         <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", marginBottom:2 }}>
-          <div style={{ fontSize:40, fontWeight:400, color:C.primary, letterSpacing:-1.5, lineHeight:1, fontFamily:"'Instrument Serif', serif", fontStyle:"italic" }}>{value}</div>
+          <div style={{ fontSize:40, fontWeight:700, color:C.primary, letterSpacing:-1.5, lineHeight:1 }}>{value}</div>
           {trend && <span style={{ fontSize:11, fontWeight:700, color:trendUp?C.green:C.red, background:trendUp?"rgba(16,185,129,.1)":"rgba(239,68,68,.1)", padding:"3px 9px", borderRadius:20, flexShrink:0, marginTop:2 }}>{trendUp?"↑":"↓"} {trend}</span>}
         </div>
         <div style={{ fontSize:11, color:C.secondary, marginTop:8, fontWeight:600, letterSpacing:0.8, textTransform:"uppercase" }}>{label}</div>
