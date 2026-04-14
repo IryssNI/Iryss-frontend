@@ -1271,6 +1271,7 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
         <nav style={{ display:"flex", flexDirection:"column", gap:2, flex:1, padding:"0 8px" }}>
           {[
             { id:"dashboard",    label:"Dashboard",        icon:"◈"  },
+            { id:"tasks",        label:"Today's Tasks",    icon:"✓", badge:allTasks.filter(t=>!tasksDone[t.id]).length },
             { id:"patients",     label:"Patients",         icon:"◎", badge:PATIENTS.length },
             { id:"inbox",        label:"Inbox",            icon:"◻", urgentDot:urgentCount>0, urgentBadge:urgentCount },
             { id:"recalls",      label:"Recalls",          icon:"◷", badge:recallPatients.length, warnDot:complianceRate<80&&recallPatients.length>0 },
@@ -1491,15 +1492,15 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
               return (
                 <div style={{
                   display:"flex", alignItems:"center", gap:14,
-                  background: isJust ? "rgba(5,150,105,.05)" : "#FFFFFF",
-                  border: isJust ? "1px solid rgba(5,150,105,.25)" : "1px solid #F0F0F0",
-                  borderRadius:12, padding:"14px 20px", marginBottom:8,
+                  background: isJust ? "rgba(16,185,129,.04)" : C.card,
+                  border: isJust ? `1px solid rgba(16,185,129,.25)` : `1px solid ${C.border}`,
+                  borderRadius:14, padding:"16px 22px", marginBottom:10, boxShadow:"0 1px 3px rgba(0,0,0,.04)",
                   transition:"background .4s, border .4s"
                 }}>
                   <div style={{ width:6, height:6, borderRadius:"50%", background:task.color, flexShrink:0 }} />
                   <div style={{ flex:1, minWidth:0 }}>
-                    <div style={{ fontSize:14, fontWeight:500, color:"#0A0A0A", lineHeight:1.4 }}>{task.label}</div>
-                    {task.sub && <div style={{ fontSize:12, color:"#6B7280", marginTop:2 }}>{task.sub}</div>}
+                    <div style={{ fontSize:14, fontWeight:600, color:C.text, lineHeight:1.4 }}>{task.label}</div>
+                    {task.sub && <div style={{ fontSize:12, color:C.slate, marginTop:2 }}>{task.sub}</div>}
                   </div>
                   <div style={{ display:"flex", alignItems:"center", gap:10, flexShrink:0 }}>
                     <button onClick={e=>{ e.stopPropagation(); task.onAction(); }} style={{
@@ -1513,8 +1514,8 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                     </button>
                     <div onClick={()=>completeTask(task.id)} style={{
                       width:22, height:22, borderRadius:"50%", flexShrink:0, cursor:"pointer",
-                      border: isJust ? "none" : "1.5px solid #E5E7EB",
-                      background: isJust ? "#059669" : "transparent",
+                      border: isJust ? "none" : `2px solid ${C.border}`,
+                      background: isJust ? C.green : "transparent",
                       display:"flex", alignItems:"center", justifyContent:"center",
                       transition:"background .3s, border .3s"
                     }}>
@@ -1542,26 +1543,26 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
 
             return (
               <div>
-                <div style={{ marginBottom:24 }}>
-                  <div style={{ fontSize:22, fontWeight:700, color:"#0A0A0A", letterSpacing:-0.5, fontFamily:F }}>Good morning, Bright Eyes 👋</div>
-                  <div style={{ fontSize:14, color:"#6B7280", marginTop:6 }}>Here's what needs your attention today</div>
+                <div style={{ marginBottom:28 }}>
+                  <h1 style={{ fontSize:24, fontWeight:800, color:C.text, letterSpacing:-0.5, margin:0, marginBottom:6, fontFamily:F }}>Today's Tasks</h1>
+                  <p style={{ fontSize:14, color:C.slate, margin:0, fontFamily:F }}>Here's what needs your attention today</p>
                 </div>
 
-                <div style={{ background:"#FFFFFF", border:"1px solid #F0F0F0", borderRadius:12, padding:"16px 20px", marginBottom:28 }}>
-                  <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:10 }}>
-                    <span style={{ fontSize:13, fontWeight:600, color:"#0A0A0A" }}>{doneCount} of {totalCount} tasks completed</span>
-                    <span style={{ fontSize:12, color:"#6B7280" }}>{totalCount-doneCount} remaining</span>
+                <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:16, padding:"20px 24px", marginBottom:28, boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
+                  <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:12 }}>
+                    <span style={{ fontSize:14, fontWeight:700, color:C.text }}>{doneCount} of {totalCount} tasks completed</span>
+                    <span style={{ fontSize:13, color:C.slate }}>{totalCount-doneCount} remaining</span>
                   </div>
-                  <div style={{ height:6, background:"#F0F0F0", borderRadius:3, overflow:"hidden" }}>
-                    <div style={{ height:"100%", background:"#0891B2", width:`${pct}%`, borderRadius:3, transition:"width .4s" }} />
+                  <div style={{ height:8, background:"#F1F5F9", borderRadius:4, overflow:"hidden" }}>
+                    <div style={{ height:"100%", background:`linear-gradient(90deg,${C.teal},${C.tealLt})`, width:`${pct}%`, borderRadius:4, transition:"width .4s" }} />
                   </div>
                 </div>
 
                 {activeTasks.length===0 ? (
-                  <div style={{ textAlign:"center", padding:"64px 32px", background:"#FFFFFF", border:"1px solid #F0F0F0", borderRadius:16 }}>
+                  <div style={{ textAlign:"center", padding:"64px 32px", background:C.card, border:`1px solid ${C.border}`, borderRadius:16, boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
                     <div style={{ fontSize:56, marginBottom:16 }}>✅</div>
-                    <div style={{ fontSize:22, fontWeight:700, color:"#0A0A0A", marginBottom:8 }}>All done for today! 🎉</div>
-                    <div style={{ fontSize:14, color:"#6B7280" }}>Iryss has your practice covered.</div>
+                    <div style={{ fontSize:22, fontWeight:700, color:C.text, marginBottom:8 }}>All done for today!</div>
+                    <div style={{ fontSize:14, color:C.slate }}>Iryss has your practice covered.</div>
                   </div>
                 ) : (<>
                   <Section emoji="🔴" label="URGENT"       color="#E11D48" tasks={urgentTasks} />
