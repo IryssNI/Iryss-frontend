@@ -7,11 +7,11 @@ import Spinner from '../components/Spinner'
 function Field({ label, hint, children }) {
   return (
     <div style={{ marginBottom: '22px' }}>
-      <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', color: '#a0b4cc', marginBottom: '6px' }}>
+      <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', color: '#334155', marginBottom: '6px' }}>
         {label}
       </label>
       {children}
-      {hint && <div style={{ fontSize: '12px', color: '#4a6080', marginTop: '5px' }}>{hint}</div>}
+      {hint && <div style={{ fontSize: '12px', color: '#94A3B8', marginTop: '5px' }}>{hint}</div>}
     </div>
   )
 }
@@ -27,11 +27,11 @@ function Input({ value, onChange, type = 'text', placeholder, disabled }) {
       disabled={disabled}
       style={{
         width: '100%',
-        background: disabled ? 'rgba(10,22,40,0.5)' : '#0A1628',
-        border: `1px solid ${focused ? '#0891B2' : '#1a3352'}`,
+        background: disabled ? 'rgba(248,250,251,0.6)' : '#F8FAFB',
+        border: `1px solid ${focused ? '#0891B2' : '#E2E8F0'}`,
         borderRadius: '8px',
         padding: '10px 14px',
-        color: disabled ? '#7c93b4' : '#ffffff',
+        color: disabled ? '#94A3B8' : '#0F172A',
         fontSize: '14px',
         outline: 'none',
         transition: 'border-color 0.15s',
@@ -150,28 +150,28 @@ export default function Settings() {
   }
 
   return (
-    <div>
+    <div style={{ background: '#F8FAFB', minHeight: '100vh', padding: '40px 24px' }}>
       <div style={{ marginBottom: '28px' }}>
-        <h1 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '4px' }}>Settings</h1>
-        <p style={{ color: '#7c93b4', fontSize: '14px' }}>Manage your practice configuration</p>
+        <h1 style={{ fontSize: '24px', fontWeight: '800', marginBottom: '4px', color: '#0F172A' }}>Settings</h1>
+        <p style={{ color: '#64748B', fontSize: '14px' }}>Manage your practice configuration</p>
       </div>
 
       <div className="settings-wrap">
         {error && (
-          <div style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)', borderRadius: '10px', padding: '14px 18px', color: '#ef4444', marginBottom: '24px' }}>
+          <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: '8px', padding: '14px 18px', color: '#DC2626', marginBottom: '24px', fontSize: '14px' }}>
             {error}
           </div>
         )}
         {success && (
-          <div style={{ background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.25)', borderRadius: '10px', padding: '14px 18px', color: '#22c55e', marginBottom: '24px' }}>
+          <div style={{ background: '#ECFDF5', border: '1px solid #A7F3D0', borderRadius: '8px', padding: '14px 18px', color: '#059669', marginBottom: '24px', fontSize: '14px' }}>
             {success}
           </div>
         )}
 
         <form onSubmit={handleSave}>
           {/* Practice details */}
-          <div style={{ background: '#0D2448', border: '1px solid #1a3352', borderRadius: '14px', padding: '28px', marginBottom: '20px' }}>
-            <h2 style={{ fontSize: '15px', fontWeight: '600', marginBottom: '20px', paddingBottom: '14px', borderBottom: '1px solid #1a3352' }}>
+          <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '16px', padding: '28px', marginBottom: '20px' }}>
+            <h2 style={{ fontSize: '15px', fontWeight: '700', marginBottom: '20px', paddingBottom: '14px', borderBottom: '1px solid #E2E8F0', color: '#0F172A' }}>
               Practice Details
             </h2>
 
@@ -192,7 +192,7 @@ export default function Settings() {
                 onChange={e => setSmsSenderName(e.target.value.slice(0, 11))}
                 placeholder="BrightEyes"
               />
-              <div style={{ fontSize: '11px', color: smsSenderName.length >= 11 ? '#f59e0b' : '#4a6080', marginTop: '4px' }}>
+              <div style={{ fontSize: '11px', color: smsSenderName.length >= 11 ? '#F59E0B' : '#94A3B8', marginTop: '4px' }}>
                 {smsSenderName.length}/11 characters
               </div>
             </Field>
@@ -207,11 +207,11 @@ export default function Settings() {
           </div>
 
           {/* Password */}
-          <div style={{ background: '#0D2448', border: '1px solid #1a3352', borderRadius: '14px', padding: '28px', marginBottom: '24px' }}>
-            <h2 style={{ fontSize: '15px', fontWeight: '600', marginBottom: '4px' }}>
+          <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '16px', padding: '28px', marginBottom: '24px' }}>
+            <h2 style={{ fontSize: '15px', fontWeight: '700', marginBottom: '4px', color: '#0F172A' }}>
               Change Password
             </h2>
-            <p style={{ color: '#7c93b4', fontSize: '13px', marginBottom: '20px', paddingBottom: '14px', borderBottom: '1px solid #1a3352' }}>
+            <p style={{ color: '#64748B', fontSize: '13px', marginBottom: '20px', paddingBottom: '14px', borderBottom: '1px solid #E2E8F0' }}>
               Leave blank to keep your current password
             </p>
 
@@ -233,12 +233,14 @@ export default function Settings() {
             disabled={saving}
             className="settings-save-btn"
             style={{
-              background: saving ? 'rgba(8,145,178,0.5)' : '#0891B2',
-              color: '#ffffff',
+              background: saving ? 'rgba(8,145,178,0.5)' : 'linear-gradient(135deg, #0891B2, #06B6D4)',
+              color: '#FFFFFF',
               cursor: saving ? 'not-allowed' : 'pointer',
+              boxShadow: saving ? 'none' : '0 2px 8px rgba(8,145,178,0.25)',
+              transition: 'all 0.2s ease',
             }}
-            onMouseEnter={e => { if (!saving) e.currentTarget.style.background = '#0779a0' }}
-            onMouseLeave={e => { if (!saving) e.currentTarget.style.background = '#0891B2' }}
+            onMouseEnter={e => { if (!saving) { e.currentTarget.style.boxShadow = '0 4px 12px rgba(8,145,178,0.35)'; e.currentTarget.style.transform = 'translateY(-1px)' } }}
+            onMouseLeave={e => { if (!saving) { e.currentTarget.style.boxShadow = '0 2px 8px rgba(8,145,178,0.25)'; e.currentTarget.style.transform = 'translateY(0)' } }}
           >
             {saving ? 'Saving…' : 'Save changes'}
           </button>
@@ -247,21 +249,21 @@ export default function Settings() {
         {/* Google Reviews */}
         <form onSubmit={handleSaveReviewLink} style={{ marginTop: '20px' }}>
           {reviewError && (
-            <div style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)', borderRadius: '10px', padding: '14px 18px', color: '#ef4444', marginBottom: '20px' }}>
+            <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: '8px', padding: '14px 18px', color: '#DC2626', marginBottom: '20px', fontSize: '14px' }}>
               {reviewError}
             </div>
           )}
           {reviewSuccess && (
-            <div style={{ background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.25)', borderRadius: '10px', padding: '14px 18px', color: '#22c55e', marginBottom: '20px' }}>
+            <div style={{ background: '#ECFDF5', border: '1px solid #A7F3D0', borderRadius: '8px', padding: '14px 18px', color: '#059669', marginBottom: '20px', fontSize: '14px' }}>
               {reviewSuccess}
             </div>
           )}
 
-          <div style={{ background: '#0D2448', border: '1px solid #1a3352', borderRadius: '14px', padding: '28px', marginBottom: '20px' }}>
-            <h2 style={{ fontSize: '15px', fontWeight: '600', marginBottom: '4px' }}>
+          <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '16px', padding: '28px', marginBottom: '20px' }}>
+            <h2 style={{ fontSize: '15px', fontWeight: '700', marginBottom: '4px', color: '#0F172A' }}>
               Google Reviews
             </h2>
-            <p style={{ color: '#7c93b4', fontSize: '13px', marginBottom: '20px', paddingBottom: '14px', borderBottom: '1px solid #1a3352' }}>
+            <p style={{ color: '#64748B', fontSize: '13px', marginBottom: '20px', paddingBottom: '14px', borderBottom: '1px solid #E2E8F0' }}>
               Automatically invite happy patients to leave a review after their visit
             </p>
 
@@ -278,15 +280,15 @@ export default function Settings() {
 
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 0' }}>
               <div>
-                <div style={{ fontSize: '13px', fontWeight: '500', color: '#a0b4cc' }}>Enable review automation</div>
-                <div style={{ fontSize: '12px', color: '#4a6080', marginTop: '2px' }}>Automatically ask happy patients to leave a Google review</div>
+                <div style={{ fontSize: '13px', fontWeight: '500', color: '#334155' }}>Enable review automation</div>
+                <div style={{ fontSize: '12px', color: '#94A3B8', marginTop: '2px' }}>Automatically ask happy patients to leave a Google review</div>
               </div>
               <button
                 type="button"
                 onClick={() => setReviewAutomationEnabled(v => !v)}
                 style={{
                   width: '44px', height: '24px', borderRadius: '12px', border: 'none',
-                  background: reviewAutomationEnabled ? '#0891B2' : '#1a3352',
+                  background: reviewAutomationEnabled ? '#0891B2' : '#E2E8F0',
                   cursor: 'pointer', position: 'relative', transition: 'background 0.2s',
                   flexShrink: 0, minHeight: 'unset',
                 }}
@@ -296,7 +298,7 @@ export default function Settings() {
                   position: 'absolute', top: '3px',
                   left: reviewAutomationEnabled ? '22px' : '3px',
                   width: '18px', height: '18px', borderRadius: '50%',
-                  background: '#fff', transition: 'left 0.2s',
+                  background: '#FFFFFF', transition: 'left 0.2s',
                 }} />
               </button>
             </div>
@@ -307,12 +309,14 @@ export default function Settings() {
             disabled={savingReview}
             className="settings-save-btn"
             style={{
-              background: savingReview ? 'rgba(8,145,178,0.5)' : '#0891B2',
-              color: '#ffffff',
+              background: savingReview ? 'rgba(8,145,178,0.5)' : 'linear-gradient(135deg, #0891B2, #06B6D4)',
+              color: '#FFFFFF',
               cursor: savingReview ? 'not-allowed' : 'pointer',
+              boxShadow: savingReview ? 'none' : '0 2px 8px rgba(8,145,178,0.25)',
+              transition: 'all 0.2s ease',
             }}
-            onMouseEnter={e => { if (!savingReview) e.currentTarget.style.background = '#0779a0' }}
-            onMouseLeave={e => { if (!savingReview) e.currentTarget.style.background = '#0891B2' }}
+            onMouseEnter={e => { if (!savingReview) { e.currentTarget.style.boxShadow = '0 4px 12px rgba(8,145,178,0.35)'; e.currentTarget.style.transform = 'translateY(-1px)' } }}
+            onMouseLeave={e => { if (!savingReview) { e.currentTarget.style.boxShadow = '0 2px 8px rgba(8,145,178,0.25)'; e.currentTarget.style.transform = 'translateY(0)' } }}
           >
             {savingReview ? 'Saving…' : 'Save review settings'}
           </button>

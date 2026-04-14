@@ -44,121 +44,128 @@ export default function Alerts() {
   }
 
   return (
-    <div>
-      <div style={{ marginBottom: '28px' }}>
-        <h1 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '4px' }}>Urgent Alerts</h1>
-        <p style={{ color: '#7c93b4', fontSize: '14px' }}>
-          Patient replies that require immediate staff attention
-        </p>
-      </div>
-
-      {error && (
-        <div style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)', borderRadius: '10px', padding: '14px 18px', color: '#ef4444', marginBottom: '20px' }}>
-          {error}
+    <div style={{ backgroundColor: '#F8FAFB', minHeight: '100vh', padding: '32px' }}>
+      <div style={{ maxWidth: '900px', margin: '0 auto' }}>
+        <div style={{ marginBottom: '32px' }}>
+          <h1 style={{ fontSize: '24px', fontWeight: '800', marginBottom: '8px', color: '#0F172A', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            Urgent Alerts
+          </h1>
+          <p style={{ color: '#64748B', fontSize: '14px', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            Patient replies that need immediate staff attention
+          </p>
         </div>
-      )}
 
-      {loading ? (
-        <div style={{ display: 'flex', justifyContent: 'center', padding: '80px' }}>
-          <Spinner size={36} />
-        </div>
-      ) : alerts.length === 0 ? (
-        <div style={{
-          background: '#0D2448',
-          border: '1px solid #1a3352',
-          borderRadius: '14px',
-          padding: '64px',
-          textAlign: 'center',
-        }}>
-          <div style={{ fontSize: '40px', marginBottom: '16px' }}>✓</div>
-          <div style={{ fontSize: '18px', fontWeight: '600', color: '#22c55e', marginBottom: '6px' }}>
-            No urgent alerts
+        {error && (
+          <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '16px', padding: '14px 18px', color: '#EF4444', marginBottom: '20px', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            {error}
           </div>
-          <div style={{ color: '#7c93b4', fontSize: '14px' }}>
-            All patient replies have been reviewed and resolved
+        )}
+
+        {loading ? (
+          <div style={{ display: 'flex', justifyContent: 'center', padding: '80px' }}>
+            <Spinner size={36} />
           </div>
-        </div>
-      ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          {alerts.map(alert => (
-            <div
-              key={alert.id}
-              style={{
-                background: '#0D2448',
-                border: '1px solid rgba(245,158,11,0.2)',
-                borderLeft: '4px solid #f59e0b',
-                borderRadius: '12px',
-                padding: '20px 24px',
-              }}
-            >
-              <div className="alert-card-inner">
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px', flexWrap: 'wrap' }}>
-                  <span style={{
-                    background: 'rgba(245,158,11,0.12)',
-                    color: '#f59e0b',
-                    fontSize: '10px',
-                    fontWeight: '700',
-                    padding: '3px 8px',
-                    borderRadius: '20px',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.8px',
-                  }}>
-                    Urgent Reply
-                  </span>
-                  <span style={{ fontSize: '13px', fontWeight: '600', color: '#ffffff' }}>
-                    {alert.patient_name}
-                  </span>
-                </div>
-
-                {alert.trigger_message ? (
-                  <div style={{
-                    background: 'rgba(0,0,0,0.2)',
-                    border: '1px solid #1a3352',
-                    borderRadius: '8px',
-                    padding: '10px 14px',
-                    fontSize: '14px',
-                    color: '#a0b4cc',
-                    fontStyle: 'italic',
-                    marginBottom: '10px',
-                    lineHeight: 1.5,
-                  }}>
-                    "{alert.trigger_message}"
-                  </div>
-                ) : null}
-
-                <div style={{ fontSize: '12px', color: '#4a6080' }}>
-                  Received {formatDateTime(alert.message_at || alert.created_at)}
-                </div>
-              </div>
-
-              <button
-                onClick={() => handleResolve(alert.id)}
-                disabled={resolving === alert.id}
-                style={{
-                  flexShrink: 0,
-                  padding: '9px 18px',
-                  borderRadius: '8px',
-                  border: '1px solid rgba(34,197,94,0.3)',
-                  background: 'rgba(34,197,94,0.1)',
-                  color: '#22c55e',
-                  fontSize: '13px',
-                  fontWeight: '600',
-                  cursor: resolving === alert.id ? 'default' : 'pointer',
-                  opacity: resolving === alert.id ? 0.6 : 1,
-                  transition: 'all 0.15s',
-                  whiteSpace: 'nowrap',
-                }}
-                onMouseEnter={e => { if (resolving !== alert.id) e.currentTarget.style.background = 'rgba(34,197,94,0.18)' }}
-                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(34,197,94,0.1)' }}
-              >
-                {resolving === alert.id ? 'Resolving…' : 'Mark Resolved'}
-              </button>
-              </div>
+        ) : alerts.length === 0 ? (
+          <div style={{
+            background: '#FFFFFF',
+            border: '1px solid #E2E8F0',
+            borderRadius: '16px',
+            padding: '64px 32px',
+            textAlign: 'center',
+          }}>
+            <div style={{ fontSize: '56px', marginBottom: '20px', color: '#10B981' }}>✓</div>
+            <div style={{ fontSize: '18px', fontWeight: '600', color: '#10B981', marginBottom: '8px', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+              No urgent alerts
             </div>
-          ))}
-        </div>
-      )}
+            <div style={{ color: '#64748B', fontSize: '14px', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+              All patient replies have been reviewed
+            </div>
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {alerts.map(alert => (
+              <div
+                key={alert.id}
+                style={{
+                  background: '#FFFFFF',
+                  border: '1px solid #E2E8F0',
+                  borderLeft: '4px solid #F59E0B',
+                  borderRadius: '12px',
+                  padding: '20px 24px',
+                  boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)',
+                }}
+              >
+                <div className="alert-card-inner" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px' }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px', flexWrap: 'wrap' }}>
+                      <span style={{
+                        background: '#FFFBEB',
+                        color: '#D97706',
+                        fontSize: '10px',
+                        fontWeight: '700',
+                        padding: '4px 10px',
+                        borderRadius: '6px',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px',
+                        fontFamily: "'Plus Jakarta Sans', sans-serif",
+                      }}>
+                        Urgent Reply
+                      </span>
+                    </div>
+                    <div style={{ fontSize: '14px', fontWeight: '600', color: '#0F172A', marginBottom: '10px', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                      {alert.patient_name}
+                    </div>
+
+                    {alert.trigger_message ? (
+                      <div style={{
+                        background: '#F8FAFB',
+                        border: '1px solid #E2E8F0',
+                        borderRadius: '8px',
+                        padding: '10px 14px',
+                        fontSize: '14px',
+                        color: '#475569',
+                        marginBottom: '10px',
+                        lineHeight: 1.5,
+                        fontFamily: "'Plus Jakarta Sans', sans-serif",
+                      }}>
+                        {alert.trigger_message}
+                      </div>
+                    ) : null}
+
+                    <div style={{ fontSize: '12px', color: '#94A3B8', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                      Received {formatDateTime(alert.message_at || alert.created_at)}
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => handleResolve(alert.id)}
+                    disabled={resolving === alert.id}
+                    style={{
+                      flexShrink: 0,
+                      padding: '10px 16px',
+                      borderRadius: '8px',
+                      border: '1px solid #A7F3D0',
+                      background: '#ECFDF5',
+                      color: '#059669',
+                      fontSize: '13px',
+                      fontWeight: '600',
+                      cursor: resolving === alert.id ? 'default' : 'pointer',
+                      opacity: resolving === alert.id ? 0.6 : 1,
+                      transition: 'all 0.15s',
+                      whiteSpace: 'nowrap',
+                      fontFamily: "'Plus Jakarta Sans', sans-serif",
+                    }}
+                    onMouseEnter={e => { if (resolving !== alert.id) e.currentTarget.style.background = '#D1FAE5' }}
+                    onMouseLeave={e => { e.currentTarget.style.background = '#ECFDF5' }}
+                  >
+                    {resolving === alert.id ? 'Resolving…' : 'Mark Resolved'}
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   )
 }

@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 
 // ── Google Font import via style injection ───────────────────────────
 const fontStyle = document.createElement('style');
-fontStyle.textContent = `@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap');`;
+fontStyle.textContent = `@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');`;
 document.head.appendChild(fontStyle);
 
 const pulseStyle = document.createElement('style');
@@ -17,14 +17,12 @@ pulseStyle.textContent = `
 document.head.appendChild(pulseStyle);
 
 const C = {
-  // New design tokens
-  sidebar:"#111827", bg:"#FAFAFA", card:"#FFFFFF", border:"#F0F0F0",
-  text:"#0A0A0A", secondary:"#6B7280",
-  teal:"#0891B2", green:"#059669", amber:"#D97706", red:"#E11D48",
-  // Aliases for existing references
-  navy:"#0A0A0A", cream:"#FAFAFA", offWhite:"#FAFAFA", white:"#FFFFFF",
-  slate:"#6B7280", slateLight:"#9CA3AF",
-  tealLt:"#0891B2", tealPale:"#E0F7FA", purple:"#8B5CF6",
+  sidebar:"#0C1220", bg:"#F8FAFB", card:"#FFFFFF", border:"#E2E8F0",
+  text:"#0F172A", secondary:"#64748B",
+  teal:"#0891B2", green:"#10B981", amber:"#F59E0B", red:"#EF4444",
+  navy:"#0F172A", cream:"#F8FAFB", offWhite:"#F8FAFB", white:"#FFFFFF",
+  slate:"#64748B", slateLight:"#94A3B8",
+  tealLt:"#06B6D4", tealPale:"rgba(8,145,178,0.08)", purple:"#8B5CF6",
 };
 
 const PATIENTS = [
@@ -173,44 +171,38 @@ function LoginScreen({ onLogin }) {
   }
 
   return (
-    <div style={{ minHeight:"100vh", background:C.navy, display:"flex", alignItems:"center", justifyContent:"center", fontFamily:F, position:"relative", overflow:"hidden" }}>
-      <div style={{ position:"absolute", top:"-20%", right:"-10%", width:600, height:600, borderRadius:"50%", background:"radial-gradient(circle, rgba(8,145,178,.12) 0%, transparent 65%)", pointerEvents:"none" }} />
-      <div style={{ position:"absolute", bottom:"-10%", left:"-5%", width:400, height:400, borderRadius:"50%", background:"radial-gradient(circle, rgba(8,145,178,.06) 0%, transparent 65%)", pointerEvents:"none" }} />
-      <div style={{ width:"100%", maxWidth:420, padding:"0 24px", position:"relative", zIndex:1 }}>
-        <div style={{ textAlign:"center", marginBottom:44 }}>
-          <div style={{ fontSize:38, fontWeight:800, color:C.white, letterSpacing:-1.5 }}>
-            <span style={{ color:C.tealLt }}>iryss</span>
+    <div style={{ minHeight:"100vh", background:"#F8FAFB", display:"flex", alignItems:"center", justifyContent:"center", fontFamily:F }}>
+      <div style={{ width:"100%", maxWidth:420, padding:"0 24px" }}>
+        <div style={{ textAlign:"center", marginBottom:40 }}>
+          <div style={{ fontSize:32, fontWeight:800, letterSpacing:-1 }}>
+            <span style={{ color:"#0F172A" }}>iry</span><span style={{ background:"linear-gradient(135deg,#0891B2,#06B6D4,#22D3EE)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent" }}>ss</span>
           </div>
-          <div style={{ fontSize:11, color:"rgba(255,255,255,.3)", marginTop:8, letterSpacing:3, textTransform:"uppercase" }}>Patient Retention Platform</div>
+          <div style={{ fontSize:11, color:"#94A3B8", marginTop:6, letterSpacing:1, textTransform:"uppercase", fontWeight:600 }}>Patient Retention Platform</div>
         </div>
 
-        <div style={{ background:"rgba(255,255,255,.03)", border:"1px solid rgba(255,255,255,.07)", borderRadius:20, padding:"36px 32px", backdropFilter:"blur(20px)" }}>
-          <div style={{ fontSize:21, fontWeight:700, color:C.white, marginBottom:4, letterSpacing:-0.5 }}>Welcome back</div>
-          <div style={{ fontSize:13, color:"rgba(255,255,255,.35)", marginBottom:28 }}>Sign in to your practice dashboard</div>
+        <div style={{ background:"#FFFFFF", border:"1px solid #E2E8F0", borderRadius:20, padding:"40px 32px", boxShadow:"0 8px 30px rgba(0,0,0,0.06)" }}>
+          <div style={{ fontSize:20, fontWeight:700, color:"#0F172A", marginBottom:4, letterSpacing:-0.5 }}>Welcome back</div>
+          <div style={{ fontSize:13, color:"#64748B", marginBottom:28 }}>Sign in to your practice dashboard</div>
 
           <div style={{ marginBottom:16 }}>
-            <label style={{ fontSize:11, fontWeight:600, color:"rgba(255,255,255,.4)", textTransform:"uppercase", letterSpacing:1.2, display:"block", marginBottom:8 }}>Email</label>
+            <label style={{ fontSize:13, fontWeight:600, color:"#334155", display:"block", marginBottom:6 }}>Email</label>
             <input type="email" value={email} onChange={e=>setEmail(e.target.value)} onKeyDown={e=>e.key==="Enter"&&handleLogin()} placeholder="you@yourpractice.com"
-              style={{ width:"100%", background:"rgba(255,255,255,.05)", border:"1px solid rgba(255,255,255,.08)", borderRadius:10, padding:"12px 14px", fontSize:14, color:"#fff", fontFamily:F, outline:"none", boxSizing:"border-box", transition:"border .2s" }} />
+              style={{ width:"100%", background:"#F8FAFB", border:"1px solid #E2E8F0", borderRadius:10, padding:"12px 16px", fontSize:14, color:"#0F172A", fontFamily:F, outline:"none", boxSizing:"border-box", transition:"border .2s" }} />
           </div>
           <div style={{ marginBottom:24 }}>
-            <label style={{ fontSize:11, fontWeight:600, color:"rgba(255,255,255,.4)", textTransform:"uppercase", letterSpacing:1.2, display:"block", marginBottom:8 }}>Password</label>
+            <label style={{ fontSize:13, fontWeight:600, color:"#334155", display:"block", marginBottom:6 }}>Password</label>
             <input type="password" value={password} onChange={e=>setPassword(e.target.value)} onKeyDown={e=>e.key==="Enter"&&handleLogin()} placeholder="••••••••"
-              style={{ width:"100%", background:"rgba(255,255,255,.05)", border:"1px solid rgba(255,255,255,.08)", borderRadius:10, padding:"12px 14px", fontSize:14, color:"#fff", fontFamily:F, outline:"none", boxSizing:"border-box" }} />
+              style={{ width:"100%", background:"#F8FAFB", border:"1px solid #E2E8F0", borderRadius:10, padding:"12px 16px", fontSize:14, color:"#0F172A", fontFamily:F, outline:"none", boxSizing:"border-box" }} />
           </div>
 
-          {error && <div style={{ background:"rgba(239,68,68,.08)", border:"1px solid rgba(239,68,68,.15)", borderRadius:8, padding:"10px 14px", fontSize:13, color:"#FCA5A5", marginBottom:16 }}>{error}</div>}
+          {error && <div style={{ background:"#FEF2F2", border:"1px solid #FECACA", borderRadius:10, padding:"10px 14px", fontSize:13, color:"#DC2626", marginBottom:16 }}>{error}</div>}
 
-          <button onClick={handleLogin} disabled={loading} style={{ width:"100%", background:loading?"rgba(8,145,178,.4)":"linear-gradient(135deg,#0891B2,#06B6D4)", border:"none", borderRadius:10, padding:"13px", fontSize:15, fontWeight:700, color:"#fff", cursor:loading?"default":"pointer", fontFamily:F, letterSpacing:-0.2, boxShadow:loading?"none":"0 4px 20px rgba(8,145,178,.35)" }}>
-            {loading?"Signing in…":"Sign in →"}
+          <button onClick={handleLogin} disabled={loading} style={{ width:"100%", background:loading?"rgba(8,145,178,.5)":"linear-gradient(135deg,#0891B2,#06B6D4)", border:"none", borderRadius:10, padding:"13px", fontSize:15, fontWeight:700, color:"#fff", cursor:loading?"default":"pointer", fontFamily:F, letterSpacing:-0.2, boxShadow:loading?"none":"0 2px 8px rgba(8,145,178,.25)", transition:"all .2s" }}>
+            {loading?"Signing in…":"Sign in"}
           </button>
-
-          <div style={{ textAlign:"center", marginTop:20, fontSize:12, color:"rgba(255,255,255,.2)" }}>
-            Forgot your password? <span style={{ color:C.tealLt, cursor:"pointer" }}>Contact support</span>
-          </div>
         </div>
 
-        <div style={{ textAlign:"center", marginTop:28, fontSize:11, color:"rgba(255,255,255,.15)", letterSpacing:0.5 }}>
+        <div style={{ textAlign:"center", marginTop:24, fontSize:11, color:"#CBD5E1", letterSpacing:0.5 }}>
           GDPR compliant · EU data servers · Built in Belfast
         </div>
       </div>
@@ -527,15 +519,15 @@ function Dashboard() {
   // Polished stat card
   function SC({ label, value, sub, accent, onDrill, trend, trendUp }) {
     return (
-      <div onClick={onDrill} style={{ background:"#FFFFFF", border:"1px solid #F0F0F0", borderLeft:`3px solid ${accent}`, borderRadius:12, padding:"20px 24px", cursor:onDrill?"pointer":"default", transition:"box-shadow .2s, transform .2s" }}
-        onMouseEnter={e=>{ if(onDrill){ e.currentTarget.style.boxShadow=`0 4px 20px rgba(0,0,0,.08)`; e.currentTarget.style.transform="translateY(-1px)"; }}}
-        onMouseLeave={e=>{ e.currentTarget.style.boxShadow="none"; e.currentTarget.style.transform="translateY(0)"; }}>
-        <div style={{ fontSize:11, fontWeight:600, color:"#9CA3AF", textTransform:"uppercase", letterSpacing:0.8, marginBottom:10 }}>{label}</div>
-        <div style={{ fontSize:40, fontFamily:"'Inter', sans-serif", fontWeight:700, color:"#0A0A0A", lineHeight:1, marginBottom:12 }}>{value}</div>
+      <div onClick={onDrill} style={{ background:"#FFFFFF", border:"1px solid #E2E8F0", borderLeft:`3px solid ${accent}`, borderRadius:14, padding:"20px 24px", cursor:onDrill?"pointer":"default", transition:"box-shadow .2s, transform .2s", boxShadow:"0 1px 3px rgba(0,0,0,0.04)" }}
+        onMouseEnter={e=>{ if(onDrill){ e.currentTarget.style.boxShadow=`0 4px 16px rgba(0,0,0,0.06)`; e.currentTarget.style.transform="translateY(-2px)"; }}}
+        onMouseLeave={e=>{ e.currentTarget.style.boxShadow="0 1px 3px rgba(0,0,0,0.04)"; e.currentTarget.style.transform="translateY(0)"; }}>
+        <div style={{ fontSize:11, fontWeight:600, color:"#94A3B8", textTransform:"uppercase", letterSpacing:0.8, marginBottom:10 }}>{label}</div>
+        <div style={{ fontSize:40, fontFamily:"'Plus Jakarta Sans', sans-serif", fontWeight:700, color:"#0F172A", lineHeight:1, marginBottom:12 }}>{value}</div>
         <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
           <div>
             {trend && <span style={{ fontSize:11, fontWeight:600, color:trendUp?C.green:C.red, background:trendUp?"rgba(5,150,105,.08)":"rgba(225,29,72,.08)", padding:"3px 8px", borderRadius:20 }}>{trendUp?"↑":"↓"} {trend}</span>}
-            {sub && <span style={{ fontSize:11, color:C.slate, fontWeight:500 }}>{sub}</span>}
+            {sub && <span style={{ fontSize:11, color:"#64748B", fontWeight:500 }}>{sub}</span>}
           </div>
           {onDrill && <span style={{ fontSize:11, fontWeight:600, color:"#0891B2", cursor:"pointer" }}>View breakdown →</span>}
         </div>
@@ -1494,8 +1486,8 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                               <circle cx={65} cy={65} r={r} fill="none" stroke={statusColor} strokeWidth={10}
                                 strokeDasharray={`${dash} ${circ-dash}`} strokeDashoffset={circ*0.25}
                                 strokeLinecap="round" style={{ transition:"stroke-dasharray .6s ease" }} />
-                              <text x={65} y={62} textAnchor="middle" dominantBaseline="middle" fill={statusColor} fontSize={22} fontWeight={800} fontFamily="DM Sans,sans-serif">{compRate}%</text>
-                              <text x={65} y={80} textAnchor="middle" dominantBaseline="middle" fill={C.slate} fontSize={11} fontFamily="DM Sans,sans-serif">compliance</text>
+                              <text x={65} y={62} textAnchor="middle" dominantBaseline="middle" fill={statusColor} fontSize={22} fontWeight={800} fontFamily="Plus Jakarta Sans,sans-serif">{compRate}%</text>
+                              <text x={65} y={80} textAnchor="middle" dominantBaseline="middle" fill={C.slate} fontSize={11} fontFamily="Plus Jakarta Sans,sans-serif">compliance</text>
                             </svg>
                           );
                         })()}

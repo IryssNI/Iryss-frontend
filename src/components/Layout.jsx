@@ -10,37 +10,44 @@ const S = {
     overflow: 'hidden',
   },
   sidebar: {
-    width: '232px',
+    width: '260px',
     flexShrink: 0,
-    background: '#060f1e',
-    borderRight: '1px solid #1a3352',
+    background: '#0C1220',
     display: 'flex',
     flexDirection: 'column',
     padding: '0 0 24px 0',
   },
   logoWrap: {
     padding: '28px 24px 32px',
-    borderBottom: '1px solid #1a3352',
     marginBottom: '12px',
   },
   logo: {
-    fontSize: '26px',
-    fontWeight: '700',
+    fontSize: '28px',
+    fontWeight: '800',
     color: '#ffffff',
-    letterSpacing: '-0.5px',
+    letterSpacing: '-1px',
+    display: 'flex',
+    alignItems: 'center',
   },
-  logoDot: {
-    color: '#0891B2',
+  logoIry: {
+    color: '#ffffff',
+  },
+  logoSs: {
+    background: 'linear-gradient(135deg, #0891B2, #06B6D4, #22D3EE)',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+    backgroundClip: 'text',
   },
   tagline: {
-    fontSize: '11px',
-    color: '#7c93b4',
+    fontSize: '10px',
+    color: 'rgba(255,255,255,0.3)',
     marginTop: '3px',
-    letterSpacing: '0.3px',
+    letterSpacing: '1px',
+    textTransform: 'uppercase',
   },
   nav: {
     flex: 1,
-    padding: '0 12px',
+    padding: '0 14px',
     display: 'flex',
     flexDirection: 'column',
     gap: '2px',
@@ -48,37 +55,44 @@ const S = {
   navItem: {
     display: 'flex',
     alignItems: 'center',
-    gap: '10px',
-    padding: '10px 12px',
-    borderRadius: '8px',
-    color: '#7c93b4',
+    gap: '12px',
+    padding: '11px 14px',
+    borderRadius: '10px',
+    color: 'rgba(255,255,255,0.45)',
     textDecoration: 'none',
-    fontSize: '14.5px',
+    fontSize: '14px',
     fontWeight: '500',
     transition: 'all 0.15s',
   },
   navItemActive: {
-    background: 'rgba(8, 145, 178, 0.12)',
-    color: '#0891B2',
+    background: 'rgba(99,210,225,0.12)',
+    color: '#06B6D4',
+  },
+  navIcon: {
+    width: '20px',
+    height: '20px',
+    opacity: 0.7,
+  },
+  navIconActive: {
+    opacity: 1.0,
   },
   bottom: {
-    padding: '0 12px',
-    borderTop: '1px solid #1a3352',
+    padding: '0 14px',
     paddingTop: '16px',
   },
   practiceLabel: {
-    padding: '0 12px',
-    fontSize: '11px',
-    color: '#4a6080',
+    padding: '0 0',
+    fontSize: '10px',
+    color: 'rgba(255,255,255,0.2)',
     textTransform: 'uppercase',
-    letterSpacing: '0.8px',
+    letterSpacing: '1px',
     fontWeight: '600',
     marginBottom: '6px',
   },
   practiceName: {
-    padding: '0 12px',
+    padding: '0 0',
     fontSize: '13px',
-    color: '#7c93b4',
+    color: 'rgba(255,255,255,0.45)',
     marginBottom: '16px',
     whiteSpace: 'nowrap',
     overflow: 'hidden',
@@ -87,14 +101,14 @@ const S = {
   logoutBtn: {
     display: 'flex',
     alignItems: 'center',
-    gap: '10px',
+    gap: '12px',
     width: '100%',
-    padding: '10px 12px',
-    borderRadius: '8px',
+    padding: '11px 14px',
+    borderRadius: '10px',
     background: 'none',
     border: 'none',
-    color: '#7c93b4',
-    fontSize: '14.5px',
+    color: 'rgba(255,255,255,0.3)',
+    fontSize: '14px',
     fontWeight: '500',
     cursor: 'pointer',
     transition: 'all 0.15s',
@@ -102,7 +116,7 @@ const S = {
   main: {
     flex: 1,
     overflow: 'auto',
-    background: '#0A1628',
+    background: '#F8FAFB',
   },
 }
 
@@ -222,9 +236,10 @@ export default function Layout() {
       <aside style={S.sidebar} className="desktop-only">
         <div style={S.logoWrap}>
           <div style={S.logo}>
-            iry<span style={S.logoDot}>ss</span>
+            <span style={S.logoIry}>iry</span>
+            <span style={S.logoSs}>ss</span>
           </div>
-          <div style={S.tagline}>Patient Retention Platform</div>
+          <div style={S.tagline}>PATIENT RETENTION</div>
         </div>
 
         <nav style={S.nav}>
@@ -239,7 +254,12 @@ export default function Layout() {
                 ...(isActive ? S.navItemActive : {}),
               })}
             >
-              {icon}
+              <span style={{
+                ...S.navIcon,
+                ...(({ isActive }) => isActive ? S.navIconActive : {})({ isActive: to === window.location.pathname }),
+              }}>
+                {icon}
+              </span>
               {label}
               {to === '/inbox' && <UnreadBadge count={unreadCount} />}
             </NavLink>
@@ -256,10 +276,12 @@ export default function Layout() {
           <button
             style={S.logoutBtn}
             onClick={handleLogout}
-            onMouseEnter={e => { e.currentTarget.style.color = '#ef4444'; e.currentTarget.style.background = 'rgba(239,68,68,0.08)' }}
-            onMouseLeave={e => { e.currentTarget.style.color = '#7c93b4'; e.currentTarget.style.background = 'none' }}
+            onMouseEnter={e => { e.currentTarget.style.color = '#EF4444'; e.currentTarget.style.background = 'rgba(239,68,68,0.08)' }}
+            onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.3)'; e.currentTarget.style.background = 'none' }}
           >
-            <IconLogout />
+            <span style={S.navIcon}>
+              <IconLogout />
+            </span>
             Sign out
           </button>
         </div>

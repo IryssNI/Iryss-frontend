@@ -1,10 +1,10 @@
-// rebuild
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { api } from '../api/client'
 import { useAuth } from '../context/AuthContext'
-import StatCard from '../components/StatCard'
 import Spinner from '../components/Spinner'
+
+// ─ Utility Functions ────────────────────────────────────────────────────────
 
 function formatDate(d) {
   if (!d) return '—'
@@ -21,18 +21,41 @@ function formatDateTime(d) {
     ' ' + date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
 }
 
+function getGreeting() {
+  const hour = new Date().getHours()
+  if (hour < 12) return 'Good morning'
+  if (hour < 18) return 'Good afternoon'
+  return 'Good evening'
+}
+
+function getInitials(name) {
+  return name
+    .split(' ')
+    .map(w => w[0])
+    .join('')
+    .toUpperCase()
+}
+
+function getAvatarGradient(risk) {
+  if (risk === 'high' || risk > 50) return 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)'
+  if (risk === 'medium' || (risk > 28 && risk <= 50)) return 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)'
+  return 'linear-gradient(135deg, #10B981 0%, #059669 100%)'
+}
+
+// ─ Badge Components ────────────────────────────────────────────────────────
+
 function RiskBadge({ status }) {
   const map = {
-    high: { bg: 'rgba(239,68,68,0.12)', color: '#ef4444', label: 'High' },
-    medium: { bg: 'rgba(245,158,11,0.12)', color: '#f59e0b', label: 'Medium' },
-    low: { bg: 'rgba(34,197,94,0.12)', color: '#22c55e', label: 'Low' },
+    high: { bg: '#FEE2E2', color: '#DC2626', label: 'High' },
+    medium: { bg: '#FEF3C7', color: '#D97706', label: 'Medium' },
+    low: { bg: '#DCFCE7', color: '#059669', label: 'Low' },
   }
   const s = map[status] || map.low
   return (
     <span style={{
       background: s.bg, color: s.color,
       fontSize: '11px', fontWeight: '600',
-      padding: '3px 8px', borderRadius: '20px',
+      padding: '4px 10px', borderRadius: '12px',
       textTransform: 'uppercase', letterSpacing: '0.5px',
     }}>
       {s.label}
@@ -43,13 +66,13 @@ function RiskBadge({ status }) {
 function TriggerBadge({ trigger }) {
   const isReply = trigger === 'Replied positively'
   const isAppt = trigger === 'Booked appointment'
-  const color = isReply ? '#22c55e' : isAppt ? '#0891B2' : '#7c93b4'
-  const bg = isReply ? 'rgba(34,197,94,0.1)' : isAppt ? 'rgba(8,145,178,0.1)' : 'rgba(124,147,180,0.1)'
+  const color = isReply ? '#059669' : isAppt ? '#0891B2' : '#94A3B8'
+  const bg = isReply ? '#DCFCE7' : isAppt ? '#CFFAFE' : '#F1F5F9'
   return (
     <span style={{
       background: bg, color,
       fontSize: '11px', fontWeight: '600',
-      padding: '3px 8px', borderRadius: '20px',
+      padding: '4px 10px', borderRadius: '12px',
     }}>
       {trigger}
     </span>
@@ -74,10 +97,10 @@ function SendButton({ patientId, onSent }) {
   }
 
   const variants = {
-    idle: { bg: 'rgba(8,145,178,0.12)', color: '#0891B2', border: '1px solid rgba(8,145,178,0.3)', label: 'Send WhatsApp' },
-    loading: { bg: 'rgba(8,145,178,0.08)', color: '#7c93b4', border: '1px solid #1a3352', label: 'Sending…' },
-    sent: { bg: 'rgba(34,197,94,0.12)', color: '#22c55e', border: '1px solid rgba(34,197,94,0.3)', label: 'Sent ✓' },
-    error: { bg: 'rgba(239,68,68,0.12)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.3)', label: 'Failed' },
+    idle: { bg: 'linear-gradient(135deg, #0891B2 0%, #0E7490 100%)', color: '#FFFFFF', label: 'Send WhatsApp', shadow: '0 4px 12px rgba(8, 145, 178, 0.25)' },
+    loading: { bg: '#CBD5E1', color: '#64748B', label: 'Sending…', shadow: '0 2px 6px rgba(0,0,0,0.08)' },
+    sent: { bg: 'linear-gradient(135deg, #10B981 0%, #059669 100%)', color: '#FFFFFF', label: 'Sent ✓', shadow: '0 4px 12px rgba(16, 185, 129, 0.25)' },
+    error: { bg: '#FEE2E2', color: '#DC2626', label: 'Failed', shadow: '0 2px 6px rgba(0,0,0,0.08)' },
   }
   const v = variants[state]
 
@@ -86,11 +109,28 @@ function SendButton({ patientId, onSent }) {
       onClick={handleClick}
       disabled={state === 'loading'}
       style={{
-        background: v.bg, color: v.color, border: v.border,
-        borderRadius: '6px', padding: '6px 14px',
-        fontSize: '13px', fontWeight: '500',
+        background: v.bg, color: v.color,
+        borderRadius: '8px', padding: '8px 16px',
+        fontSize: '13px', fontWeight: '600',
         cursor: state === 'loading' ? 'default' : 'pointer',
         whiteSpace: 'nowrap', transition: 'all 0.2s',
+        border: 'none',
+        boxShadow: v.shadow,
+        transform: state === 'loading' ? 'none' : 'translateY(0)',
+      }}
+      onMouseEnter={e => {
+        if (state === 'idle' || state === 'error') {
+          e.currentTarget.style.transform = 'translateY(-2px)'
+          e.currentTarget.style.boxShadow = state === 'idle'
+            ? '0 8px 20px rgba(8, 145, 178, 0.35)'
+            : '0 4px 12px rgba(0,0,0,0.12)'
+        }
+      }}
+      onMouseLeave={e => {
+        if (state === 'idle' || state === 'error') {
+          e.currentTarget.style.transform = 'translateY(0)'
+          e.currentTarget.style.boxShadow = v.shadow
+        }
       }}
     >
       {v.label}
@@ -98,34 +138,37 @@ function SendButton({ patientId, onSent }) {
   )
 }
 
-// ── Shared panel shell ────────────────────────────────────────────────────────
+// ─ Shared Panel Shell ──────────────────────────────────────────────────────
 
 function Panel({ title, subtitle, onClose, children }) {
   return (
     <>
-      <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(4,12,24,0.7)', zIndex: 100 }} />
+      <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(0, 0, 0, 0.4)', zIndex: 100 }} />
       <div className="responsive-panel" style={{
         position: 'fixed', top: 0, right: 0, bottom: 0, width: '560px',
-        background: '#0a1f3a', borderLeft: '1px solid #1a3352',
+        background: '#FFFFFF', borderLeft: '1px solid #E2E8F0',
         zIndex: 101, display: 'flex', flexDirection: 'column',
-        boxShadow: '-8px 0 32px rgba(0,0,0,0.4)',
+        boxShadow: '-8px 0 32px rgba(0, 0, 0, 0.12)',
       }}>
         <div style={{
-          padding: '20px 24px', borderBottom: '1px solid #1a3352',
+          padding: '24px', borderBottom: '1px solid #E2E8F0',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0,
         }}>
           <div>
-            <h2 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '2px' }}>{title}</h2>
-            {subtitle && <p style={{ color: '#7c93b4', fontSize: '13px' }}>{subtitle}</p>}
+            <h2 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '4px', color: '#0F172A' }}>{title}</h2>
+            {subtitle && <p style={{ color: '#64748B', fontSize: '13px' }}>{subtitle}</p>}
           </div>
           <button onClick={onClose} style={{
-            background: 'rgba(255,255,255,0.06)', border: '1px solid #1a3352',
-            borderRadius: '8px', color: '#7c93b4', width: '34px', height: '34px',
-            cursor: 'pointer', fontSize: '18px', display: 'flex',
-            alignItems: 'center', justifyContent: 'center',
-          }}>×</button>
+            background: '#F1F5F9', border: 'none',
+            borderRadius: '8px', color: '#64748B', width: '36px', height: '36px',
+            cursor: 'pointer', fontSize: '20px', display: 'flex',
+            alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s',
+          }}
+          onMouseEnter={e => { e.currentTarget.style.background = '#E2E8F0'; e.currentTarget.style.color = '#475569' }}
+          onMouseLeave={e => { e.currentTarget.style.background = '#F1F5F9'; e.currentTarget.style.color = '#64748B' }}
+          >×</button>
         </div>
-        <div style={{ overflowY: 'auto', flex: 1, padding: '16px' }}>
+        <div style={{ overflowY: 'auto', flex: 1, padding: '20px 24px' }}>
           {children}
         </div>
       </div>
@@ -135,9 +178,9 @@ function Panel({ title, subtitle, onClose, children }) {
 
 function PanelEmpty({ message }) {
   return (
-    <div style={{ textAlign: 'center', color: '#7c93b4', padding: '48px 24px' }}>
-      <div style={{ fontSize: '28px', marginBottom: '10px' }}>✓</div>
-      <div style={{ fontSize: '14px' }}>{message}</div>
+    <div style={{ textAlign: 'center', color: '#94A3B8', padding: '48px 24px' }}>
+      <div style={{ fontSize: '32px', marginBottom: '12px' }}>✓</div>
+      <div style={{ fontSize: '14px', color: '#64748B' }}>{message}</div>
     </div>
   )
 }
@@ -145,12 +188,12 @@ function PanelEmpty({ message }) {
 function PanelLoading() {
   return (
     <div style={{ display: 'flex', justifyContent: 'center', padding: '48px' }}>
-      <Spinner size={28} />
+      <Spinner size={28} color="#0891B2" />
     </div>
   )
 }
 
-// ── Panel 1 & 2: At-risk patients ────────────────────────────────────────────
+// ─ Panel 1 & 2: At-Risk Patients ──────────────────────────────────────────
 
 function AtRiskPanel({ mode, onClose }) {
   const [patients, setPatients] = useState([])
@@ -181,47 +224,57 @@ function AtRiskPanel({ mode, onClose }) {
       {loading ? <PanelLoading /> : patients.length === 0 ? (
         <PanelEmpty message="No at-risk patients right now" />
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           {patients.map(p => (
             <div key={p.id} style={{
-              background: 'rgba(13,36,72,0.6)', border: '1px solid #1a3352',
-              borderRadius: '10px', padding: '14px 16px',
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', marginBottom: '10px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0 }}>
-                  <div style={{ fontWeight: '600', fontSize: '14px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.name}</div>
+              background: '#F8FAFB', border: '1px solid #E2E8F0',
+              borderRadius: '12px', padding: '16px', transition: 'all 0.2s',
+              cursor: 'pointer'
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.borderColor = '#0891B2'
+              e.currentTarget.style.boxShadow = '0 4px 12px rgba(8, 145, 178, 0.12)'
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.borderColor = '#E2E8F0'
+              e.currentTarget.style.boxShadow = 'none'
+            }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', marginBottom: '12px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0 }}>
+                  <div style={{ fontWeight: '600', fontSize: '14px', color: '#0F172A', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.name}</div>
                   <RiskBadge status={p.risk_status} />
                 </div>
                 {mode === 'revenue' ? (
-                  <span style={{ color: '#f59e0b', fontWeight: '700', fontSize: '15px', flexShrink: 0 }}>
+                  <span style={{ color: '#F59E0B', fontWeight: '700', fontSize: '15px', flexShrink: 0 }}>
                     £{Number(p.revenue_at_risk).toLocaleString()}
                   </span>
                 ) : (
                   <SendButton patientId={p.id} />
                 )}
               </div>
-              <div style={{ display: 'flex', gap: '20px', fontSize: '12px', color: '#7c93b4' }}>
+              <div style={{ display: 'flex', gap: '20px', fontSize: '13px', color: '#64748B', flexWrap: 'wrap' }}>
                 <span>
-                  <span style={{ color: '#4a6080' }}>Due: </span>
-                  <span style={{ color: p.days_since_reorder > 60 ? '#ef4444' : '#f59e0b', fontWeight: '600' }}>
+                  <span style={{ color: '#94A3B8' }}>Due: </span>
+                  <span style={{ color: p.days_since_reorder > 60 ? '#DC2626' : '#D97706', fontWeight: '600' }}>
                     {p.days_since_reorder != null ? `${p.days_since_reorder}d` : '—'}
                   </span>
                 </span>
                 <span>
-                  <span style={{ color: '#4a6080' }}>Last appt: </span>
-                  {formatDate(p.last_appointment_date)}
+                  <span style={{ color: '#94A3B8' }}>Last appt: </span>
+                  <span style={{ color: '#475569' }}>{formatDate(p.last_appointment_date)}</span>
                 </span>
                 <span style={{
-                  background: p.patient_type === 'contact_lens' ? 'rgba(8,145,178,0.1)' : 'rgba(124,147,180,0.1)',
-                  color: p.patient_type === 'contact_lens' ? '#0891B2' : '#7c93b4',
-                  padding: '2px 7px', borderRadius: '20px', fontWeight: '600', fontSize: '11px',
+                  background: p.patient_type === 'contact_lens' ? '#CFFAFE' : '#F1F5F9',
+                  color: p.patient_type === 'contact_lens' ? '#0891B2' : '#64748B',
+                  padding: '4px 10px', borderRadius: '12px', fontWeight: '600', fontSize: '11px',
                 }}>
                   {p.patient_type === 'contact_lens' ? 'Contact Lens' : 'General'}
                 </span>
               </div>
               {mode === 'patients' && (
-                <div style={{ marginTop: '10px', fontSize: '11px', color: '#4a6080' }}>
-                  Est. revenue at risk: <span style={{ color: '#f59e0b' }}>£{Number(p.revenue_at_risk).toLocaleString()}</span>
+                <div style={{ marginTop: '12px', fontSize: '12px', color: '#94A3B8' }}>
+                  Est. revenue at risk: <span style={{ color: '#F59E0B', fontWeight: '600' }}>£{Number(p.revenue_at_risk).toLocaleString()}</span>
                 </div>
               )}
             </div>
@@ -232,7 +285,7 @@ function AtRiskPanel({ mode, onClose }) {
   )
 }
 
-// ── Panel 3 & 4: Recovered patients ──────────────────────────────────────────
+// ─ Panel 3 & 4: Recovered Patients ───────────────────────────────────────────
 
 function RecoveredPanel({ mode, onClose }) {
   const [patients, setPatients] = useState([])
@@ -257,24 +310,33 @@ function RecoveredPanel({ mode, onClose }) {
       {loading ? <PanelLoading /> : patients.length === 0 ? (
         <PanelEmpty message="No patients recovered yet this month" />
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           {patients.map(p => (
             <div key={p.id} style={{
-              background: 'rgba(13,36,72,0.6)', border: '1px solid #1a3352',
-              borderRadius: '10px', padding: '14px 16px',
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', marginBottom: '8px' }}>
-                <div style={{ fontWeight: '600', fontSize: '14px' }}>{p.name}</div>
+              background: '#F8FAFB', border: '1px solid #E2E8F0',
+              borderRadius: '12px', padding: '16px', transition: 'all 0.2s'
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.borderColor = '#0891B2'
+              e.currentTarget.style.boxShadow = '0 4px 12px rgba(8, 145, 178, 0.12)'
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.borderColor = '#E2E8F0'
+              e.currentTarget.style.boxShadow = 'none'
+            }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', marginBottom: '12px' }}>
+                <div style={{ fontWeight: '600', fontSize: '14px', color: '#0F172A' }}>{p.name}</div>
                 {mode === 'revenue' ? (
-                  <span style={{ color: '#22c55e', fontWeight: '700', fontSize: '15px' }}>£150</span>
+                  <span style={{ color: '#10B981', fontWeight: '700', fontSize: '15px' }}>£150</span>
                 ) : (
                   <TriggerBadge trigger={p.trigger} />
                 )}
               </div>
-              <div style={{ display: 'flex', gap: '16px', fontSize: '12px', color: '#7c93b4', alignItems: 'center' }}>
+              <div style={{ display: 'flex', gap: '16px', fontSize: '13px', color: '#64748B', alignItems: 'center', flexWrap: 'wrap' }}>
                 <span>
-                  <span style={{ color: '#4a6080' }}>Recovered: </span>
-                  {formatDateTime(p.recovered_at)}
+                  <span style={{ color: '#94A3B8' }}>Recovered: </span>
+                  <span style={{ color: '#475569' }}>{formatDateTime(p.recovered_at)}</span>
                 </span>
                 {mode === 'revenue' && (
                   <TriggerBadge trigger={p.trigger} />
@@ -288,17 +350,17 @@ function RecoveredPanel({ mode, onClose }) {
   )
 }
 
-// ── Panels 5: WhatsApp messages this week ─────────────────────────────────────
+// ─ Panel 5: WhatsApp Messages This Week ────────────────────────────────────
 
 function ChatThread({ messages }) {
   return (
     <div style={{
-      padding: '16px', background: '#071829', borderRadius: '10px',
-      marginTop: '2px', maxHeight: '420px', overflowY: 'auto',
+      padding: '16px', background: '#F8FAFB', borderRadius: '0 0 12px 12px',
+      borderTop: '1px solid #E2E8F0', maxHeight: '420px', overflowY: 'auto',
       display: 'flex', flexDirection: 'column', gap: '8px',
     }}>
       {messages.length === 0 && (
-        <div style={{ color: '#4a6080', fontSize: '13px', textAlign: 'center', padding: '16px' }}>No messages yet</div>
+        <div style={{ color: '#94A3B8', fontSize: '13px', textAlign: 'center', padding: '16px' }}>No messages yet</div>
       )}
       {messages.map(msg => {
         const isOutbound = msg.direction === 'outbound'
@@ -306,14 +368,14 @@ function ChatThread({ messages }) {
           <div key={msg.id} style={{ display: 'flex', flexDirection: 'column', alignItems: isOutbound ? 'flex-end' : 'flex-start' }}>
             <div style={{
               maxWidth: '78%',
-              background: isOutbound ? '#0e7490' : '#1a3352',
-              color: isOutbound ? '#fff' : '#e2e8f0',
+              background: isOutbound ? '#0891B2' : '#E2E8F0',
+              color: isOutbound ? '#FFFFFF' : '#0F172A',
               borderRadius: isOutbound ? '16px 16px 4px 16px' : '16px 16px 16px 4px',
-              padding: '10px 14px', fontSize: '13px', lineHeight: '1.5', whiteSpace: 'pre-wrap',
+              padding: '12px 14px', fontSize: '13px', lineHeight: '1.5', whiteSpace: 'pre-wrap',
             }}>
               {msg.message_body}
             </div>
-            <div style={{ fontSize: '11px', color: '#4a6080', marginTop: '3px', paddingLeft: '2px', paddingRight: '2px' }}>
+            <div style={{ fontSize: '11px', color: '#94A3B8', marginTop: '4px', paddingLeft: '2px', paddingRight: '2px' }}>
               {formatDateTime(msg.sent_at)}
             </div>
           </div>
@@ -365,12 +427,12 @@ function MessagesPanel({ onClose }) {
       onClose={onClose}
     >
       {loading ? <PanelLoading /> : patients.length === 0 ? (
-        <div style={{ textAlign: 'center', color: '#7c93b4', padding: '48px 24px' }}>
-          <div style={{ fontSize: '28px', marginBottom: '10px' }}>💬</div>
-          <div style={{ fontSize: '14px' }}>No messages sent this week yet</div>
+        <div style={{ textAlign: 'center', color: '#94A3B8', padding: '48px 24px' }}>
+          <div style={{ fontSize: '32px', marginBottom: '12px' }}>💬</div>
+          <div style={{ fontSize: '14px', color: '#64748B' }}>No messages sent this week yet</div>
         </div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           {patients.map(msg => {
             const isExpanded = expandedPatientId === msg.patient_id
             const isLoadingThread = threadLoading === msg.patient_id
@@ -379,32 +441,32 @@ function MessagesPanel({ onClose }) {
                 <div
                   onClick={() => toggleThread(msg.patient_id)}
                   style={{
-                    background: isExpanded ? '#0D2448' : 'rgba(13,36,72,0.6)',
-                    border: `1px solid ${isExpanded ? '#0891B2' : '#1a3352'}`,
-                    borderRadius: isExpanded ? '10px 10px 0 0' : '10px',
-                    padding: '14px 16px', cursor: 'pointer', transition: 'all 0.15s',
+                    background: isExpanded ? '#F0F9FF' : '#FFFFFF',
+                    border: `1px solid ${isExpanded ? '#0891B2' : '#E2E8F0'}`,
+                    borderRadius: isExpanded ? '12px 12px 0 0' : '12px',
+                    padding: '16px', cursor: 'pointer', transition: 'all 0.2s',
                   }}
-                  onMouseEnter={e => { if (!isExpanded) e.currentTarget.style.borderColor = '#2a4a72' }}
-                  onMouseLeave={e => { if (!isExpanded) e.currentTarget.style.borderColor = '#1a3352' }}
+                  onMouseEnter={e => { if (!isExpanded) e.currentTarget.style.borderColor = '#CBD5E1' }}
+                  onMouseLeave={e => { if (!isExpanded) e.currentTarget.style.borderColor = '#E2E8F0' }}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px' }}>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontWeight: '600', fontSize: '14px', marginBottom: '4px' }}>{msg.patient_name}</div>
-                      <div style={{ fontSize: '13px', color: '#7c93b4', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      <div style={{ fontWeight: '600', fontSize: '14px', marginBottom: '6px', color: '#0F172A' }}>{msg.patient_name}</div>
+                      <div style={{ fontSize: '13px', color: '#64748B', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {msg.message_body}
                       </div>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
-                      <span style={{ fontSize: '11px', color: '#4a6080' }}>{formatDateTime(msg.sent_at)}</span>
-                      <span style={{ color: '#7c93b4', fontSize: '12px' }}>{isExpanded ? '▲' : '▼'}</span>
+                      <span style={{ fontSize: '11px', color: '#94A3B8' }}>{formatDateTime(msg.sent_at)}</span>
+                      <span style={{ color: '#64748B', fontSize: '12px' }}>{isExpanded ? '▲' : '▼'}</span>
                     </div>
                   </div>
                 </div>
                 {isExpanded && (
-                  <div style={{ border: '1px solid #0891B2', borderTop: 'none', borderRadius: '0 0 10px 10px', overflow: 'hidden' }}>
+                  <div style={{ border: '1px solid #0891B2', borderTop: 'none', borderRadius: '0 0 12px 12px', overflow: 'hidden' }}>
                     {isLoadingThread ? (
-                      <div style={{ display: 'flex', justifyContent: 'center', padding: '32px', background: '#071829' }}>
-                        <Spinner size={22} />
+                      <div style={{ display: 'flex', justifyContent: 'center', padding: '32px', background: '#F8FAFB' }}>
+                        <Spinner size={22} color="#0891B2" />
                       </div>
                     ) : (
                       <ChatThread messages={threads[msg.patient_id] || []} />
@@ -420,66 +482,123 @@ function MessagesPanel({ onClose }) {
   )
 }
 
-// ── Panel 6: Reviews requested this month ─────────────────────────────────────
 
-function ReviewsPanel({ onClose }) {
-  const [requests, setRequests] = useState([])
-  const [loading, setLoading] = useState(true)
+// ─ Practice Score Ring (SVG) ───────────────────────────────────────────────
 
-  useEffect(() => {
-    api('/api/reviews/requests')
-      .then(res => setRequests(res.requests || []))
-      .catch(() => {})
-      .finally(() => setLoading(false))
-  }, [])
+function PracticeScoreRing({ score }) {
+  const circumference = 2 * Math.PI * 54
+  const strokeDashoffset = circumference - (score / 100) * circumference
+
+  let color = '#10B981' // green >=70
+  let label = 'Excellent'
+  if (score < 60) {
+    color = '#EF4444'
+    label = 'Needs attention'
+  } else if (score < 80) {
+    color = '#F59E0B'
+    label = score < 70 ? 'Needs attention' : 'Good'
+  } else if (score >= 90) {
+    label = 'Excellent'
+  } else {
+    label = 'Great'
+  }
 
   return (
-    <Panel
-      title="Reviews Requested This Month"
-      subtitle={loading ? null : `${requests.length} patient${requests.length !== 1 ? 's' : ''} sent a review request`}
-      onClose={onClose}
-    >
-      {loading ? <PanelLoading /> : requests.length === 0 ? (
-        <PanelEmpty message="No review requests sent this month yet" />
-      ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-          {requests.map(r => (
-            <div key={r.id || r.patient_id} style={{
-              background: 'rgba(13,36,72,0.6)', border: '1px solid #1a3352',
-              borderRadius: '10px', padding: '14px 16px',
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', marginBottom: '6px' }}>
-                <div style={{ fontWeight: '600', fontSize: '14px' }}>{r.patient_name}</div>
-                <span style={{
-                  background: r.message_type === 'follow_up' ? 'rgba(245,158,11,0.12)' : 'rgba(8,145,178,0.12)',
-                  color: r.message_type === 'follow_up' ? '#f59e0b' : '#0891B2',
-                  fontSize: '11px', fontWeight: '600', padding: '3px 8px', borderRadius: '20px',
-                }}>
-                  {r.message_type === 'follow_up' ? 'Follow-up' : 'Initial'}
-                </span>
-              </div>
-              <div style={{ fontSize: '12px', color: '#7c93b4' }}>
-                <span style={{ color: '#4a6080' }}>Sent: </span>
-                {formatDate(r.sent_at)}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </Panel>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+      <div style={{ fontSize: '11px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px', color: '#94A3B8' }}>Practice Health</div>
+      <svg width="120" height="120" viewBox="0 0 120 120" style={{ transform: 'rotate(-90deg)' }}>
+        {/* Background ring */}
+        <circle cx="60" cy="60" r="54" fill="none" stroke="#F1F5F9" strokeWidth="10" />
+        {/* Active ring with animation */}
+        <circle
+          cx="60" cy="60" r="54" fill="none" stroke={color} strokeWidth="10"
+          strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={strokeDashoffset}
+          style={{ transition: 'stroke-dashoffset 1.2s cubic-bezier(0.34, 1.56, 0.64, 1)' }}
+        />
+      </svg>
+      <div style={{ textAlign: 'center' }}>
+        <div style={{ fontSize: '40px', fontWeight: '800', color: '#0F172A', lineHeight: '1' }}>{score}</div>
+        <div style={{ fontSize: '11px', fontWeight: '600', color, marginTop: '4px' }}>{label}</div>
+      </div>
+    </div>
   )
 }
 
-// ── Dashboard ─────────────────────────────────────────────────────────────────
+// ─ Stat Card Component ──────────────────────────────────────────────────────
+
+function MetricCard({ label, value, sub, color, onClick, trend }) {
+  return (
+    <div
+      onClick={onClick}
+      style={{
+        background: '#FFFFFF',
+        border: '1px solid #E2E8F0',
+        borderRadius: '16px',
+        padding: '20px',
+        cursor: 'pointer',
+        transition: 'all 0.2s',
+        position: 'relative',
+        overflow: 'hidden',
+      }}
+      onMouseEnter={e => {
+        e.currentTarget.style.borderColor = color
+        e.currentTarget.style.boxShadow = `0 8px 24px rgba(${color === '#0891B2' ? '8, 145, 178' : '239, 68, 68'}, 0.12)`
+        e.currentTarget.style.transform = 'translateY(-2px)'
+      }}
+      onMouseLeave={e => {
+        e.currentTarget.style.borderColor = '#E2E8F0'
+        e.currentTarget.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.04)'
+        e.currentTarget.style.transform = 'translateY(0)'
+      }}
+    >
+      <div style={{ fontSize: '11px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px', color: '#94A3B8', marginBottom: '12px' }}>
+        {label}
+      </div>
+      <div style={{ fontSize: '32px', fontWeight: '800', color: '#0F172A', marginBottom: '8px', lineHeight: '1' }}>
+        {value}
+      </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div style={{
+          background: color === '#EF4444' ? '#FEE2E2' : color === '#F59E0B' ? '#FEF3C7' : '#DCFCE7',
+          color: color === '#EF4444' ? '#DC2626' : color === '#F59E0B' ? '#D97706' : '#059669',
+          fontSize: '11px', fontWeight: '600', padding: '4px 8px', borderRadius: '6px'
+        }}>
+          {trend || 'This month'}
+        </div>
+        <span style={{ color: '#94A3B8', fontSize: '12px' }}>→</span>
+      </div>
+    </div>
+  )
+}
+
+// ─ Placeholder Card Component ──────────────────────────────────────────────
+
+function PlaceholderCard({ icon, title, subtitle }) {
+  return (
+    <div style={{
+      background: '#FFFFFF',
+      border: '1px solid #E2E8F0',
+      borderRadius: '16px',
+      padding: '24px',
+      textAlign: 'center',
+      opacity: 0.6,
+    }}>
+      <div style={{ fontSize: '32px', marginBottom: '12px' }}>{icon}</div>
+      <div style={{ fontSize: '14px', fontWeight: '600', color: '#475569', marginBottom: '4px' }}>{title}</div>
+      <div style={{ fontSize: '13px', color: '#94A3B8' }}>{subtitle}</div>
+    </div>
+  )
+}
+
+// ─ Main Dashboard Component ────────────────────────────────────────────────
 
 export default function Dashboard() {
   const { practice } = useAuth()
   const navigate = useNavigate()
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [reviewsCount, setReviewsCount] = useState(null)
   const [error, setError] = useState('')
-  const [panel, setPanel] = useState(null) // null | 'at-risk' | 'revenue-risk' | 'recovered' | 'revenue-recovered' | 'messages' | 'reviews'
+  const [panel, setPanel] = useState(null)
 
   async function fetchData() {
     try {
@@ -494,259 +613,307 @@ export default function Dashboard() {
 
   useEffect(() => {
     fetchData()
-    api('/api/reviews/stats')
-      .then(res => setReviewsCount(res.review_requests_sent_this_month ?? 0))
-      .catch(() => setReviewsCount(0))
   }, [])
 
   const summary = data?.summary || {}
   const highRisk = data?.high_risk_patients || []
 
+  const practiceScore = Math.round(
+    (summary.patients_recovered / Math.max(summary.patients_at_risk + summary.patients_recovered, 1)) * 100
+  )
+
+  const firstName = practice?.name?.split(' ')[0] || 'there'
+  const greeting = getGreeting()
+  const today = new Date()
+  const dateStr = today.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })
+
   return (
-    <div>
+    <div style={{ background: '#F8FAFB', minHeight: '100vh' }}>
+      {/* Panel overlays */}
       {panel === 'at-risk' && <AtRiskPanel mode="patients" onClose={() => setPanel(null)} />}
       {panel === 'revenue-risk' && <AtRiskPanel mode="revenue" onClose={() => setPanel(null)} />}
       {panel === 'recovered' && <RecoveredPanel mode="patients" onClose={() => setPanel(null)} />}
       {panel === 'revenue-recovered' && <RecoveredPanel mode="revenue" onClose={() => setPanel(null)} />}
       {panel === 'messages' && <MessagesPanel onClose={() => setPanel(null)} />}
-      {panel === 'reviews' && <ReviewsPanel onClose={() => setPanel(null)} />}
 
-      {/* Header */}
-      <div style={{ marginBottom: '28px' }}>
-        <h1 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '4px' }}>Dashboard</h1>
-        <p style={{ color: '#7c93b4', fontSize: '14px' }}>
-          {practice?.name} — {new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
-        </p>
-      </div>
+      <div style={{ padding: '32px' }}>
+        {/* Greeting Header */}
+        <div style={{ marginBottom: '32px', animation: 'fadeInUp 0.5s ease-out' }}>
+          <h1 style={{ fontSize: '28px', fontWeight: '800', color: '#0F172A', marginBottom: '4px' }}>
+            {greeting}, {firstName}
+          </h1>
+          <p style={{ fontSize: '14px', color: '#64748B' }}>{dateStr}</p>
+        </div>
 
-      {/* Spectacles widget */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '32px', flexWrap: 'wrap' }}>
-        {/* CSS spectacles */}
-        <svg width="72" height="30" viewBox="0 0 72 30" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
-          {/* Left arm */}
-          <line x1="0" y1="10" x2="10" y2="10" stroke="#0891B2" strokeWidth="2" strokeLinecap="round" />
-          {/* Left lens */}
-          <rect x="10" y="3" width="22" height="16" rx="7" stroke="#0891B2" strokeWidth="2" />
-          {/* Bridge */}
-          <path d="M32 11 Q36 8 40 11" stroke="#0891B2" strokeWidth="2" fill="none" strokeLinecap="round" />
-          {/* Right lens */}
-          <rect x="40" y="3" width="22" height="16" rx="7" stroke="#0891B2" strokeWidth="2" />
-          {/* Right arm */}
-          <line x1="62" y1="10" x2="72" y2="10" stroke="#0891B2" strokeWidth="2" strokeLinecap="round" />
-        </svg>
-
-        {/* Speech bubble */}
-        <div style={{ position: 'relative' }}>
-          {/* Triangle pointer — outer (teal border) */}
-          <div style={{
-            position: 'absolute',
-            bottom: '-11px',
-            left: '14px',
-            width: 0,
-            height: 0,
-            borderLeft: '9px solid transparent',
-            borderRight: '9px solid transparent',
-            borderTop: '11px solid #0891B2',
-          }} />
-          {/* Triangle pointer — inner (white fill) */}
-          <div style={{
-            position: 'absolute',
-            bottom: '-8px',
-            left: '16px',
-            width: 0,
-            height: 0,
-            borderLeft: '7px solid transparent',
-            borderRight: '7px solid transparent',
-            borderTop: '9px solid #ffffff',
-          }} />
-          <div style={{
-            background: '#ffffff',
-            border: '2px solid #0891B2',
-            borderRadius: '12px',
-            padding: '20px 24px',
-            color: '#0891B2',
-            fontSize: '16px',
-            fontWeight: '500',
-            whiteSpace: 'nowrap',
-            lineHeight: 1.4,
-          }}>
-            Retaining every patient — glasses, lenses &amp; beyond. 👓
+        {/* Error */}
+        {error && (
+          <div style={{ background: '#FEE2E2', border: '1px solid #FECACA', borderRadius: '12px', padding: '16px', color: '#DC2626', marginBottom: '24px', fontSize: '13px' }}>
+            {error}
           </div>
-        </div>
-      </div>
+        )}
 
-      {error && (
-        <div style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)', borderRadius: '10px', padding: '14px 18px', color: '#ef4444', marginBottom: '24px' }}>
-          {error}
-        </div>
-      )}
-
-      {/* Stat Cards */}
-      <div className="stat-grid">
-        <StatCard
-          label="Patients at risk"
-          value={loading ? '—' : summary.patients_at_risk ?? 0}
-          sub="This month · click to view"
-          color="#ef4444"
-          loading={loading}
-          onClick={() => setPanel('at-risk')}
-        />
-        <StatCard
-          label="Revenue at risk"
-          value={loading ? '—' : `£${(summary.revenue_at_risk ?? 0).toLocaleString()}`}
-          sub="Click to view breakdown"
-          color="#f59e0b"
-          loading={loading}
-          onClick={() => setPanel('revenue-risk')}
-        />
-        <StatCard
-          label="Patients recovered"
-          value={loading ? '—' : summary.patients_recovered ?? 0}
-          sub="This month · click to view"
-          color="#22c55e"
-          loading={loading}
-          onClick={() => setPanel('recovered')}
-        />
-        <StatCard
-          label="Revenue recovered"
-          value={loading ? '—' : `£${(summary.revenue_recovered ?? 0).toLocaleString()}`}
-          sub="This month · click to view"
-          color="#22c55e"
-          loading={loading}
-          onClick={() => setPanel('revenue-recovered')}
-        />
-        <StatCard
-          label="Reviews requested"
-          value={reviewsCount === null ? '—' : reviewsCount}
-          sub="this month"
-          color="#F59E0B"
-          loading={reviewsCount === null}
-          onClick={() => setPanel('reviews')}
-        />
-      </div>
-
-      {/* Secondary stats */}
-      {!loading && (
-        <div className="secondary-stats">
+        {/* Urgent Alert Banner */}
+        {!loading && summary.unresolved_alerts > 0 && (
           <div
             onClick={() => navigate('/alerts')}
             style={{
-              background: '#0D2448', border: '1px solid #1a3352', borderRadius: '10px',
-              padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '12px',
-              cursor: 'pointer', transition: 'border-color 0.15s',
+              background: '#FFFBEB',
+              border: '1px solid #FCD34D',
+              borderRadius: '12px',
+              padding: '16px 20px',
+              marginBottom: '24px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              cursor: 'pointer',
+              transition: 'all 0.2s',
             }}
-            onMouseEnter={e => e.currentTarget.style.borderColor = '#f59e0b'}
-            onMouseLeave={e => e.currentTarget.style.borderColor = '#1a3352'}
-          >
-            <span style={{ fontSize: '22px', fontWeight: '700', color: '#f59e0b' }}>{summary.unresolved_alerts ?? 0}</span>
-            <span style={{ color: '#7c93b4', fontSize: '14px' }}>Unresolved urgent alerts</span>
-            <span style={{ color: '#f59e0b', fontSize: '12px', marginLeft: 'auto' }}>View →</span>
-          </div>
-          <div
-            onClick={() => setPanel('messages')}
-            style={{
-              background: '#0D2448', border: '1px solid #1a3352', borderRadius: '10px',
-              padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '12px',
-              cursor: 'pointer', transition: 'border-color 0.15s',
+            onMouseEnter={e => {
+              e.currentTarget.style.borderColor = '#F59E0B'
+              e.currentTarget.style.boxShadow = '0 4px 12px rgba(245, 158, 11, 0.15)'
             }}
-            onMouseEnter={e => e.currentTarget.style.borderColor = '#0891B2'}
-            onMouseLeave={e => e.currentTarget.style.borderColor = '#1a3352'}
+            onMouseLeave={e => {
+              e.currentTarget.style.borderColor = '#FCD34D'
+              e.currentTarget.style.boxShadow = 'none'
+            }}
           >
-            <span style={{ fontSize: '22px', fontWeight: '700', color: '#0891B2' }}>{summary.messages_sent_this_week ?? 0}</span>
-            <span style={{ color: '#7c93b4', fontSize: '14px' }}>WhatsApp messages sent this week</span>
-            <span style={{ color: '#0891B2', fontSize: '12px', marginLeft: 'auto' }}>View →</span>
-          </div>
-        </div>
-      )}
-
-      {/* High Risk Patients Table */}
-      <div style={{ background: '#0D2448', border: '1px solid #1a3352', borderRadius: '14px', overflow: 'hidden' }}>
-        <div style={{ padding: '20px 24px', borderBottom: '1px solid #1a3352', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div>
-            <h2 style={{ fontSize: '16px', fontWeight: '600' }}>High Risk Patients</h2>
-            <p style={{ color: '#7c93b4', fontSize: '13px', marginTop: '2px' }}>Patients requiring immediate re-engagement</p>
-          </div>
-          {!loading && (
-            <span style={{ background: 'rgba(239,68,68,0.12)', color: '#ef4444', fontSize: '12px', fontWeight: '600', padding: '4px 10px', borderRadius: '20px' }}>
-              {highRisk.length} patients
+            <div style={{
+              width: '8px', height: '8px', background: '#F59E0B', borderRadius: '50%',
+              animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+            }} />
+            <span style={{ color: '#92400E', fontSize: '14px', fontWeight: '600', flex: 1 }}>
+              {summary.unresolved_alerts} patient{summary.unresolved_alerts !== 1 ? 's' : ''} replied urgently — they need you today
             </span>
-          )}
-        </div>
-
-        {loading ? (
-          <div style={{ display: 'flex', justifyContent: 'center', padding: '48px' }}>
-            <Spinner size={32} />
-          </div>
-        ) : highRisk.length === 0 ? (
-          <div style={{ padding: '48px', textAlign: 'center', color: '#7c93b4' }}>
-            <div style={{ fontSize: '32px', marginBottom: '12px' }}>✓</div>
-            <div style={{ fontSize: '15px', fontWeight: '500', color: '#22c55e' }}>No high risk patients right now</div>
-            <div style={{ fontSize: '13px', marginTop: '4px' }}>Your retention campaigns are working well</div>
-          </div>
-        ) : (
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr style={{ borderBottom: '1px solid #1a3352' }}>
-                  {['Patient', 'Type', 'Days Since Visit', 'Last Appointment', 'Last Message', ''].map(h => (
-                    <th key={h} style={{ padding: '12px 20px', textAlign: 'left', fontSize: '11px', fontWeight: '600', color: '#7c93b4', textTransform: 'uppercase', letterSpacing: '0.6px', whiteSpace: 'nowrap' }}>
-                      {h}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {highRisk.map((p, i) => (
-                  <tr
-                    key={p.id}
-                    style={{ borderBottom: i < highRisk.length - 1 ? '1px solid #1a3352' : 'none', transition: 'background 0.1s' }}
-                    onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.02)'}
-                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-                  >
-                    <td style={{ padding: '14px 20px' }}>
-                      <div style={{ fontWeight: '500', fontSize: '14px' }}>{p.name}</div>
-                    </td>
-                    <td style={{ padding: '14px 20px' }}>
-                      <span style={{
-                        background: p.patient_type === 'contact_lens' ? 'rgba(8,145,178,0.12)' : 'rgba(124,147,180,0.12)',
-                        color: p.patient_type === 'contact_lens' ? '#0891B2' : '#7c93b4',
-                        fontSize: '11px', fontWeight: '600', padding: '3px 8px', borderRadius: '20px',
-                      }}>
-                        {p.patient_type === 'contact_lens' ? 'Contact Lens' : 'General'}
-                      </span>
-                    </td>
-                    <td style={{ padding: '14px 20px' }}>
-                      <span style={{ color: '#ef4444', fontWeight: '600', fontSize: '14px' }}>
-                        {p.days_since_reorder != null ? `${p.days_since_reorder}d` : '—'}
-                      </span>
-                    </td>
-                    <td style={{ padding: '14px 20px', color: '#7c93b4', fontSize: '13px' }}>
-                      {formatDate(p.last_appointment_date)}
-                    </td>
-                    <td style={{ padding: '14px 20px', maxWidth: '220px' }}>
-                      {p.last_message ? (
-                        <div>
-                          <div style={{ fontSize: '13px', color: '#a0b4cc', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                            {p.last_message}
-                          </div>
-                          <div style={{ fontSize: '11px', color: '#4a6080', marginTop: '2px' }}>
-                            {formatDate(p.last_message_at)}
-                          </div>
-                        </div>
-                      ) : (
-                        <span style={{ color: '#4a6080', fontSize: '13px' }}>No messages yet</span>
-                      )}
-                    </td>
-                    <td style={{ padding: '14px 20px' }}>
-                      <SendButton patientId={p.id} onSent={fetchData} />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <span style={{ color: '#F59E0B', fontSize: '12px', fontWeight: '600' }}>View →</span>
           </div>
         )}
+
+        {/* Practice Score + 4 Metrics Grid */}
+        {!loading && (
+          <div style={{ marginBottom: '32px', animation: 'fadeInUp 0.5s ease-out 0.1s both' }}>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'auto 1fr 1fr',
+              gap: '20px',
+              alignItems: 'start',
+            }}>
+              {/* Practice Score Circle */}
+              <div style={{
+                background: '#FFFFFF',
+                border: '1px solid #E2E8F0',
+                borderRadius: '16px',
+                padding: '24px',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                minHeight: '300px',
+                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)',
+              }}>
+                <PracticeScoreRing score={practiceScore} />
+              </div>
+
+              {/* Metrics Grid 2x2 */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                <MetricCard
+                  label="Patients at Risk"
+                  value={summary.patients_at_risk ?? 0}
+                  color="#EF4444"
+                  onClick={() => setPanel('at-risk')}
+                />
+                <MetricCard
+                  label="Revenue at Risk"
+                  value={`£${(summary.revenue_at_risk ?? 0).toLocaleString()}`}
+                  color="#F59E0B"
+                  onClick={() => setPanel('revenue-risk')}
+                />
+                <MetricCard
+                  label="Patients Recovered"
+                  value={summary.patients_recovered ?? 0}
+                  color="#10B981"
+                  onClick={() => setPanel('recovered')}
+                />
+                <MetricCard
+                  label="Revenue Recovered"
+                  value={`£${(summary.revenue_recovered ?? 0).toLocaleString()}`}
+                  color="#10B981"
+                  onClick={() => setPanel('revenue-recovered')}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* AI Insight Bar */}
+        <div style={{
+          background: 'linear-gradient(135deg, #CFFAFE 0%, #A5F3FC 100%)',
+          border: '1px solid #22D3EE',
+          borderRadius: '12px',
+          padding: '20px',
+          marginBottom: '32px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '16px',
+          animation: 'fadeInUp 0.5s ease-out 0.2s both',
+        }}>
+          <div style={{ fontSize: '24px' }}>✨</div>
+          <div>
+            <div style={{ fontSize: '13px', color: '#155E75', fontWeight: '600', marginBottom: '2px' }}>AI Insight</div>
+            <div style={{ fontSize: '13px', color: '#0E7490' }}>
+              12 contact lens patients are overdue by 30+ days. Reaching out could recover an estimated £1,800 in revenue.
+            </div>
+          </div>
+        </div>
+
+        {/* Today's Schedule & Contact Lens Retention Placeholders */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '32px', animation: 'fadeInUp 0.5s ease-out 0.3s both' }}>
+          <PlaceholderCard icon="📅" title="Today's Schedule" subtitle="Coming soon — track appointments, fill rates, and no-shows" />
+          <PlaceholderCard icon="👁" title="Contact Lens Retention" subtitle="Coming soon — prevent dropouts with automated milestone check-ins" />
+        </div>
+
+        {/* Needs Your Attention Table */}
+        <div style={{
+          background: '#FFFFFF',
+          border: '1px solid #E2E8F0',
+          borderRadius: '16px',
+          overflow: 'hidden',
+          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)',
+          animation: 'fadeInUp 0.5s ease-out 0.4s both',
+        }}>
+          <div style={{ padding: '24px', borderBottom: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div>
+              <h2 style={{ fontSize: '16px', fontWeight: '700', color: '#0F172A', marginBottom: '2px' }}>Needs Your Attention</h2>
+              <p style={{ fontSize: '13px', color: '#64748B' }}>High-risk patients — act now to retain them</p>
+            </div>
+            {!loading && (
+              <span style={{ background: '#FEE2E2', color: '#DC2626', fontSize: '12px', fontWeight: '700', padding: '6px 12px', borderRadius: '12px' }}>
+                {highRisk.length} patient{highRisk.length !== 1 ? 's' : ''}
+              </span>
+            )}
+          </div>
+
+          {loading ? (
+            <div style={{ display: 'flex', justifyContent: 'center', padding: '48px' }}>
+              <Spinner size={32} color="#0891B2" />
+            </div>
+          ) : highRisk.length === 0 ? (
+            <div style={{ padding: '48px', textAlign: 'center' }}>
+              <div style={{ fontSize: '32px', marginBottom: '12px' }}>✓</div>
+              <div style={{ fontSize: '15px', fontWeight: '600', color: '#10B981', marginBottom: '4px' }}>No high risk patients right now</div>
+              <div style={{ fontSize: '13px', color: '#94A3B8' }}>Your retention campaigns are working well</div>
+            </div>
+          ) : (
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr style={{ borderBottom: '1px solid #E2E8F0', background: '#F8FAFB' }}>
+                    {['Patient', 'Type', 'Days Overdue', 'Last Appointment', ''].map(h => (
+                      <th key={h} style={{
+                        padding: '14px 20px',
+                        textAlign: 'left',
+                        fontSize: '11px',
+                        fontWeight: '700',
+                        color: '#94A3B8',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px',
+                        whiteSpace: 'nowrap'
+                      }}>
+                        {h}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {highRisk.map((p, i) => {
+                    const daysOverdue = p.days_since_reorder || 0
+                    const riskLevel = daysOverdue > 50 ? 'high' : daysOverdue > 28 ? 'medium' : 'low'
+
+                    return (
+                      <tr
+                        key={p.id}
+                        style={{
+                          borderBottom: i < highRisk.length - 1 ? '1px solid #E2E8F0' : 'none',
+                          transition: 'background 0.2s',
+                        }}
+                        onMouseEnter={e => e.currentTarget.style.background = '#F8FAFB'}
+                        onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                      >
+                        <td style={{ padding: '16px 20px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                            <div style={{
+                              width: '36px',
+                              height: '36px',
+                              borderRadius: '50%',
+                              background: getAvatarGradient(riskLevel),
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              color: '#FFFFFF',
+                              fontWeight: '700',
+                              fontSize: '12px',
+                            }}>
+                              {getInitials(p.name)}
+                            </div>
+                            <div style={{ fontWeight: '600', fontSize: '14px', color: '#0F172A' }}>{p.name}</div>
+                          </div>
+                        </td>
+                        <td style={{ padding: '16px 20px' }}>
+                          <span style={{
+                            background: p.patient_type === 'contact_lens' ? '#CFFAFE' : '#F1F5F9',
+                            color: p.patient_type === 'contact_lens' ? '#0891B2' : '#64748B',
+                            fontSize: '11px',
+                            fontWeight: '700',
+                            padding: '4px 10px',
+                            borderRadius: '12px',
+                          }}>
+                            {p.patient_type === 'contact_lens' ? 'Contact Lens' : 'General'}
+                          </span>
+                        </td>
+                        <td style={{ padding: '16px 20px' }}>
+                          <span style={{
+                            color: daysOverdue > 42 ? '#DC2626' : daysOverdue > 28 ? '#D97706' : '#64748B',
+                            fontWeight: '700',
+                            fontSize: '14px',
+                          }}>
+                            {daysOverdue > 0 ? `${daysOverdue}d` : '—'}
+                          </span>
+                        </td>
+                        <td style={{ padding: '16px 20px', color: '#64748B', fontSize: '13px' }}>
+                          {formatDate(p.last_appointment_date)}
+                        </td>
+                        <td style={{ padding: '16px 20px' }}>
+                          <SendButton patientId={p.id} onSent={fetchData} />
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
       </div>
+
+      <style>{`
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(12px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        @keyframes pulse {
+          0%, 100% {
+            opacity: 1;
+          }
+          50% {
+            opacity: 0.5;
+          }
+        }
+      `}</style>
     </div>
   )
 }
