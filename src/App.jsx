@@ -104,7 +104,7 @@ const riskBg    = { high:"rgba(239,68,68,.12)", medium:"rgba(245,158,11,.12)", l
 const riskFg    = { high:"#EF4444", medium:"#D97706", low:"#059669" };
 const avatarColors = ["#0891B2","#8B5CF6","#F59E0B","#10B981","#EF4444","#EC4899","#6366F1","#14B8A6"];
 const getColor = i => avatarColors[i % avatarColors.length];
-const F = "'Inter', system-ui, sans-serif";
+const F = "'Plus Jakarta Sans', system-ui, sans-serif";
 
 function Avatar({ initials, bg=C.teal, size=36 }) {
   return <div style={{ width:size, height:size, borderRadius:"50%", background:bg, display:"flex", alignItems:"center", justifyContent:"center", fontWeight:700, fontSize:size*0.33, color:"#fff", flexShrink:0, fontFamily:F, letterSpacing:-0.3 }}>{initials}</div>;
@@ -116,18 +116,18 @@ function Chip({ children, color, bg }) {
 
 function DrillPanel({ title, sub, onClose, children, onFullPage }) {
   return (
-    <div style={{ position:"fixed", inset:0, background:"rgba(8,15,30,.7)", zIndex:900, display:"flex", alignItems:"flex-start", justifyContent:"flex-end", backdropFilter:"blur(4px)" }} onClick={onClose}>
-      <div onClick={e=>e.stopPropagation()} style={{ width:560, height:"100vh", background:C.white, boxShadow:"-40px 0 80px rgba(0,0,0,.3)", overflow:"auto", padding:"32px 32px 24px", display:"flex", flexDirection:"column", fontFamily:F }}>
+    <div style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.4)", zIndex:900, display:"flex", alignItems:"flex-start", justifyContent:"flex-end", backdropFilter:"blur(4px)" }} onClick={onClose}>
+      <div onClick={e=>e.stopPropagation()} style={{ width:560, height:"100vh", background:C.card, boxShadow:"-20px 0 60px rgba(0,0,0,0.12)", overflow:"auto", padding:"32px 32px 24px", display:"flex", flexDirection:"column", fontFamily:F }}>
         <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", marginBottom:24 }}>
           <div>
-            <div style={{ fontSize:19, fontWeight:800, color:C.navy, letterSpacing:-0.5 }}>{title}</div>
+            <div style={{ fontSize:19, fontWeight:800, color:C.text, letterSpacing:-0.5 }}>{title}</div>
             {sub && <div style={{ fontSize:12, color:C.slate, marginTop:4 }}>{sub}</div>}
           </div>
-          <button onClick={onClose} style={{ background:"none", border:"none", fontSize:22, cursor:"pointer", color:C.slateLight, lineHeight:1, padding:4 }}>×</button>
+          <button onClick={onClose} style={{ background:"#F1F5F9", border:"none", fontSize:22, cursor:"pointer", color:C.slate, lineHeight:1, padding:4, borderRadius:6 }}>×</button>
         </div>
         <div style={{ flex:1 }}>{children}</div>
         {onFullPage && (
-          <button onClick={onFullPage} style={{ width:"100%", marginTop:20, background:C.navy, color:"#fff", border:"none", borderRadius:12, padding:"13px", fontWeight:700, fontSize:14, cursor:"pointer", fontFamily:F, letterSpacing:-0.2 }}>
+          <button onClick={onFullPage} style={{ width:"100%", marginTop:20, background:"linear-gradient(135deg,#0891B2,#06B6D4)", color:"#fff", border:"none", borderRadius:12, padding:"13px", fontWeight:700, fontSize:14, cursor:"pointer", fontFamily:F, letterSpacing:-0.2 }}>
             View full page →
           </button>
         )}
@@ -671,10 +671,13 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
     <div onClick={()=>setShowBellDropdown(false)} style={{ display:"flex", height:"100vh", fontFamily:F, background:"#EEF2F7", color:C.navy, overflow:"hidden" }}>
 
       {/* ── Sidebar ── */}
-      <div style={{ width:236, background:C.sidebar, display:"flex", flexDirection:"column", flexShrink:0, padding:"0 0 20px" }}>
-        <div style={{ padding:"16px 20px 18px", borderBottom:"1px solid rgba(255,255,255,.08)", marginBottom:8 }}>
-          <img src="/iryss-logo.svg" alt="Iryss" style={{ height:"96px", objectFit:"contain" }} />
-          <div style={{ fontSize:11, color:"rgba(255,255,255,.35)", letterSpacing:1.5, textTransform:"uppercase", marginTop:10, fontWeight:600 }}>Bright Eyes Opticians</div>
+      <div style={{ width:260, background:C.sidebar, display:"flex", flexDirection:"column", flexShrink:0, padding:"0 0 20px" }}>
+        <div style={{ padding:"24px 20px", borderBottom:"1px solid rgba(255,255,255,.08)", marginBottom:12 }}>
+          <div style={{ display:"flex", alignItems:"baseline", gap:2, marginBottom:8 }}>
+            <span style={{ fontSize:28, fontWeight:800, letterSpacing:-1, color:"#FFFFFF" }}>iry</span>
+            <span style={{ fontSize:28, fontWeight:800, letterSpacing:-1, background:"linear-gradient(135deg,#0891B2,#06B6D4,#22D3EE)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text" }}>ss</span>
+          </div>
+          <div style={{ fontSize:10, color:"rgba(255,255,255,0.3)", letterSpacing:1, textTransform:"uppercase", fontWeight:600 }}>PATIENT RETENTION</div>
         </div>
 
         <nav style={{ display:"flex", flexDirection:"column", gap:2, flex:1, padding:"0 8px" }}>
@@ -691,16 +694,15 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
             const active = nav===item.id;
             return (
             <button key={item.id} onClick={()=>goNav(item.id)} style={{
-              display:"flex", alignItems:"center", gap:11, width:"100%", padding:"10px 14px",
-              border:"none", borderRadius:8, cursor:"pointer",
-              background:active?"rgba(255,255,255,.06)":"transparent",
-              color:active?"#FFFFFF":"rgba(255,255,255,.55)",
-              fontWeight:active?600:400, fontSize:13.5, fontFamily:F, textAlign:"left",
-              borderLeft:active?"3px solid #14B8A6":"3px solid transparent",
+              display:"flex", alignItems:"center", gap:11, width:"100%", padding:"11px 14px",
+              border:"none", borderRadius:10, cursor:"pointer",
+              background:active?"rgba(99,210,225,.12)":"rgba(255,255,255,0.06)",
+              color:active?"#06B6D4":"rgba(255,255,255,.45)",
+              fontWeight:500, fontSize:14, fontFamily:F, textAlign:"left",
               transition:"all .15s", letterSpacing:-0.1
             }}
-              onMouseEnter={e=>{ if(!active){ e.currentTarget.style.background="rgba(255,255,255,.04)"; e.currentTarget.style.color="rgba(255,255,255,.85)"; }}}
-              onMouseLeave={e=>{ if(!active){ e.currentTarget.style.background="transparent"; e.currentTarget.style.color="rgba(255,255,255,.55)"; }}}>
+              onMouseEnter={e=>{ if(!active){ e.currentTarget.style.background="rgba(255,255,255,.08)"; e.currentTarget.style.color="rgba(255,255,255,.65)"; }}}
+              onMouseLeave={e=>{ if(!active){ e.currentTarget.style.background="rgba(255,255,255,0.06)"; e.currentTarget.style.color="rgba(255,255,255,.45)"; }}}>
               <span style={{ fontSize:14, width:18, textAlign:"center", opacity:active?1:0.6 }}>{item.icon}</span>
               <span style={{ flex:1 }}>{item.label}</span>
               {item.warnDot   && <span style={{ width:8, height:8, borderRadius:"50%", background:C.amber, flexShrink:0, display:"inline-block" }} />}
@@ -720,16 +722,15 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
             const active = nav===item.id;
             return (
             <button key={item.id} onClick={()=>goNav(item.id)} style={{
-              display:"flex", alignItems:"center", gap:11, width:"100%", padding:"10px 14px",
-              border:"none", borderRadius:8, cursor:"pointer",
-              background:active?"rgba(255,255,255,.06)":"transparent",
-              color:active?"#FFFFFF":"rgba(255,255,255,.55)",
-              fontWeight:active?600:400, fontSize:13.5, fontFamily:F, textAlign:"left",
-              borderLeft:active?"3px solid #14B8A6":"3px solid transparent",
+              display:"flex", alignItems:"center", gap:11, width:"100%", padding:"11px 14px",
+              border:"none", borderRadius:10, cursor:"pointer",
+              background:active?"rgba(99,210,225,.12)":"rgba(255,255,255,0.06)",
+              color:active?"#06B6D4":"rgba(255,255,255,.45)",
+              fontWeight:500, fontSize:14, fontFamily:F, textAlign:"left",
               transition:"all .15s", letterSpacing:-0.1
             }}
-              onMouseEnter={e=>{ if(!active){ e.currentTarget.style.background="rgba(255,255,255,.04)"; e.currentTarget.style.color="rgba(255,255,255,.85)"; }}}
-              onMouseLeave={e=>{ if(!active){ e.currentTarget.style.background="transparent"; e.currentTarget.style.color="rgba(255,255,255,.55)"; }}}>
+              onMouseEnter={e=>{ if(!active){ e.currentTarget.style.background="rgba(255,255,255,.08)"; e.currentTarget.style.color="rgba(255,255,255,.65)"; }}}
+              onMouseLeave={e=>{ if(!active){ e.currentTarget.style.background="rgba(255,255,255,0.06)"; e.currentTarget.style.color="rgba(255,255,255,.45)"; }}}>
               <span style={{ fontSize:14, width:18, textAlign:"center", opacity:active?1:0.6 }}>{item.icon}</span>
               <span style={{ flex:1 }}>{item.label}</span>
             </button>
@@ -741,16 +742,15 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
               const active = nav==="settings";
               return (
               <button onClick={()=>goNav("settings")} style={{
-                display:"flex", alignItems:"center", gap:11, width:"100%", padding:"10px 14px",
-                border:"none", borderRadius:8, cursor:"pointer",
-                background:active?"rgba(255,255,255,.06)":"transparent",
-                color:active?"#FFFFFF":"rgba(255,255,255,.55)",
-                fontWeight:active?600:400, fontSize:13.5, fontFamily:F, textAlign:"left",
-                borderLeft:active?"3px solid #14B8A6":"3px solid transparent",
+                display:"flex", alignItems:"center", gap:11, width:"100%", padding:"11px 14px",
+                border:"none", borderRadius:10, cursor:"pointer",
+                background:active?"rgba(99,210,225,.12)":"rgba(255,255,255,0.06)",
+                color:active?"#06B6D4":"rgba(255,255,255,.45)",
+                fontWeight:500, fontSize:14, fontFamily:F, textAlign:"left",
                 transition:"all .15s", letterSpacing:-0.1
               }}
-                onMouseEnter={e=>{ if(!active){ e.currentTarget.style.background="rgba(255,255,255,.04)"; e.currentTarget.style.color="rgba(255,255,255,.85)"; }}}
-                onMouseLeave={e=>{ if(!active){ e.currentTarget.style.background="transparent"; e.currentTarget.style.color="rgba(255,255,255,.55)"; }}}>
+                onMouseEnter={e=>{ if(!active){ e.currentTarget.style.background="rgba(255,255,255,.08)"; e.currentTarget.style.color="rgba(255,255,255,.65)"; }}}
+                onMouseLeave={e=>{ if(!active){ e.currentTarget.style.background="rgba(255,255,255,0.06)"; e.currentTarget.style.color="rgba(255,255,255,.45)"; }}}>
                 <span style={{ fontSize:14, width:18, textAlign:"center", opacity:active?1:0.6 }}>⚙</span>
                 <span style={{ flex:1 }}>Settings</span>
               </button>
@@ -759,12 +759,8 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
           </div>
         </nav>
 
-        <div style={{ borderTop:"1px solid rgba(255,255,255,.08)", paddingTop:16, marginTop:8, padding:"16px 20px 0" }}>
-          <div style={{ display:"flex", alignItems:"center", gap:8, padding:"6px 10px", background:"rgba(5,150,105,.1)", borderRadius:8, marginBottom:6 }}>
-            <div style={{ width:7, height:7, borderRadius:"50%", background:C.green, boxShadow:"0 0 8px rgba(5,150,105,.7)", flexShrink:0 }} />
-            <span style={{ fontSize:12, color:"rgba(255,255,255,.5)", fontWeight:500 }}>All systems live</span>
-          </div>
-          <div style={{ fontSize:11, color:"rgba(255,255,255,.25)", padding:"2px 10px" }}>Next AI scoring: 02:00</div>
+        <div style={{ borderTop:"1px solid rgba(255,255,255,.08)", paddingTop:12, marginTop:8, padding:"12px 20px 0" }}>
+          <div style={{ fontSize:11, color:"rgba(255,255,255,.3)", padding:"2px 0", fontWeight:500 }}>Bright Eyes Opticians</div>
         </div>
       </div>
 
@@ -821,13 +817,13 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
               })()}
             </div>
             <div onClick={()=>goNav("settings")} style={{ cursor:"pointer" }}>
-              <Avatar initials="BE" bg="#111827" size={36} />
+              <Avatar initials="BE" bg={C.teal} size={36} />
             </div>
           </div>
         </div>
 
         {/* Content */}
-        <div style={{ flex:1, overflow:"auto", padding:32, background:"linear-gradient(160deg,#F0F4F8 0%,#F8FBFD 100%)" }}>
+        <div style={{ flex:1, overflow:"auto", padding:32, background:C.bg }}>
 
           {patientTimeline ? (()=>{
             const pt = patientTimeline;
@@ -891,7 +887,7 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                             </div>
                           )}
                         </div>
-                        <div style={{ position:"absolute", left:"calc(50% - 8px)", top:"50%", transform:"translateY(-50%)", width:16, height:16, borderRadius:"50%", background:C.navy, border:"3px solid #fff", boxShadow:`0 0 0 2px ${C.border}`, zIndex:2 }} />
+                        <div style={{ position:"absolute", left:"calc(50% - 8px)", top:"50%", transform:"translateY(-50%)", width:16, height:16, borderRadius:"50%", background:C.teal, border:"3px solid #fff", boxShadow:`0 0 0 2px ${C.border}`, zIndex:2 }} />
                       </div>
                     );
                     if (ev.type==='message') {
@@ -1049,7 +1045,7 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
           {nav==="dashboard"&&(
             <div>
               {/* Hero insight strip */}
-              <div style={{ background:`linear-gradient(135deg, ${C.navy} 0%, #0E2040 100%)`, borderRadius:16, padding:"20px 26px", marginBottom:22, display:"flex", alignItems:"center", justifyContent:"space-between", boxShadow:"0 4px 20px rgba(8,15,30,.15)" }}>
+              <div style={{ background:`linear-gradient(135deg, ${C.teal} 0%, ${C.tealLt} 100%)`, borderRadius:16, padding:"20px 26px", marginBottom:22, display:"flex", alignItems:"center", justifyContent:"space-between", boxShadow:"0 4px 20px rgba(8,145,178,.15)" }}>
                 <div>
                   <div style={{ fontSize:11, color:"rgba(255,255,255,.35)", textTransform:"uppercase", letterSpacing:2, marginBottom:7 }}>Today's Summary</div>
                   <div style={{ fontSize:17, fontWeight:600, color:"#fff", lineHeight:1.5 }}>
@@ -1203,9 +1199,9 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                 </div>
 
                 {/* Google rating */}
-                <div style={{ background:`linear-gradient(135deg,${C.navy} 0%,#0E2040 100%)`, borderRadius:16, padding:22, boxShadow:"0 4px 20px rgba(8,15,30,.15)" }}>
+                <div style={{ background:`linear-gradient(135deg,${C.teal} 0%,${C.tealLt} 100%)`, borderRadius:16, padding:22, boxShadow:"0 4px 20px rgba(8,145,178,.15)" }}>
                   <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:18 }}>
-                    <div style={{ fontWeight:700, fontSize:15, color:C.white, letterSpacing:-0.3 }}>⭐ Google Reviews</div>
+                    <div style={{ fontWeight:700, fontSize:15, color:"#fff", letterSpacing:-0.3 }}>⭐ Google Reviews</div>
                     <span onClick={()=>{ setReviewTab("requests"); goNav("reviews"); }} style={{ background:"rgba(245,158,11,.18)", color:C.amber, fontSize:11, fontWeight:700, padding:"3px 10px", borderRadius:20, cursor:"pointer", border:"1px solid rgba(245,158,11,.3)" }}>
                       3 requests pending
                     </span>
@@ -1262,10 +1258,10 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                   {["all","high","medium","low"].map(r=>(
                     <button key={r} onClick={()=>setFilterRisk(r)} style={{
                       padding:"7px 16px", borderRadius:20, cursor:"pointer", fontFamily:F,
-                      background:filterRisk===r?C.navy:C.white, color:filterRisk===r?C.white:C.slate,
+                      background:filterRisk===r?C.teal:C.white, color:filterRisk===r?C.white:C.slate,
                       fontWeight:filterRisk===r?700:500, fontSize:13,
-                      border:`1px solid ${filterRisk===r?C.navy:C.border}`,
-                      boxShadow:filterRisk===r?"0 2px 8px rgba(8,15,30,.2)":"none", transition:"all .15s"
+                      border:`1px solid ${filterRisk===r?C.teal:C.border}`,
+                      boxShadow:filterRisk===r?"0 2px 8px rgba(8,145,178,.2)":"none", transition:"all .15s"
                     }}>
                       {r==="all"?"All":r.charAt(0).toUpperCase()+r.slice(1)+" risk"}
                     </button>
@@ -1341,7 +1337,7 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
               {/* Tabs */}
               <div style={{ display:"flex", gap:8, marginBottom:22 }}>
                 {[{id:"eye-test",label:"👁 Eye Test Recalls"},{id:"lens-reorder",label:"◉ Lens Reorders"},{id:"compliance",label:"📋 Compliance"}].map(t=>(
-                  <button key={t.id} onClick={()=>setRecallTab(t.id)} style={{ padding:"9px 20px", borderRadius:10, cursor:"pointer", fontFamily:F, fontSize:13, fontWeight:recallTab===t.id?700:500, background:recallTab===t.id?C.navy:C.white, color:recallTab===t.id?"#fff":C.slate, border:`1px solid ${recallTab===t.id?C.navy:C.border}`, transition:"all .15s" }}>{t.label}</button>
+                  <button key={t.id} onClick={()=>setRecallTab(t.id)} style={{ padding:"9px 20px", borderRadius:10, cursor:"pointer", fontFamily:F, fontSize:13, fontWeight:recallTab===t.id?700:500, background:recallTab===t.id?C.teal:C.white, color:recallTab===t.id?"#fff":C.slate, border:`1px solid ${recallTab===t.id?C.teal:C.border}`, transition:"all .15s" }}>{t.label}</button>
                 ))}
               </div>
 
@@ -1559,7 +1555,7 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                     {/* Generate report button */}
                     <div style={{ display:"flex", justifyContent:"flex-end" }}>
                       <button onClick={()=>generateComplianceReport(compRate, recallPatients, recallPatients.filter(p=>waSent[p.id]))}
-                        style={{ background:`linear-gradient(135deg,${C.navy},#1E3A5F)`, color:"#fff", border:"none", borderRadius:12, padding:"12px 24px", fontWeight:700, fontSize:14, cursor:"pointer", fontFamily:F, boxShadow:"0 4px 16px rgba(8,15,30,.2)", letterSpacing:-0.2, display:"flex", alignItems:"center", gap:8 }}>
+                        style={{ background:`linear-gradient(135deg,${C.teal},${C.tealLt})`, color:"#fff", border:"none", borderRadius:12, padding:"12px 24px", fontWeight:700, fontSize:14, cursor:"pointer", fontFamily:F, boxShadow:"0 4px 16px rgba(8,145,178,.2)", letterSpacing:-0.2, display:"flex", alignItems:"center", gap:8 }}>
                         🖨 Generate Compliance Report
                       </button>
                     </div>
@@ -1953,21 +1949,21 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
 
                       {/* 3 — Top opportunity */}
                       {topOppty&&(
-                        <div style={{ background:`linear-gradient(135deg,${C.navy} 0%,#0E2040 100%)`, borderRadius:16, padding:22, boxShadow:"0 4px 20px rgba(8,15,30,.15)" }}>
-                          <div style={{ fontWeight:700, fontSize:15, color:C.white, marginBottom:16, letterSpacing:-0.3 }}>⚡ Biggest Recovery Opportunity</div>
+                        <div style={{ background:`linear-gradient(135deg,${C.teal} 0%,${C.tealLt} 100%)`, borderRadius:16, padding:22, boxShadow:"0 4px 20px rgba(8,145,178,.15)" }}>
+                          <div style={{ fontWeight:700, fontSize:15, color:"#fff", marginBottom:16, letterSpacing:-0.3 }}>⚡ Biggest Recovery Opportunity</div>
                           <div style={{ display:"flex", alignItems:"center", gap:14, marginBottom:16 }}>
                             <Avatar initials={topOppty.initials} bg={C.red} size={46} />
                             <div style={{ flex:1 }}>
-                              <div style={{ fontWeight:800, fontSize:16, color:C.white, letterSpacing:-0.4 }}>{topOppty.name}</div>
-                              <div style={{ fontSize:12, color:"rgba(255,255,255,.45)", marginTop:3 }}>{topOppty.product}</div>
+                              <div style={{ fontWeight:800, fontSize:16, color:"#fff", letterSpacing:-0.4 }}>{topOppty.name}</div>
+                              <div style={{ fontSize:12, color:"rgba(255,255,255,.6)", marginTop:3 }}>{topOppty.product}</div>
                               <div style={{ display:"flex", gap:8, marginTop:6, alignItems:"center" }}>
                                 <span style={{ fontSize:11, color:"#FCA5A5", fontWeight:700, background:"rgba(239,68,68,.2)", padding:"2px 9px", borderRadius:20 }}>HIGH RISK</span>
                                 <span style={{ fontSize:11, color:"rgba(255,255,255,.4)" }}>Score: {topOppty.riskScore}/100</span>
                               </div>
                             </div>
                             <div style={{ textAlign:"right", flexShrink:0 }}>
-                              <div style={{ fontSize:28, fontWeight:800, color:C.tealLt, letterSpacing:-1 }}>£{topOppty.revenue}</div>
-                              <div style={{ fontSize:11, color:"rgba(255,255,255,.35)", marginTop:2 }}>revenue value</div>
+                              <div style={{ fontSize:28, fontWeight:800, color:"#fff", letterSpacing:-1 }}>£{topOppty.revenue}</div>
+                              <div style={{ fontSize:11, color:"rgba(255,255,255,.5)", marginTop:2 }}>revenue value</div>
                             </div>
                           </div>
                           {waSent[topOppty.id]
@@ -2022,7 +2018,7 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
               {/* Tabs */}
               <div style={{ display:"flex", gap:8, marginBottom:18 }}>
                 {[{id:"reviews",label:"⭐ Recent Reviews"},{id:"requests",label:"📨 Review Requests"}].map(t=>(
-                  <button key={t.id} onClick={()=>setReviewTab(t.id)} style={{ padding:"9px 20px", borderRadius:10, cursor:"pointer", fontFamily:F, fontSize:13, fontWeight:reviewTab===t.id?700:500, background:reviewTab===t.id?C.navy:C.white, color:reviewTab===t.id?"#fff":C.slate, border:`1px solid ${reviewTab===t.id?C.navy:C.border}`, transition:"all .15s" }}>{t.label}</button>
+                  <button key={t.id} onClick={()=>setReviewTab(t.id)} style={{ padding:"9px 20px", borderRadius:10, cursor:"pointer", fontFamily:F, fontSize:13, fontWeight:reviewTab===t.id?700:500, background:reviewTab===t.id?C.teal:C.white, color:reviewTab===t.id?"#fff":C.slate, border:`1px solid ${reviewTab===t.id?C.teal:C.border}`, transition:"all .15s" }}>{t.label}</button>
                 ))}
               </div>
 
@@ -2059,7 +2055,7 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                           { step:"3", title:"Review link sent",       desc:"If happy, a direct link to your Google Business profile is sent." },
                         ].map(s=>(
                           <div key={s.step} style={{ background:C.cream, borderRadius:12, padding:14, border:`1px solid ${C.border}` }}>
-                            <div style={{ width:30, height:30, borderRadius:"50%", background:C.navy, color:C.white, display:"flex", alignItems:"center", justifyContent:"center", fontWeight:800, fontSize:13, marginBottom:8 }}>{s.step}</div>
+                            <div style={{ width:30, height:30, borderRadius:"50%", background:C.teal, color:C.white, display:"flex", alignItems:"center", justifyContent:"center", fontWeight:800, fontSize:13, marginBottom:8 }}>{s.step}</div>
                             <div style={{ fontWeight:700, fontSize:13, marginBottom:4 }}>{s.title}</div>
                             <div style={{ fontSize:12, color:C.slate, lineHeight:1.6 }}>{s.desc}</div>
                           </div>
@@ -2249,10 +2245,10 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
               </div>
 
               {/* Revenue protected stat */}
-              <div style={{ background:`linear-gradient(135deg,${C.navy} 0%,#0E2040 100%)`, borderRadius:16, padding:"18px 24px", marginBottom:18, display:"flex", alignItems:"center", justifyContent:"space-between", boxShadow:"0 4px 20px rgba(8,15,30,.15)" }}>
+              <div style={{ background:`linear-gradient(135deg,${C.teal} 0%,${C.tealLt} 100%)`, borderRadius:16, padding:"18px 24px", marginBottom:18, display:"flex", alignItems:"center", justifyContent:"space-between", boxShadow:"0 4px 20px rgba(8,145,178,.15)" }}>
                 <div>
-                  <div style={{ fontSize:11, color:"rgba(255,255,255,.35)", textTransform:"uppercase", letterSpacing:1.5, marginBottom:6 }}>This month</div>
-                  <div style={{ fontSize:15, fontWeight:600, color:"#fff" }}>Estimated revenue protected by confirmations: <span style={{ color:"#6EE7B7", fontWeight:800 }}>£{APPOINTMENTS.filter(a=>a.confirmed).reduce((s,a)=>s+a.revenue,0).toLocaleString()}</span></div>
+                  <div style={{ fontSize:11, color:"rgba(255,255,255,.4)", textTransform:"uppercase", letterSpacing:1.5, marginBottom:6 }}>This month</div>
+                  <div style={{ fontSize:15, fontWeight:600, color:"#fff" }}>Estimated revenue protected by confirmations: <span style={{ color:"#fff", fontWeight:800 }}>£{APPOINTMENTS.filter(a=>a.confirmed).reduce((s,a)=>s+a.revenue,0).toLocaleString()}</span></div>
                 </div>
                 <button style={{ background:`linear-gradient(135deg,${C.teal},${C.tealLt})`, color:"#fff", border:"none", borderRadius:10, padding:"11px 22px", fontWeight:700, fontSize:14, cursor:"pointer", fontFamily:F, flexShrink:0, boxShadow:"0 4px 14px rgba(8,145,178,.4)" }}>+ Log appointment</button>
               </div>
@@ -2385,8 +2381,8 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                   <div style={{ padding:"20px" }}>
                     <div style={{ fontSize:11, fontWeight:700, color:C.slateLight, textTransform:"uppercase", letterSpacing:1, marginBottom:12 }}>Preview</div>
                     <div style={{ border:`1px solid ${C.border}`, borderRadius:12, overflow:"hidden", fontFamily:"Georgia, serif" }}>
-                      <div style={{ background:C.navy, padding:"18px 22px" }}>
-                        <div style={{ fontSize:13, fontWeight:700, color:C.tealLt, letterSpacing:2, textTransform:"uppercase", marginBottom:4 }}>Iryss Daily Digest</div>
+                      <div style={{ background:`linear-gradient(135deg,${C.teal},${C.tealLt})`, padding:"18px 22px" }}>
+                        <div style={{ fontSize:13, fontWeight:700, color:"#fff", letterSpacing:2, textTransform:"uppercase", marginBottom:4 }}>Iryss Daily Digest</div>
                         <div style={{ fontSize:18, fontWeight:700, color:"#fff" }}>Good morning, Bright Eyes 👋</div>
                         <div style={{ fontSize:12, color:"rgba(255,255,255,.45)", marginTop:4 }}>{new Date().toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"})}</div>
                       </div>
@@ -2527,12 +2523,12 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                     </div>
 
                     {/* Lost revenue recovery card */}
-                    <div style={{ background:`linear-gradient(135deg,${C.navy} 0%,#0E2040 100%)`, borderRadius:16, padding:22, boxShadow:"0 4px 20px rgba(8,15,30,.15)" }}>
-                      <div style={{ fontWeight:700, fontSize:15, color:C.white, marginBottom:12, letterSpacing:-0.3 }}>💰 Recovery Opportunity</div>
-                      <div style={{ fontSize:32, fontWeight:900, color:C.tealLt, letterSpacing:-1, marginBottom:4 }}>£{lostRevEst.toLocaleString()}</div>
-                      <div style={{ fontSize:12, color:"rgba(255,255,255,.5)", marginBottom:16 }}>estimated revenue at risk from competitor mentions</div>
-                      <div style={{ fontSize:13, color:"rgba(255,255,255,.7)", lineHeight:1.6, marginBottom:16 }}>
-                        Each win-back WhatsApp takes 30 seconds. Recovering just half these patients would add <span style={{ color:C.tealLt, fontWeight:700 }}>£{Math.round(lostRevEst*0.5).toLocaleString()}</span> back to your practice.
+                    <div style={{ background:`linear-gradient(135deg,${C.teal} 0%,${C.tealLt} 100%)`, borderRadius:16, padding:22, boxShadow:"0 4px 20px rgba(8,145,178,.15)" }}>
+                      <div style={{ fontWeight:700, fontSize:15, color:"#fff", marginBottom:12, letterSpacing:-0.3 }}>💰 Recovery Opportunity</div>
+                      <div style={{ fontSize:32, fontWeight:900, color:"#fff", letterSpacing:-1, marginBottom:4 }}>£{lostRevEst.toLocaleString()}</div>
+                      <div style={{ fontSize:12, color:"rgba(255,255,255,.6)", marginBottom:16 }}>estimated revenue at risk from competitor mentions</div>
+                      <div style={{ fontSize:13, color:"rgba(255,255,255,.8)", lineHeight:1.6, marginBottom:16 }}>
+                        Each win-back WhatsApp takes 30 seconds. Recovering just half these patients would add <span style={{ color:"#fff", fontWeight:700 }}>£{Math.round(lostRevEst*0.5).toLocaleString()}</span> back to your practice.
                       </div>
                       <button onClick={()=>{}} style={{ width:"100%", background:`linear-gradient(135deg,${C.teal},${C.tealLt})`, color:"#fff", border:"none", borderRadius:10, padding:"11px", fontWeight:700, fontSize:13, cursor:"pointer", fontFamily:F, boxShadow:"0 4px 16px rgba(8,145,178,.4)", opacity:competitorMentions.length===0?0.5:1 }}>
                         {competitorMentions.length===0?"No mentions to action":"Send All Win-Back Messages →"}
@@ -2573,7 +2569,7 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
 
       {/* ═══ CSV IMPORT MODAL ═══ */}
       {showImport&&(
-        <div onClick={()=>{ if(importStep!==2){ setShowImport(false); } }} style={{ position:"fixed", inset:0, background:"rgba(8,15,30,.8)", zIndex:1000, display:"flex", alignItems:"center", justifyContent:"center", backdropFilter:"blur(6px)", fontFamily:F }}>
+        <div onClick={()=>{ if(importStep!==2){ setShowImport(false); } }} style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.4)", zIndex:1000, display:"flex", alignItems:"center", justifyContent:"center", backdropFilter:"blur(6px)", fontFamily:F }}>
           <div onClick={e=>e.stopPropagation()} style={{ width:"100%", maxWidth:820, maxHeight:"92vh", background:C.white, borderRadius:24, boxShadow:"0 40px 100px rgba(0,0,0,.35)", overflow:"auto", display:"flex", flexDirection:"column" }}>
 
             {/* Modal header */}
@@ -2678,10 +2674,10 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
               return (
                 <div style={{ padding:"0 32px 32px", flex:1 }}>
                   {/* Hero */}
-                  <div style={{ background:`linear-gradient(135deg,${C.navy} 0%,#0E2040 100%)`, borderRadius:16, padding:"28px 32px", marginBottom:22, textAlign:"center" }}>
-                    <div style={{ fontSize:12, color:"rgba(255,255,255,.4)", textTransform:"uppercase", letterSpacing:2, marginBottom:8 }}>Revenue sitting in your patient list</div>
-                    <div style={{ fontSize:52, fontWeight:800, color:C.tealLt, letterSpacing:-2, lineHeight:1, marginBottom:8 }}>£{gapTotal.toLocaleString()}</div>
-                    <div style={{ fontSize:14, color:"rgba(255,255,255,.55)" }}>from {atRiskRows.length} patients who haven't returned</div>
+                  <div style={{ background:`linear-gradient(135deg,${C.teal} 0%,${C.tealLt} 100%)`, borderRadius:16, padding:"28px 32px", marginBottom:22, textAlign:"center" }}>
+                    <div style={{ fontSize:12, color:"rgba(255,255,255,.5)", textTransform:"uppercase", letterSpacing:2, marginBottom:8 }}>Revenue sitting in your patient list</div>
+                    <div style={{ fontSize:52, fontWeight:800, color:"#fff", letterSpacing:-2, lineHeight:1, marginBottom:8 }}>£{gapTotal.toLocaleString()}</div>
+                    <div style={{ fontSize:14, color:"rgba(255,255,255,.75)" }}>from {atRiskRows.length} patients who haven't returned</div>
                   </div>
 
                   {/* 4 result cards */}
@@ -2757,8 +2753,8 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
 
       {/* ═══ TOAST ═══ */}
       {toastMsg&&(
-        <div style={{ position:"fixed", bottom:32, left:"50%", transform:"translateX(-50%)", background:C.navy, color:"#fff", borderRadius:12, padding:"13px 22px", fontSize:14, fontWeight:600, fontFamily:F, zIndex:9999, boxShadow:"0 8px 32px rgba(0,0,0,.25)", display:"flex", alignItems:"center", gap:10, whiteSpace:"nowrap", animation:"fadeIn .25s ease" }}>
-          <span style={{ color:C.green, fontSize:16 }}>✓</span>
+        <div style={{ position:"fixed", bottom:32, left:"50%", transform:"translateX(-50%)", background:C.teal, color:"#fff", borderRadius:12, padding:"13px 22px", fontSize:14, fontWeight:600, fontFamily:F, zIndex:9999, boxShadow:"0 8px 32px rgba(8,145,178,.3)", display:"flex", alignItems:"center", gap:10, whiteSpace:"nowrap", animation:"fadeIn .25s ease" }}>
+          <span style={{ color:"#fff", fontSize:16 }}>✓</span>
           {toastMsg}
         </div>
       )}
@@ -3253,7 +3249,7 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
 
       {/* ── WhatsApp modal ── */}
       {showSendWA&&(
-        <div style={{ position:"fixed", inset:0, background:"rgba(8,15,30,.8)", zIndex:950, display:"flex", alignItems:"center", justifyContent:"center", backdropFilter:"blur(4px)" }} onClick={()=>setShowSendWA(null)}>
+        <div style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.4)", zIndex:950, display:"flex", alignItems:"center", justifyContent:"center", backdropFilter:"blur(4px)" }} onClick={()=>setShowSendWA(null)}>
           <div onClick={e=>e.stopPropagation()} style={{ background:C.white, borderRadius:20, padding:28, width:520, boxShadow:"0 40px 120px rgba(0,0,0,.4)", fontFamily:F }}>
             <div style={{ fontWeight:700, fontSize:17, marginBottom:4, letterSpacing:-0.4 }}>Send WhatsApp to {showSendWA.name}</div>
             <div style={{ fontSize:12, color:C.slate, marginBottom:16 }}>Risk: <span style={{ color:riskFg[showSendWA.risk], fontWeight:700 }}>{riskLabel[showSendWA.risk]}</span> · Last visit: {showSendWA.lastVisit}</div>
