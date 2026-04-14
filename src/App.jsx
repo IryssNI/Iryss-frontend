@@ -861,7 +861,7 @@ function Dashboard() {
   const fetchInbox = async () => {
     try {
       const res = await fetch('https://iryss-backend-12fh.onrender.com/api/public/inbox');
-      if (!res.ok) return;
+      if (!res.ok) { if (liveInbox.length === 0) setLiveInbox(DEMO_INBOX); return; }
       const data = await res.json();
       if (data && data.messages && data.messages.length > 0) {
         const grouped = {};
@@ -914,15 +914,16 @@ function Dashboard() {
           prev ? (mapped.find(m => m.id === prev.id) ?? null) : null
         );
       } else {
-        setLiveInbox(DEMO_INBOX);
+        if (liveInbox.length === 0) setLiveInbox(DEMO_INBOX);
       }
     } catch(e) {
       console.log('Using demo inbox');
-      setLiveInbox(DEMO_INBOX);
+      if (liveInbox.length === 0) setLiveInbox(DEMO_INBOX);
     }
   };
 
   useEffect(() => {
+    setLiveInbox(DEMO_INBOX);
     fetchInbox();
     const interval = setInterval(fetchInbox, 15000);
     return () => clearInterval(interval);
