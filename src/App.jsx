@@ -1063,42 +1063,96 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                 </div>
               )}
 
-              {/* Practice Health Score + 4 Metric Cards */}
+              {/* ═══ HERO: Donut Chart + Revenue Card ═══ */}
               {(()=>{
+                const totalPatients = PATIENTS.length;
                 const atRiskCount = PATIENTS.filter(p=>p.risk!=="low").length;
                 const recoveredCount = recovered.length;
-                const healthScore = Math.round((recoveredCount / Math.max(atRiskCount + recoveredCount, 1)) * 100);
-                const scoreColor = healthScore >= 70 ? C.green : healthScore >= 50 ? C.amber : C.red;
-                const scoreLabel = healthScore >= 90 ? "Excellent" : healthScore >= 80 ? "Great" : healthScore >= 60 ? "Good" : "Needs attention";
-                const circumference = 2 * Math.PI * 54;
-                const dashLen = (healthScore / 100) * circumference;
+                const healthyCount = totalPatients - atRiskCount;
+                const circumference = 2 * Math.PI * 80;
+                const healthyDash = Math.round((healthyCount / totalPatients) * circumference);
+                const riskDash = Math.round((atRiskCount / totalPatients) * circumference);
+                const recoveredDash = circumference - healthyDash - riskDash;
+                const healthyOff = 0;
+                const riskOff = healthyDash;
+                const recoveredOff = healthyDash + riskDash;
                 return (
-                  <div style={{ display:"grid", gridTemplateColumns:"auto 1fr 1fr", gap:18, marginBottom:28, alignItems:"start" }}>
-                    {/* Practice Score Ring */}
-                    <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:16, padding:"28px 32px", boxShadow:"0 1px 3px rgba(0,0,0,.04)", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center" }}>
-                      <div style={{ fontSize:12, fontWeight:600, color:C.slateLight, textTransform:"uppercase", letterSpacing:0.8, marginBottom:16 }}>Practice Health</div>
-                      <div style={{ position:"relative", width:120, height:120 }}>
-                        <svg width="120" height="120" viewBox="0 0 120 120" style={{ transform:"rotate(-90deg)" }}>
-                          <circle cx="60" cy="60" r="54" fill="none" stroke="#F1F5F9" strokeWidth="10" />
-                          <circle cx="60" cy="60" r="54" fill="none" stroke={scoreColor} strokeWidth="10" strokeLinecap="round"
-                            strokeDasharray={`${dashLen} ${circumference - dashLen}`}
-                            style={{ transition:"stroke-dasharray 1.2s cubic-bezier(0.4,0,0.2,1)" }} />
+                  <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:24, marginBottom:28 }}>
+                    {/* LEFT: Patient Health Donut */}
+                    <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:16, padding:32, boxShadow:"0 1px 3px rgba(0,0,0,.04)", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", position:"relative", minHeight:360 }}>
+                      <div style={{ position:"absolute", top:24, left:28, fontSize:13, fontWeight:700, color:C.slateLight, textTransform:"uppercase", letterSpacing:0.8 }}>Patient Health</div>
+                      <div style={{ position:"relative", width:240, height:240, margin:"12px 0" }}>
+                        <svg width="240" height="240" viewBox="0 0 200 200" style={{ transform:"rotate(-90deg)" }}>
+                          <circle cx="100" cy="100" r="80" fill="none" stroke="#F1F5F9" strokeWidth="28" />
+                          <circle cx="100" cy="100" r="80" fill="none" stroke={C.green} strokeWidth="28" strokeLinecap="round"
+                            strokeDasharray={`${healthyDash} ${circumference - healthyDash}`} strokeDashoffset={-healthyOff}
+                            style={{ transition:"stroke-dasharray 1.2s cubic-bezier(0.4,0,0.2,1)", cursor:"pointer" }} />
+                          <circle cx="100" cy="100" r="80" fill="none" stroke={C.red} strokeWidth="28" strokeLinecap="round"
+                            strokeDasharray={`${riskDash} ${circumference - riskDash}`} strokeDashoffset={-riskOff}
+                            style={{ transition:"stroke-dasharray 1.2s cubic-bezier(0.4,0,0.2,1)", cursor:"pointer" }} />
+                          <circle cx="100" cy="100" r="80" fill="none" stroke={C.tealLt} strokeWidth="28" strokeLinecap="round"
+                            strokeDasharray={`${recoveredDash} ${circumference - recoveredDash}`} strokeDashoffset={-recoveredOff}
+                            style={{ transition:"stroke-dasharray 1.2s cubic-bezier(0.4,0,0.2,1)", cursor:"pointer" }} />
                         </svg>
                         <div style={{ position:"absolute", top:"50%", left:"50%", transform:"translate(-50%,-50%)", textAlign:"center" }}>
-                          <div style={{ fontSize:36, fontWeight:800, letterSpacing:-2, color:C.text, lineHeight:1 }}>{healthScore}</div>
-                          <div style={{ fontSize:11, color:C.slateLight, fontWeight:500, marginTop:2 }}>{scoreLabel}</div>
+                          <div style={{ fontSize:48, fontWeight:800, letterSpacing:-2, lineHeight:1, color:C.text }}>{totalPatients}</div>
+                          <div style={{ fontSize:13, color:C.slateLight, fontWeight:500, marginTop:4 }}>total patients</div>
+                        </div>
+                      </div>
+                      <div style={{ display:"flex", gap:20, marginTop:8 }}>
+                        <div onClick={()=>setDrill("recovered")} style={{ display:"flex", alignItems:"center", gap:8, cursor:"pointer", padding:"6px 12px", borderRadius:8, transition:"background .2s" }}
+                          onMouseEnter={e=>e.currentTarget.style.background="#F1F5F9"} onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
+                          <span style={{ width:10, height:10, borderRadius:"50%", background:C.green }} />
+                          <span style={{ fontSize:13, fontWeight:600, color:C.slate }}>Healthy</span>
+                          <span style={{ fontSize:13, fontWeight:700, color:C.text }}>{healthyCount}</span>
+                        </div>
+                        <div onClick={()=>setDrill("at-risk")} style={{ display:"flex", alignItems:"center", gap:8, cursor:"pointer", padding:"6px 12px", borderRadius:8, transition:"background .2s" }}
+                          onMouseEnter={e=>e.currentTarget.style.background="#F1F5F9"} onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
+                          <span style={{ width:10, height:10, borderRadius:"50%", background:C.red }} />
+                          <span style={{ fontSize:13, fontWeight:600, color:C.slate }}>At Risk</span>
+                          <span style={{ fontSize:13, fontWeight:700, color:C.text }}>{atRiskCount}</span>
+                        </div>
+                        <div onClick={()=>setDrill("recovered")} style={{ display:"flex", alignItems:"center", gap:8, cursor:"pointer", padding:"6px 12px", borderRadius:8, transition:"background .2s" }}
+                          onMouseEnter={e=>e.currentTarget.style.background="#F1F5F9"} onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
+                          <span style={{ width:10, height:10, borderRadius:"50%", background:C.tealLt }} />
+                          <span style={{ fontSize:13, fontWeight:600, color:C.slate }}>Recovered</span>
+                          <span style={{ fontSize:13, fontWeight:700, color:C.text }}>{recoveredCount}</span>
                         </div>
                       </div>
                     </div>
-                    {/* Top 2 metric cards */}
-                    <div style={{ display:"flex", flexDirection:"column", gap:18 }}>
-                      <SC label="Patients at risk" value={atRiskCount} sub={`${highRisk.length} high · ${medRisk.length} medium`} accent={C.red} onDrill={()=>setDrill("at-risk")} trend="2 new" trendUp={false} />
-                      <SC label="Patients recovered" value={recoveredCount} sub="This month" accent={C.green} onDrill={()=>setDrill("recovered")} trend="33%" trendUp={true} />
-                    </div>
-                    {/* Bottom 2 metric cards */}
-                    <div style={{ display:"flex", flexDirection:"column", gap:18 }}>
-                      <SC label="Revenue at risk" value={`£${atRiskRevenue.toLocaleString()}`} sub="This month" accent={C.amber} onDrill={()=>setDrill("rev-risk")} trend="8%" trendUp={false} />
-                      <SC label="Revenue recovered" value={`£${recoveredRev.toLocaleString()}`} sub="This month" accent={C.green} onDrill={()=>setDrill("rev-recovered")} trend="12%" trendUp={true} />
+
+                    {/* RIGHT: Revenue Impact */}
+                    <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:16, padding:32, boxShadow:"0 1px 3px rgba(0,0,0,.04)", display:"flex", flexDirection:"column", minHeight:360 }}>
+                      <div style={{ fontSize:13, fontWeight:700, color:C.slateLight, textTransform:"uppercase", letterSpacing:0.8, marginBottom:28 }}>Revenue This Month</div>
+                      <div style={{ fontSize:44, fontWeight:800, letterSpacing:-2, color:C.green, lineHeight:1, marginBottom:4 }}>£{recoveredRev.toLocaleString()}</div>
+                      <div style={{ fontSize:14, color:C.slate, marginBottom:28 }}>recovered so far this month</div>
+
+                      <div style={{ flex:1, display:"flex", flexDirection:"column", gap:16, justifyContent:"center" }}>
+                        {[
+                          { label:"Revenue at Risk", value:`£${atRiskRevenue.toLocaleString()}`, pct: Math.round((atRiskRevenue / (atRiskRevenue + recoveredRev + 500)) * 100), color:`linear-gradient(90deg,${C.red},#F87171)` },
+                          { label:"Revenue Recovered", value:`£${recoveredRev.toLocaleString()}`, pct: Math.round((recoveredRev / (atRiskRevenue + recoveredRev + 500)) * 100), color:`linear-gradient(90deg,${C.green},#34D399)` },
+                          { label:"Potential if All Recover", value:`£${(atRiskRevenue + recoveredRev).toLocaleString()}`, pct: 100, color:`linear-gradient(135deg,${C.teal},${C.tealLt})` },
+                        ].map(bar=>(
+                          <div key={bar.label}>
+                            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:6 }}>
+                              <span style={{ fontSize:13, fontWeight:600, color:C.slate }}>{bar.label}</span>
+                              <span style={{ fontSize:13, fontWeight:700, color:C.text }}>{bar.value}</span>
+                            </div>
+                            <div style={{ width:"100%", height:10, background:"#F1F5F9", borderRadius:5, overflow:"hidden" }}>
+                              <div style={{ height:"100%", width:`${bar.pct}%`, background:bar.color, borderRadius:5, transition:"width 1.5s cubic-bezier(0.4,0,0.2,1)" }} />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div style={{ display:"flex", alignItems:"center", gap:8, marginTop:8, paddingTop:16, borderTop:`1px solid #F1F5F9` }}>
+                        <div style={{ width:32, height:32, borderRadius:8, background:"#ECFDF5", display:"flex", alignItems:"center", justifyContent:"center" }}>
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={C.green} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                        </div>
+                        <div style={{ fontSize:13, color:C.slate, lineHeight:1.4 }}>
+                          You've recovered <strong style={{ color:C.text }}>{recoveredRev > 0 ? Math.round((recoveredRev / (atRiskRevenue + recoveredRev)) * 100) : 0}%</strong> of at-risk revenue this month.
+                        </div>
+                      </div>
                     </div>
                   </div>
                 );
