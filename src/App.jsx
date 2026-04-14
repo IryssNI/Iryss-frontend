@@ -1212,7 +1212,7 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
 
         {/* Topbar */}
         <div style={{ position:"fixed", top:0, left:248, right:0, height:60, background:"#FFFFFF", borderBottom:"1px solid #F0F0F0", zIndex:90, display:"flex", alignItems:"center", justifyContent:"space-between", padding:"0 32px" }}>
-          <div style={{ fontSize:18, fontWeight:600, color:"#0A0A0A", fontFamily:F, letterSpacing:-0.3 }}>{patientTimeline ? (patientTimeline.name||patientTimeline.patient||"Patient") : pageTitles[nav]}</div>
+          <div style={{ fontSize:18, fontWeight:700, color:C.text, fontFamily:F, letterSpacing:-0.3 }}>{patientTimeline ? (patientTimeline.name||patientTimeline.patient||"Patient") : ""}</div>
           <div style={{ display:"flex", alignItems:"center", gap:12 }}>
             <div style={{ position:"relative" }}>
               <div onClick={()=>setShowBellDropdown(v=>!v)} style={{ position:"relative", cursor:"pointer", width:36, height:36, display:"flex", alignItems:"center", justifyContent:"center", background:showBellDropdown?C.offWhite:C.offWhite, borderRadius:10, border:`1px solid ${showBellDropdown?C.teal:C.border}`, transition:"border .15s" }}>
@@ -1644,9 +1644,11 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                     </tr>
                   </thead>
                   <tbody>
-                    {highRisk.map((p,i)=>{
+                    {highRisk.slice(0,5).map((p,i)=>{
                       const daysNum = parseInt(p.lastVisit);
                       const daysOverdue = p.lastVisit.includes("month") ? daysNum * 30 : daysNum;
+                      const prod = p.product.toLowerCase();
+                      const isCL = prod.includes("contact")||prod.includes("cl ")||prod.includes("acuvue")||prod.includes("dailies")||prod.includes("biofinity")||prod.includes("oasys")||prod.includes("coopervision")||prod.includes("lens");
                       return (
                         <tr key={p.id} style={{ borderBottom:i<highRisk.length-1?`1px solid #F1F5F9`:"none", transition:"background .15s" }}
                           onMouseEnter={e=>e.currentTarget.style.background=C.bg}
@@ -1658,8 +1660,8 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                             </div>
                           </td>
                           <td style={{ padding:"16px 26px" }}>
-                            <span style={{ fontSize:11, fontWeight:600, padding:"4px 10px", borderRadius:20, background:p.product.toLowerCase().includes("contact")||p.product.toLowerCase().includes("cl")?"rgba(8,145,178,0.08)":"#F1F5F9", color:p.product.toLowerCase().includes("contact")||p.product.toLowerCase().includes("cl")?C.teal:C.slate }}>
-                              {p.product.toLowerCase().includes("contact")||p.product.toLowerCase().includes("cl")?"Contact Lens":"General"}
+                            <span style={{ fontSize:11, fontWeight:600, padding:"4px 10px", borderRadius:20, background:isCL?"rgba(8,145,178,0.08)":"#F1F5F9", color:isCL?C.teal:C.slate }}>
+                              {isCL?"Contact Lens":"General"}
                             </span>
                           </td>
                           <td style={{ padding:"16px 26px" }}>
@@ -1677,6 +1679,11 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                     })}
                   </tbody>
                 </table>
+                {highRisk.length>5&&(
+                  <div style={{ padding:"14px 26px", borderTop:`1px solid ${C.border}`, textAlign:"center" }}>
+                    <button onClick={()=>goNav("patients")} style={{ background:"none", border:"none", color:C.teal, fontSize:13, fontWeight:600, cursor:"pointer", fontFamily:F }}>View all {highRisk.length} at-risk patients →</button>
+                  </div>
+                )}
               </div>
 
               {/* Today's Appointments + Google Reviews */}
