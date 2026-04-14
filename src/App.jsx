@@ -1009,17 +1009,17 @@ function Dashboard() {
   };
 
   const pageTitles = {
-    dashboard:"Good morning, Bright Eyes 👋",
+    dashboard:"Dashboard",
     tasks:"Today's Tasks",
-    patients:"All Patients",
-    recalls:"Recall & Reorder Automation",
-    inbox:"WhatsApp Inbox",
-    revenue:"Revenue Dashboard",
-    reviews:"Google Reviews",
-    appointments:"Today's Appointments",
+    patients:"Patients",
+    recalls:"Recalls",
+    inbox:"Inbox",
+    revenue:"Revenue",
+    reviews:"Reviews",
+    appointments:"Appointments",
     receptionist:"AI Receptionist",
     settings:"Settings",
-    intelligence:"Competitor Intelligence",
+    intelligence:"Intelligence",
   };
 
   function showToast(msg) { setToastMsg(msg); setTimeout(()=>setToastMsg(null), 3500); }
@@ -1151,13 +1151,10 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
         <nav style={{ display:"flex", flexDirection:"column", gap:2, flex:1, padding:"0 8px" }}>
           {[
             { id:"dashboard",    label:"Dashboard",        icon:"◈"  },
-            { id:"tasks",        label:"Today's Tasks",     icon:"✓",  badge:incompleteTaskCount },
-            { id:"patients",     label:"All Patients",      icon:"◎", badge:PATIENTS.length },
-            { id:"recalls",      label:"Recalls",          icon:"◷", badge:recallPatients.length, warnDot:complianceRate<80&&recallPatients.length>0 },
+            { id:"patients",     label:"Patients",         icon:"◎", badge:PATIENTS.length },
             { id:"inbox",        label:"Inbox",            icon:"◻", urgentDot:urgentCount>0, urgentBadge:urgentCount },
-            { id:"revenue",      label:"Revenue",          icon:"◇"  },
-            { id:"intelligence", label:"Intelligence",     icon:"🎯", badge:competitorMentions.length>0?competitorMentions.length:0 },
-            { id:"reviews",      label:"Google Reviews",   icon:"◆" },
+            { id:"recalls",      label:"Recalls",          icon:"◷", badge:recallPatients.length, warnDot:complianceRate<80&&recallPatients.length>0 },
+            { id:"reviews",      label:"Reviews",          icon:"◆" },
           ].map(item=>{
             const active = nav===item.id;
             return (
@@ -1179,28 +1176,6 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                 ? <span style={{ background:C.red, color:"#fff", borderRadius:20, fontSize:10, fontWeight:700, padding:"2px 7px", minWidth:20, textAlign:"center", animation:"pulseRing 1.5s ease-in-out infinite" }}>{item.urgentBadge}</span>
                 : item.badge>0 && <span style={{ background:"rgba(255,255,255,.15)", color:"rgba(255,255,255,.7)", borderRadius:20, fontSize:10, fontWeight:600, padding:"2px 7px", minWidth:20, textAlign:"center" }}>{item.badge}</span>
               }
-            </button>
-            );
-          })}
-          <div style={{ height:1, background:"rgba(255,255,255,.08)", margin:"10px 6px" }} />
-          {[
-            { id:"appointments", label:"Appointments",     icon:"▦" },
-            { id:"receptionist", label:"AI Receptionist",  icon:"⬡" },
-          ].map(item=>{
-            const active = nav===item.id;
-            return (
-            <button key={item.id} onClick={()=>goNav(item.id)} style={{
-              display:"flex", alignItems:"center", gap:11, width:"100%", padding:"11px 14px",
-              border:"none", borderRadius:10, cursor:"pointer",
-              background:active?"rgba(99,210,225,.12)":"rgba(255,255,255,0.06)",
-              color:active?"#06B6D4":"rgba(255,255,255,.45)",
-              fontWeight:500, fontSize:14, fontFamily:F, textAlign:"left",
-              transition:"all .15s", letterSpacing:-0.1
-            }}
-              onMouseEnter={e=>{ if(!active){ e.currentTarget.style.background="rgba(255,255,255,.08)"; e.currentTarget.style.color="rgba(255,255,255,.65)"; }}}
-              onMouseLeave={e=>{ if(!active){ e.currentTarget.style.background="rgba(255,255,255,0.06)"; e.currentTarget.style.color="rgba(255,255,255,.45)"; }}}>
-              <span style={{ fontSize:14, width:18, textAlign:"center", opacity:active?1:0.6 }}>{item.icon}</span>
-              <span style={{ flex:1 }}>{item.label}</span>
             </button>
             );
           })}
@@ -1239,9 +1214,6 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
         <div style={{ position:"fixed", top:0, left:248, right:0, height:60, background:"#FFFFFF", borderBottom:"1px solid #F0F0F0", zIndex:90, display:"flex", alignItems:"center", justifyContent:"space-between", padding:"0 32px" }}>
           <div style={{ fontSize:18, fontWeight:600, color:"#0A0A0A", fontFamily:F, letterSpacing:-0.3 }}>{patientTimeline ? (patientTimeline.name||patientTimeline.patient||"Patient") : pageTitles[nav]}</div>
           <div style={{ display:"flex", alignItems:"center", gap:12 }}>
-            <button onClick={e=>{ e.stopPropagation(); setShowImport(true); resetImport(); }} style={{ display:"flex", alignItems:"center", gap:7, background:"#0891B2", color:"#fff", border:"none", borderRadius:8, padding:"8px 16px", fontWeight:600, fontSize:13, cursor:"pointer", fontFamily:F, flexShrink:0 }}>
-              <span style={{ fontSize:14 }}>⬆</span> Import Patients
-            </button>
             <div style={{ position:"relative" }}>
               <div onClick={()=>setShowBellDropdown(v=>!v)} style={{ position:"relative", cursor:"pointer", width:36, height:36, display:"flex", alignItems:"center", justifyContent:"center", background:showBellDropdown?C.offWhite:C.offWhite, borderRadius:10, border:`1px solid ${showBellDropdown?C.teal:C.border}`, transition:"border .15s" }}>
                 <span style={{ fontSize:17 }}>🔔</span>
@@ -1571,19 +1543,19 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                         <div onClick={()=>setDrill("recovered")} style={{ display:"flex", alignItems:"center", gap:8, cursor:"pointer", padding:"6px 12px", borderRadius:8, transition:"background .2s" }}
                           onMouseEnter={e=>e.currentTarget.style.background="#F1F5F9"} onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
                           <span style={{ width:10, height:10, borderRadius:"50%", background:C.green }} />
-                          <span style={{ fontSize:13, fontWeight:600, color:C.slate }}>Healthy</span>
+                          <span style={{ fontSize:13, fontWeight:600, color:C.slate, whiteSpace:"nowrap" }}>Healthy</span>
                           <span style={{ fontSize:13, fontWeight:700, color:C.text }}>{healthyCount}</span>
                         </div>
                         <div onClick={()=>setDrill("at-risk")} style={{ display:"flex", alignItems:"center", gap:8, cursor:"pointer", padding:"6px 12px", borderRadius:8, transition:"background .2s" }}
                           onMouseEnter={e=>e.currentTarget.style.background="#F1F5F9"} onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
                           <span style={{ width:10, height:10, borderRadius:"50%", background:C.red }} />
-                          <span style={{ fontSize:13, fontWeight:600, color:C.slate }}>At Risk</span>
+                          <span style={{ fontSize:13, fontWeight:600, color:C.slate, whiteSpace:"nowrap" }}>At Risk</span>
                           <span style={{ fontSize:13, fontWeight:700, color:C.text }}>{atRiskCount}</span>
                         </div>
                         <div onClick={()=>setDrill("recovered")} style={{ display:"flex", alignItems:"center", gap:8, cursor:"pointer", padding:"6px 12px", borderRadius:8, transition:"background .2s" }}
                           onMouseEnter={e=>e.currentTarget.style.background="#F1F5F9"} onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
                           <span style={{ width:10, height:10, borderRadius:"50%", background:C.tealLt }} />
-                          <span style={{ fontSize:13, fontWeight:600, color:C.slate }}>Recovered</span>
+                          <span style={{ fontSize:13, fontWeight:600, color:C.slate, whiteSpace:"nowrap" }}>Recovered</span>
                           <span style={{ fontSize:13, fontWeight:700, color:C.text }}>{recoveredCount}</span>
                         </div>
                       </div>
