@@ -1508,11 +1508,11 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                 const totalPatients = PATIENTS.length;
                 const atRiskCount = PATIENTS.filter(p=>p.risk!=="low").length;
                 const recoveredCount = recovered.length;
-                const healthyCount = totalPatients - atRiskCount;
+                const healthyCount = totalPatients - atRiskCount - recoveredCount;
                 const circumference = 2 * Math.PI * 80;
                 const healthyDash = Math.round((healthyCount / totalPatients) * circumference);
                 const riskDash = Math.round((atRiskCount / totalPatients) * circumference);
-                const recoveredDash = circumference - healthyDash - riskDash;
+                const recoveredDash = Math.round((recoveredCount / totalPatients) * circumference);
                 const healthyOff = 0;
                 const riskOff = healthyDash;
                 const recoveredOff = healthyDash + riskDash;
