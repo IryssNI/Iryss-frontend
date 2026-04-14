@@ -531,7 +531,7 @@ function Dashboard() {
         onMouseEnter={e=>{ if(onDrill){ e.currentTarget.style.boxShadow=`0 4px 20px rgba(0,0,0,.08)`; e.currentTarget.style.transform="translateY(-1px)"; }}}
         onMouseLeave={e=>{ e.currentTarget.style.boxShadow="none"; e.currentTarget.style.transform="translateY(0)"; }}>
         <div style={{ fontSize:11, fontWeight:600, color:"#9CA3AF", textTransform:"uppercase", letterSpacing:0.8, marginBottom:10 }}>{label}</div>
-        <div style={{ fontSize:40, fontFamily:"'Instrument Serif', Georgia, serif", fontStyle:"italic", color:"#0A0A0A", lineHeight:1, marginBottom:12 }}>{value}</div>
+        <div style={{ fontSize:40, fontFamily:"'Inter', sans-serif", fontWeight:700, color:"#0A0A0A", lineHeight:1, marginBottom:12 }}>{value}</div>
         <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
           <div>
             {trend && <span style={{ fontSize:11, fontWeight:600, color:trendUp?C.green:C.red, background:trendUp?"rgba(5,150,105,.08)":"rgba(225,29,72,.08)", padding:"3px 8px", borderRadius:20 }}>{trendUp?"↑":"↓"} {trend}</span>}
