@@ -34,8 +34,471 @@ const PATIENTS = [
   { id:"P-006", name:"Sarah Flynn",     initials:"SF",  phone:"+447827001006", lastVisit:"3 months ago",  product:"Varifocals",                risk:"low",    riskScore:18, revenue:380, status:"booked"    },
   { id:"P-007", name:"Shona Kay",       initials:"SK",  phone:"+447711552094", lastVisit:"13 months ago", product:"Varifocals + Acuvue Oasys Max", age:62, risk:"high",   riskScore:82, revenue:420, status:"pending"   },
   { id:"P-008", name:"Jess Brown",       initials:"JB2", phone:"+447572043380", lastVisit:"5 months ago",  product:"Monthly CL + Glasses",      risk:"low",    riskScore:31, revenue:220, status:"recovered" },
+  { id:"P-009", name:"Emma Wilson",      initials:"EW",  phone:"+447827001010", lastVisit:"2 months ago",  product:"Single Vision Glasses",      age:26, risk:"low",    riskScore:22, revenue:240, status:"booked"    },
+  { id:"P-010", name:"Robert Hughes",    initials:"RH",  phone:"+447827001011", lastVisit:"7 months ago",  product:"Varifocals",                age:58, risk:"medium", riskScore:55, revenue:420, status:"sent"      },
+  { id:"P-011", name:"Ann Hughes",       initials:"AH",  phone:"+447827001012", lastVisit:"5 months ago",  product:"Varifocals",                age:61, risk:"low",    riskScore:28, revenue:420, status:"pending"   },
+  { id:"P-012", name:"Brian Walsh",      initials:"BW",  phone:"+447827001013", lastVisit:"10 months ago", product:"Acuvue Oasys",              age:35, risk:"medium", riskScore:63, revenue:180, status:"alert"     },
+  { id:"P-013", name:"Patricia Ross",    initials:"PR",  phone:"+447827001014", lastVisit:"8 months ago",  product:"Bifocals",                  age:72, risk:"high",   riskScore:81, revenue:380, status:"pending"   },
+  { id:"P-014", name:"David Kelly",      initials:"DK",  phone:"+447827001015", lastVisit:"3 months ago",  product:"Single Vision Glasses",      age:42, risk:"low",    riskScore:25, revenue:240, status:"booked"    },
+  { id:"P-015", name:"Rachel O'Connor",  initials:"RO",  phone:"+447827001016", lastVisit:"6 months ago",  product:"Dailies Total 1",           age:29, risk:"low",    riskScore:30, revenue:150, status:"sent"      },
+  { id:"P-016", name:"Michael O'Brien",  initials:"MO",  phone:"+447827001017", lastVisit:"9 months ago",  product:"Varifocals",                age:64, risk:"high",   riskScore:78, revenue:420, status:"alert"     },
+  { id:"P-017", name:"Fiona Gallagher",  initials:"FG",  phone:"+447827001018", lastVisit:"4 months ago",  product:"Contact Lenses",            age:31, risk:"low",    riskScore:32, revenue:140, status:"checkin"   },
+  { id:"P-018", name:"Declan Murphy",    initials:"DM",  phone:"+447827001019", lastVisit:"11 months ago", product:"Reading Glasses",            age:68, risk:"high",   riskScore:85, revenue:95, status:"pending"    },
+  { id:"P-019", name:"Sinéad McCarthy",  initials:"SM",  phone:"+447827001020", lastVisit:"7 months ago",  product:"Acuvue Oasys Max",          age:44, risk:"medium", riskScore:59, revenue:280, status:"sent"      },
+  { id:"P-020", name:"Kevin Murphy",     initials:"KM",  phone:"+447827001021", lastVisit:"2 months ago",  product:"Single Vision Glasses",      age:51, risk:"low",    riskScore:18, revenue:240, status:"recovered" },
+  { id:"P-021", name:"Aisling Kelly",    initials:"AK",  phone:"+447827001022", lastVisit:"13 months ago", product:"Varifocals",                age:67, risk:"high",   riskScore:88, revenue:420, status:"alert"     },
+  { id:"P-022", name:"Connor Walsh",     initials:"CW",  phone:"+447827001023", lastVisit:"8 months ago",  product:"Acuvue Oasys",              age:38, risk:"medium", riskScore:62, revenue:185, status:"sent"      },
+  { id:"P-023", name:"Niamh Lynch",      initials:"NL",  phone:"+447827001024", lastVisit:"5 months ago",  product:"Glasses + Contact Lenses",  age:26, risk:"low",    riskScore:29, revenue:380, status:"booked"    },
+  { id:"P-024", name:"Padraig Flynn",    initials:"PF",  phone:"+447827001025", lastVisit:"9 months ago",  product:"Children's Glasses",        age:8,  risk:"low",    riskScore:15, revenue:180, status:"sent"      },
+  { id:"P-025", name:"Caoimhe O'Sullivan", initials:"CO", phone:"+447827001026", lastVisit:"6 months ago",  product:"Sports Glasses",            age:24, risk:"low",    riskScore:26, revenue:280, status:"checkin"   },
+  { id:"P-026", name:"Seamus O'Reilly",  initials:"SOR", phone:"+447827001027", lastVisit:"10 months ago", product:"Bifocals",                  age:74, risk:"high",   riskScore:82, revenue:380, status:"alert"     },
+  { id:"P-027", name:"Orlaith Murphy",   initials:"OM",  phone:"+447827001028", lastVisit:"4 months ago",  product:"Monthly Contact Lenses",    age:33, risk:"low",    riskScore:31, revenue:165, status:"booked"    },
+  { id:"P-028", name:"Brendan Kelly",    initials:"BK",  phone:"+447827001029", lastVisit:"11 months ago", product:"Reading Glasses",            age:71, risk:"high",   riskScore:79, revenue:95, status:"pending"    },
+  { id:"P-029", name:"Róisín McCarthy",  initials:"RM",  phone:"+447827001030", lastVisit:"7 months ago",  product:"Acuvue Oasys",              age:42, risk:"medium", riskScore:58, revenue:180, status:"sent"      },
+  { id:"P-030", name:"Liam O'Connor",    initials:"LO",  phone:"+447827001031", lastVisit:"3 months ago",  product:"Single Vision Glasses",      age:47, risk:"low",    riskScore:21, revenue:240, status:"recovered" },
+  { id:"P-031", name:"Sadie Murphy",     initials:"SMu", phone:"+447827001032", lastVisit:"12 months ago", product:"Varifocals",                age:69, risk:"high",   riskScore:87, revenue:420, status:"alert"     },
+  { id:"P-032", name:"Colm O'Neill",     initials:"CO2", phone:"+447827001033", lastVisit:"9 months ago",  product:"CooperVision Biofinity",    age:36, risk:"medium", riskScore:60, revenue:190, status:"sent"      },
+  { id:"P-033", name:"Mairead Lynch",    initials:"ML",  phone:"+447827001034", lastVisit:"5 months ago",  product:"Acuvue Oasys Max",          age:29, risk:"low",    riskScore:28, revenue:280, status:"booked"    },
+  { id:"P-034", name:"Aidan Walsh",      initials:"AW",  phone:"+447827001035", lastVisit:"10 months ago", product:"Reading Glasses",            age:65, risk:"high",   riskScore:76, revenue:95, status:"pending"    },
+  { id:"P-035", name:"Alva Murphy",      initials:"AMu", phone:"+447827001036", lastVisit:"6 months ago",  product:"Single Vision Glasses",      age:38, risk:"low",    riskScore:24, revenue:240, status:"checkin"   },
+  { id:"P-036", name:"Eoin McCarthy",    initials:"EM",  phone:"+447827001037", lastVisit:"8 months ago",  product:"Monthly Contact Lenses",    age:31, risk:"medium", riskScore:64, revenue:170, status:"sent"      },
+  { id:"P-037", name:"Faye O'Donnell",   initials:"FOD", phone:"+447827001038", lastVisit:"4 months ago",  product:"Bifocals",                  age:70, risk:"low",    riskScore:32, revenue:380, status:"recovered" },
+  { id:"P-038", name:"Gareth Kelly",     initials:"GK",  phone:"+447827001039", lastVisit:"11 months ago", product:"Varifocals",                age:59, risk:"high",   riskScore:80, revenue:420, status:"alert"     },
+  { id:"P-039", name:"Hannah Murphy",    initials:"HM",  phone:"+447827001040", lastVisit:"7 months ago",  product:"Acuvue Oasys",              age:35, risk:"medium", riskScore:61, revenue:185, status:"sent"      },
+  { id:"P-040", name:"Isaac O'Neill",    initials:"IO",  phone:"+447827001041", lastVisit:"2 months ago",  product:"Single Vision Glasses",      age:44, risk:"low",    riskScore:20, revenue:240, status:"booked"    },
+  { id:"P-041", name:"Jade Walsh",       initials:"JW",  phone:"+447827001042", lastVisit:"9 months ago",  product:"Contact Lenses",            age:27, risk:"low",    riskScore:25, revenue:140, status:"sent"      },
+  { id:"P-042", name:"James Murphy",     initials:"JM",  phone:"+447827001043", lastVisit:"6 months ago",  product:"Varifocals + Reading Glasses", age:68, risk:"high", riskScore:83, revenue:475, status:"alert"     },
+  { id:"P-043", name:"Kayla O'Connor",   initials:"KO",  phone:"+447827001044", lastVisit:"10 months ago", product:"Children's Glasses",        age:9,  risk:"low",    riskScore:18, revenue:180, status:"pending"    },
+  { id:"P-044", name:"Loch O'Brien",     initials:"LOB", phone:"+447827001045", lastVisit:"5 months ago",  product:"Acuvue Oasys Max",          age:39, risk:"low",    riskScore:29, revenue:280, status:"checkin"   },
+  { id:"P-045", name:"Molly McCarthy",   initials:"MMc", phone:"+447827001046", lastVisit:"8 months ago",  product:"Monthly Contact Lenses",    age:30, risk:"medium", riskScore:65, revenue:165, status:"sent"      },
+  { id:"P-046", name:"Noah Kelly",       initials:"NK",  phone:"+447827001047", lastVisit:"4 months ago",  product:"Single Vision Glasses",      age:50, risk:"low",    riskScore:23, revenue:240, status:"recovered" },
+  { id:"P-047", name:"Olivia O'Reilly",  initials:"OOR", phone:"+447827001048", lastVisit:"11 months ago", product:"Bifocals",                  age:73, risk:"high",   riskScore:84, revenue:380, status:"alert"     },
+  { id:"P-048", name:"Patrick Murphy",   initials:"PMu", phone:"+447827001049", lastVisit:"7 months ago",  product:"Varifocals",                age:62, risk:"high",   riskScore:77, revenue:420, status:"pending"    },
+  { id:"P-049", name:"Quinn Lynch",      initials:"QL",  phone:"+447827001050", lastVisit:"3 months ago",  product:"Acuvue Oasys",              age:36, risk:"low",    riskScore:27, revenue:185, status:"booked"    },
+  { id:"P-050", name:"Ruby O'Sullivan",  initials:"ROS", phone:"+447827001051", lastVisit:"9 months ago",  product:"Sports Glasses",            age:22, risk:"low",    riskScore:19, revenue:280, status:"sent"      },
+  { id:"P-051", name:"Susan Murphy",     initials:"SMur", phone:"+447827001052", lastVisit:"6 months ago",  product:"Reading Glasses",            age:69, risk:"low",    riskScore:34, revenue:95, status:"checkin"   },
+  { id:"P-052", name:"Theo O'Connor",    initials:"TO",  phone:"+447827001053", lastVisit:"10 months ago", product:"Contact Lenses",            age:28, risk:"medium", riskScore:66, revenue:145, status:"alert"     },
+  { id:"P-053", name:"Ursula Kelly",     initials:"UK",  phone:"+447827001054", lastVisit:"5 months ago",  product:"Monthly Contact Lenses",    age:32, risk:"low",    riskScore:30, revenue:170, status:"sent"      },
+  { id:"P-054", name:"Vincent Walsh",    initials:"VW",  phone:"+447827001055", lastVisit:"8 months ago",  product:"Varifocals",                age:60, risk:"high",   riskScore:75, revenue:420, status:"recovered" },
+  { id:"P-055", name:"Wendy O'Donnell",  initials:"WOD", phone:"+447827001056", lastVisit:"4 months ago",  product:"Single Vision Glasses",      age:43, risk:"low",    riskScore:26, revenue:240, status:"booked"    },
+  { id:"P-056", name:"Xavier Murphy",    initials:"XM",  phone:"+447827001057", lastVisit:"11 months ago", product:"Bifocals",                  age:75, risk:"high",   riskScore:86, revenue:380, status:"alert"     },
+  { id:"P-057", name:"Yasmine Kelly",    initials:"YK",  phone:"+447827001058", lastVisit:"7 months ago",  product:"Acuvue Oasys",              age:34, risk:"medium", riskScore:59, revenue:185, status:"sent"      },
+  { id:"P-058", name:"Zara O'Neill",     initials:"ZO",  phone:"+447827001059", lastVisit:"3 months ago",  product:"Acuvue Oasys Max",          age:25, risk:"low",    riskScore:24, revenue:280, status:"pending"    },
+  { id:"P-059", name:"Adam Walsh",       initials:"AW2", phone:"+447827001060", lastVisit:"9 months ago",  product:"Single Vision Glasses",      age:45, risk:"low",    riskScore:22, revenue:240, status:"checkin"   },
+  { id:"P-060", name:"Bethany Murphy",   initials:"BM",  phone:"+447827001061", lastVisit:"6 months ago",  product:"Monthly Contact Lenses",    age:27, risk:"low",    riskScore:28, revenue:165, status:"sent"      },
+  { id:"P-061", name:"Cameron Kelly",    initials:"CK",  phone:"+447827001062", lastVisit:"10 months ago", product:"Varifocals",                age:66, risk:"high",   riskScore:89, revenue:420, status:"alert"     },
+  { id:"P-062", name:"Diana O'Connor",   initials:"DC",  phone:"+447827001063", lastVisit:"5 months ago",  product:"Reading Glasses",            age:67, risk:"low",    riskScore:33, revenue:95, status:"recovered" },
+  { id:"P-063", name:"Ethan Walsh",      initials:"EW2", phone:"+447827001064", lastVisit:"8 months ago",  product:"Acuvue Oasys",              age:39, risk:"medium", riskScore:67, revenue:185, status:"sent"      },
+  { id:"P-064", name:"Freya O'Donnell",  initials:"FOD2", phone:"+447827001065", lastVisit:"4 months ago",  product:"Bifocals",                  age:72, risk:"low",    riskScore:31, revenue:380, status:"booked"    },
+  { id:"P-065", name:"Gregory Murphy",   initials:"GM",  phone:"+447827001066", lastVisit:"11 months ago", product:"Children's Glasses",        age:10, risk:"low",    riskScore:16, revenue:180, status:"pending"    },
+  { id:"P-066", name:"Hazel Kelly",      initials:"HK",  phone:"+447827001067", lastVisit:"7 months ago",  product:"Monthly Contact Lenses",    age:29, risk:"medium", riskScore:62, revenue:170, status:"sent"      },
+  { id:"P-067", name:"Ivan O'Neill",     initials:"IO2", phone:"+447827001068", lastVisit:"3 months ago",  product:"Single Vision Glasses",      age:48, risk:"low",    riskScore:19, revenue:240, status:"checkin"   },
+  { id:"P-068", name:"Jackie Murphy",    initials:"JMu", phone:"+447827001069", lastVisit:"9 months ago",  product:"CooperVision Biofinity",    age:31, risk:"low",    riskScore:27, revenue:190, status:"sent"      },
+  { id:"P-069", name:"Keith Walsh",      initials:"KW",  phone:"+447827001070", lastVisit:"6 months ago",  product:"Varifocals",                age:63, risk:"high",   riskScore:72, revenue:420, status:"alert"     },
+  { id:"P-070", name:"Lena O'Connor",    initials:"LC",  phone:"+447827001071", lastVisit:"10 months ago", product:"Acuvue Oasys Max",          age:37, risk:"medium", riskScore:63, revenue:280, status:"pending"    },
+  { id:"P-071", name:"Marcus Kelly",     initials:"MK",  phone:"+447827001072", lastVisit:"5 months ago",  product:"Single Vision Glasses",      age:41, risk:"low",    riskScore:25, revenue:240, status:"recovered" },
+  { id:"P-072", name:"Natasha Murphy",   initials:"NM",  phone:"+447827001073", lastVisit:"8 months ago",  product:"Contact Lenses",            age:24, risk:"low",    riskScore:23, revenue:140, status:"sent"      },
+  { id:"P-073", name:"Oscar O'Donnell",  initials:"OOD", phone:"+447827001074", lastVisit:"4 months ago",  product:"Reading Glasses",            age:70, risk:"low",    riskScore:35, revenue:95, status:"booked"    },
+  { id:"P-074", name:"Phoebe Walsh",     initials:"PWa", phone:"+447827001075", lastVisit:"11 months ago", product:"Bifocals",                  age:74, risk:"high",   riskScore:85, revenue:380, status:"alert"     },
+  { id:"P-075", name:"Quinn Kelly",      initials:"QK",  phone:"+447827001076", lastVisit:"7 months ago",  product:"Monthly Contact Lenses",    age:30, risk:"low",    riskScore:29, revenue:170, status:"sent"      },
+  { id:"P-076", name:"Rachel Murphy",    initials:"RMu", phone:"+447827001077", lastVisit:"3 months ago",  product:"Varifocals",                age:61, risk:"low",    riskScore:28, revenue:420, status:"checkin"   },
+  { id:"P-077", name:"Samuel O'Neill",   initials:"SO",  phone:"+447827001078", lastVisit:"9 months ago",  product:"Acuvue Oasys",              age:40, risk:"medium", riskScore:68, revenue:185, status:"pending"    },
+  { id:"P-078", name:"Tessa Kelly",      initials:"TK",  phone:"+447827001079", lastVisit:"6 months ago",  product:"Sports Glasses",            age:23, risk:"low",    riskScore:20, revenue:280, status:"sent"      },
+  { id:"P-079", name:"Ulysses Murphy",   initials:"UM",  phone:"+447827001080", lastVisit:"10 months ago", product:"Single Vision Glasses",      age:46, risk:"low",    riskScore:21, revenue:240, status:"alert"     },
+  { id:"P-080", name:"Vada O'Connor",    initials:"VC",  phone:"+447827001081", lastVisit:"5 months ago",  product:"Monthly Contact Lenses",    age:28, risk:"low",    riskScore:30, revenue:165, status:"recovered" },
+  { id:"P-081", name:"Wade Walsh",       initials:"WW",  phone:"+447827001082", lastVisit:"8 months ago",  product:"Bifocals",                  age:71, risk:"high",   riskScore:80, revenue:380, status:"sent"      },
+  { id:"P-082", name:"Xena O'Donnell",   initials:"XOD", phone:"+447827001083", lastVisit:"4 months ago",  product:"Varifocals",                age:59, risk:"medium", riskScore:57, revenue:420, status:"booked"    },
+  { id:"P-083", name:"Yara Kelly",       initials:"YKe", phone:"+447827001084", lastVisit:"11 months ago", product:"Reading Glasses",            age:68, risk:"low",    riskScore:34, revenue:95, status:"pending"    },
+  { id:"P-084", name:"Zeke Murphy",      initials:"ZMu", phone:"+447827001085", lastVisit:"7 months ago",  product:"Acuvue Oasys Max",          age:32, risk:"low",    riskScore:26, revenue:280, status:"sent"      },
+  { id:"P-085", name:"Alena O'Neill",    initials:"AON", phone:"+447827001086", lastVisit:"3 months ago",  product:"Single Vision Glasses",      age:49, risk:"low",    riskScore:24, revenue:240, status:"checkin"   },
+  { id:"P-086", name:"Blake Walsh",      initials:"BW2", phone:"+447827001087", lastVisit:"9 months ago",  product:"CooperVision Biofinity",    age:36, risk:"medium", riskScore:60, revenue:190, status:"sent"      },
+  { id:"P-087", name:"Calista Murphy",   initials:"CMu", phone:"+447827001088", lastVisit:"6 months ago",  product:"Contact Lenses",            age:26, risk:"low",    riskScore:25, revenue:145, status:"alert"     },
+  { id:"P-088", name:"Dashiell Kelly",   initials:"DK2", phone:"+447827001089", lastVisit:"10 months ago", product:"Varifocals",                age:65, risk:"high",   riskScore:81, revenue:420, status:"pending"    },
+  { id:"P-089", name:"Eliana O'Connor",  initials:"EO",  phone:"+447827001090", lastVisit:"5 months ago",  product:"Monthly Contact Lenses",    age:33, risk:"low",    riskScore:28, revenue:170, status:"recovered" },
+  { id:"P-090", name:"Finley Walsh",     initials:"FW",  phone:"+447827001091", lastVisit:"8 months ago",  product:"Single Vision Glasses",      age:44, risk:"low",    riskScore:23, revenue:240, status:"sent"      },
+  { id:"P-091", name:"Giselle O'Donnell", initials:"GOD", phone:"+447827001092", lastVisit:"4 months ago",  product:"Bifocals",                  age:73, risk:"low",    riskScore:32, revenue:380, status:"booked"    },
+  { id:"P-092", name:"Hollis Murphy",    initials:"HMu", phone:"+447827001093", lastVisit:"11 months ago", product:"Children's Glasses",        age:7,  risk:"low",    riskScore:14, revenue:180, status:"alert"     },
+  { id:"P-093", name:"Iris Kelly",       initials:"IK",  phone:"+447827001094", lastVisit:"7 months ago",  product:"Acuvue Oasys",              age:38, risk:"medium", riskScore:64, revenue:185, status:"sent"      },
+  { id:"P-094", name:"Jasper O'Neill",   initials:"JON", phone:"+447827001095", lastVisit:"3 months ago",  product:"Single Vision Glasses",      age:47, risk:"low",    riskScore:20, revenue:240, status:"pending"    },
+  { id:"P-095", name:"Kendall Murphy",   initials:"KMu", phone:"+447827001096", lastVisit:"9 months ago",  product:"Monthly Contact Lenses",    age:29, risk:"low",    riskScore:27, revenue:165, status:"sent"      },
+  { id:"P-096", name:"Lennox Walsh",     initials:"LW",  phone:"+447827001097", lastVisit:"6 months ago",  product:"Varifocals",                age:62, risk:"high",   riskScore:79, revenue:420, status:"checkin"    },
+  { id:"P-097", name:"Morgan O'Connor",  initials:"MOC", phone:"+447827001098", lastVisit:"10 months ago", product:"Acuvue Oasys Max",          age:35, risk:"medium", riskScore:61, revenue:280, status:"alert"     },
+  { id:"P-098", name:"Neve Kelly",       initials:"NK2", phone:"+447827001099", lastVisit:"5 months ago",  product:"Reading Glasses",            age:66, risk:"low",    riskScore:33, revenue:95, status:"recovered" },
+  { id:"P-099", name:"Oakley O'Donnell", initials:"OOD2", phone:"+447827001100", lastVisit:"8 months ago",  product:"Bifocals",                  age:70, risk:"low",    riskScore:36, revenue:380, status:"sent"      },
+  { id:"P-100", name:"Paisley Murphy",   initials:"PM",  phone:"+447827001101", lastVisit:"4 months ago",  product:"Monthly Contact Lenses",    age:31, risk:"low",    riskScore:29, revenue:165, status:"booked"    },
 ];
 
+const DEMO_INBOX = [
+  {
+    id: "Louise Everton",
+    patient: "Louise Everton",
+    phone: "+447827322027",
+    initials: "LE",
+    preview: "Hi, yes I'd like to rebook please!",
+    time: "09:32",
+    unread: true,
+    urgent: false,
+    sentiment: "positive",
+    thread: [
+      { from:"practice", text:"Hi Louise, this is Bright Eyes Opticians. Your annual eye test is due — would you like to book an appointment?", time:"09:15", sent_at:"2026-04-14T09:15:00Z" },
+      { from:"patient", text:"Hi, yes I'd like to rebook please!", time:"09:32", sent_at:"2026-04-14T09:32:00Z" },
+    ]
+  },
+  {
+    id: "Margaret Flynn",
+    patient: "Margaret Flynn",
+    phone: "+447827001003",
+    initials: "MF",
+    preview: "I've been looking at Specsavers prices...",
+    time: "14:22",
+    unread: true,
+    urgent: false,
+    sentiment: "negative",
+    thread: [
+      { from:"practice", text:"Hi Margaret, we noticed your varifocals are due for replacement. Can we help you find a new pair?", time:"10:45", sent_at:"2026-04-14T10:45:00Z" },
+      { from:"patient", text:"I've been looking at Specsavers for my next pair of glasses — they seem to have some good deals on at the moment. Are you able to price match at all?", time:"14:22", sent_at:"2026-04-14T14:22:00Z" },
+    ]
+  },
+  {
+    id: "Tom Bradley",
+    patient: "Tom Bradley",
+    phone: "+447827001002",
+    initials: "TB",
+    preview: "Can I order more monthly lenses?",
+    time: "11:08",
+    unread: true,
+    urgent: false,
+    sentiment: "positive",
+    thread: [
+      { from:"patient", text:"Hi, can I order more monthly lenses please?", time:"11:08", sent_at:"2026-04-14T11:08:00Z" },
+      { from:"practice", text:"Of course! Which brand are you currently wearing?", time:"11:25", sent_at:"2026-04-14T11:25:00Z" },
+      { from:"patient", text:"The Proclear ones, I think? Same as last time 😊", time:"11:43", sent_at:"2026-04-14T11:43:00Z" },
+    ]
+  },
+  {
+    id: "Ciara Murphy",
+    patient: "Ciara Murphy",
+    phone: "+447827001004",
+    initials: "CM",
+    preview: "Yes, confirmed for tomorrow at 2pm!",
+    time: "15:30",
+    unread: false,
+    urgent: false,
+    sentiment: "positive",
+    thread: [
+      { from:"practice", text:"Hi Ciara, just confirming your eye test appointment is tomorrow at 2pm with Dr. Chen. Does that still work for you?", time:"15:12", sent_at:"2026-04-14T15:12:00Z" },
+      { from:"patient", text:"Yes, confirmed for tomorrow at 2pm! ✓", time:"15:30", sent_at:"2026-04-14T15:30:00Z" },
+    ]
+  },
+  {
+    id: "Sarah Flynn",
+    patient: "Sarah Flynn",
+    phone: "+447827001006",
+    initials: "SF",
+    preview: "No thanks, I've moved to a different practice",
+    time: "12:45",
+    unread: true,
+    urgent: false,
+    sentiment: "negative",
+    thread: [
+      { from:"practice", text:"Hi Sarah, your varifocals prescription is due for review. Would you like to book a check-up?", time:"10:30", sent_at:"2026-04-14T10:30:00Z" },
+      { from:"patient", text:"No thanks, I've moved to a different practice. All the best though!", time:"12:45", sent_at:"2026-04-14T12:45:00Z" },
+    ]
+  },
+  {
+    id: "Shona Kay",
+    patient: "Shona Kay",
+    phone: "+447711552094",
+    initials: "SK",
+    preview: "My eye has been really red and painful...",
+    time: "16:52",
+    unread: true,
+    urgent: true,
+    sentiment: "urgent",
+    thread: [
+      { from:"patient", text:"Hi, my eye has been really red and painful since yesterday. Do you think I need to come in?", time:"16:52", sent_at:"2026-04-14T16:52:00Z" },
+    ]
+  },
+  {
+    id: "Jim Bru",
+    patient: "Jim Bru",
+    phone: "+447803003472",
+    initials: "JB",
+    preview: "How much for multifocal lens replacement?",
+    time: "13:15",
+    unread: true,
+    urgent: false,
+    sentiment: null,
+    thread: [
+      { from:"patient", text:"Hi, I'm interested in trying multifocal lenses again. How much would a replacement cost?", time:"13:15", sent_at:"2026-04-14T13:15:00Z" },
+      { from:"practice", text:"Hi Jim! Multifocals range from £85-£150 depending on the brand. Would you like to book a consultation to discuss your options?", time:"13:45", sent_at:"2026-04-14T13:45:00Z" },
+    ]
+  },
+  {
+    id: "Jess Brown",
+    patient: "Jess Brown",
+    phone: "+447572043380",
+    initials: "JB2",
+    preview: "Perfect! See you Monday 😊",
+    time: "10:22",
+    unread: false,
+    urgent: false,
+    sentiment: "positive",
+    thread: [
+      { from:"practice", text:"Hi Jess! Your contact lens check is booked for Monday at 9am. Looking forward to seeing you!", time:"10:05", sent_at:"2026-04-14T10:05:00Z" },
+      { from:"patient", text:"Perfect! See you Monday 😊", time:"10:22", sent_at:"2026-04-14T10:22:00Z" },
+    ]
+  },
+  {
+    id: "Emma Wilson",
+    patient: "Emma Wilson",
+    phone: "+447827001010",
+    initials: "EW",
+    preview: "Can you do a pediatric eye test for my 5 year old?",
+    time: "14:08",
+    unread: true,
+    urgent: false,
+    sentiment: "positive",
+    thread: [
+      { from:"patient", text:"Hi! Can you do a pediatric eye test for my 5 year old daughter? She's been squinting at the board at school.", time:"14:08", sent_at:"2026-04-14T14:08:00Z" },
+      { from:"practice", text:"Absolutely! We do children's eye tests from age 3+. Dr. Patel is excellent with kids. Would you like to book?", time:"14:35", sent_at:"2026-04-14T14:35:00Z" },
+    ]
+  },
+  {
+    id: "Robert Hughes",
+    patient: "Robert Hughes",
+    phone: "+447827001011",
+    initials: "RH",
+    preview: "Is your varifocal stock in yet?",
+    time: "09:44",
+    unread: false,
+    urgent: false,
+    sentiment: null,
+    thread: [
+      { from:"patient", text:"Hi, I ordered varifocals two weeks ago. Is the stock in yet? When can I collect?", time:"09:44", sent_at:"2026-04-14T09:44:00Z" },
+      { from:"practice", text:"Hi Robert! Yes, they arrived yesterday. You can collect anytime between 9am-5:30pm. Would Wednesday suit you?", time:"10:15", sent_at:"2026-04-14T10:15:00Z" },
+    ]
+  },
+  {
+    id: "Ann Hughes",
+    patient: "Ann Hughes",
+    phone: "+447827001012",
+    initials: "AH",
+    preview: "Confirmed for Thursday 2:30pm ✓",
+    time: "11:50",
+    unread: false,
+    urgent: false,
+    sentiment: "positive",
+    thread: [
+      { from:"practice", text:"Hi Ann, your varifocal dispense is Thursday at 2:30pm with Dr. Patel. All set?", time:"11:20", sent_at:"2026-04-14T11:20:00Z" },
+      { from:"patient", text:"Confirmed for Thursday 2:30pm ✓", time:"11:50", sent_at:"2026-04-14T11:50:00Z" },
+    ]
+  },
+  {
+    id: "Brian Walsh",
+    patient: "Brian Walsh",
+    phone: "+447827001013",
+    initials: "BW",
+    preview: "I need to reorder my Dailies...",
+    time: "10:33",
+    unread: true,
+    urgent: false,
+    sentiment: "positive",
+    thread: [
+      { from:"patient", text:"Hi, I'm running low on my Dailies Total 1 lenses. Can I place an order?", time:"10:33", sent_at:"2026-04-14T10:33:00Z" },
+    ]
+  },
+  {
+    id: "Patricia Ross",
+    patient: "Patricia Ross",
+    phone: "+447827001014",
+    initials: "PR",
+    preview: "What time are glasses ready for pickup?",
+    time: "13:27",
+    unread: true,
+    urgent: false,
+    sentiment: null,
+    thread: [
+      { from:"patient", text:"Hi, are my glasses ready to pick up yet?", time:"13:27", sent_at:"2026-04-14T13:27:00Z" },
+      { from:"practice", text:"Hi Patricia! Your glasses are ready! We're open until 5:30pm today if you'd like to pop in.", time:"13:55", sent_at:"2026-04-14T13:55:00Z" },
+      { from:"patient", text:"Great, I'll come in around 4pm. Thanks!", time:"14:12", sent_at:"2026-04-14T14:12:00Z" },
+    ]
+  },
+  {
+    id: "David Kelly",
+    patient: "David Kelly",
+    phone: "+447827001015",
+    initials: "DK",
+    preview: "Thanks for the reminder!",
+    time: "08:56",
+    unread: false,
+    urgent: false,
+    sentiment: "positive",
+    thread: [
+      { from:"practice", text:"Hi David, just a reminder that your eye test is today at 2:30pm with Dr. Chen. See you then!", time:"08:30", sent_at:"2026-04-14T08:30:00Z" },
+      { from:"patient", text:"Thanks for the reminder! I'll be there 😊", time:"08:56", sent_at:"2026-04-14T08:56:00Z" },
+    ]
+  },
+  {
+    id: "Rachel O'Connor",
+    patient: "Rachel O'Connor",
+    phone: "+447827001016",
+    initials: "RO",
+    preview: "How long before I need to reorder?",
+    time: "15:44",
+    unread: true,
+    urgent: false,
+    sentiment: null,
+    thread: [
+      { from:"patient", text:"Hi! How long do Dailies Total 1 usually last for? When should I expect to reorder?", time:"15:44", sent_at:"2026-04-14T15:44:00Z" },
+    ]
+  },
+  {
+    id: "Michael O'Brien",
+    patient: "Michael O'Brien",
+    phone: "+447827001017",
+    initials: "MO",
+    preview: "Booked for Tuesday 10am ✓",
+    time: "17:08",
+    unread: false,
+    urgent: false,
+    sentiment: "positive",
+    thread: [
+      { from:"practice", text:"Hi Michael, we have a slot available for your varifocal check-up on Tuesday at 10am. Does that work?", time:"16:45", sent_at:"2026-04-14T16:45:00Z" },
+      { from:"patient", text:"Perfect! Booked for Tuesday 10am ✓", time:"17:08", sent_at:"2026-04-14T17:08:00Z" },
+    ]
+  },
+  {
+    id: "Fiona Gallagher",
+    patient: "Fiona Gallagher",
+    phone: "+447827001018",
+    initials: "FG",
+    preview: "Yes, still interested in the trial!",
+    time: "12:19",
+    unread: true,
+    urgent: false,
+    sentiment: "positive",
+    thread: [
+      { from:"practice", text:"Hi Fiona, we have a new multifocal contact lens we think you'd like to try. Interested?", time:"11:42", sent_at:"2026-04-14T11:42:00Z" },
+      { from:"patient", text:"Yes! Still looking for better options. When can I come in?", time:"12:19", sent_at:"2026-04-14T12:19:00Z" },
+    ]
+  },
+  {
+    id: "Declan Murphy",
+    patient: "Declan Murphy",
+    phone: "+447827001019",
+    initials: "DM",
+    preview: "Are you open on Saturdays?",
+    time: "10:07",
+    unread: true,
+    urgent: false,
+    sentiment: null,
+    thread: [
+      { from:"patient", text:"Hi, I'd like to collect my reading glasses but I'm usually only free on Saturdays. Are you open?", time:"10:07", sent_at:"2026-04-14T10:07:00Z" },
+    ]
+  },
+  {
+    id: "Sinéad McCarthy",
+    patient: "Sinéad McCarthy",
+    phone: "+447827001020",
+    initials: "SM",
+    preview: "Great, will do. See you Friday!",
+    time: "14:41",
+    unread: false,
+    urgent: false,
+    sentiment: "positive",
+    thread: [
+      { from:"practice", text:"Hi Sinéad! Your contact lens fitting is Friday at 3pm. Please bring your current prescription if you have it.", time:"14:15", sent_at:"2026-04-14T14:15:00Z" },
+      { from:"patient", text:"Great, will do. See you Friday!", time:"14:41", sent_at:"2026-04-14T14:41:00Z" },
+    ]
+  },
+  {
+    id: "Kevin Murphy",
+    patient: "Kevin Murphy",
+    phone: "+447827001021",
+    initials: "KM",
+    preview: "How much are the new varifocals?",
+    time: "16:12",
+    unread: true,
+    urgent: false,
+    sentiment: null,
+    thread: [
+      { from:"patient", text:"Hi Kevin from practice here. Just checking — can you tell me the price range on your new varifocal frames?", time:"16:12", sent_at:"2026-04-14T16:12:00Z" },
+    ]
+  },
+  {
+    id: "Aisling Kelly",
+    patient: "Aisling Kelly",
+    phone: "+447827001022",
+    initials: "AK",
+    preview: "Appointment confirmed ✓",
+    time: "09:33",
+    unread: false,
+    urgent: false,
+    sentiment: "positive",
+    thread: [
+      { from:"practice", text:"Hi Aisling, your annual eye test is booked for next Wednesday at 11:30am. Confirmed?", time:"09:10", sent_at:"2026-04-14T09:10:00Z" },
+      { from:"patient", text:"Confirmed! See you then.", time:"09:33", sent_at:"2026-04-14T09:33:00Z" },
+    ]
+  },
+  {
+    id: "Connor Walsh",
+    patient: "Connor Walsh",
+    phone: "+447827001023",
+    initials: "CW",
+    preview: "Do you stock that new Biofinity brand?",
+    time: "11:21",
+    unread: true,
+    urgent: false,
+    sentiment: "positive",
+    thread: [
+      { from:"patient", text:"Hi! Do you stock the new CooperVision Biofinity lenses? My friend recommends them.", time:"11:21", sent_at:"2026-04-14T11:21:00Z" },
+    ]
+  },
+  {
+    id: "Niamh Lynch",
+    patient: "Niamh Lynch",
+    phone: "+447827001024",
+    initials: "NL",
+    preview: "Thanks so much for the quick service!",
+    time: "15:18",
+    unread: false,
+    urgent: false,
+    sentiment: "positive",
+    thread: [
+      { from:"practice", text:"Hi Niamh! Your contact lenses and glasses just arrived. Ready to collect?", time:"14:50", sent_at:"2026-04-14T14:50:00Z" },
+      { from:"patient", text:"Already?! Thanks so much for the quick service!", time:"15:18", sent_at:"2026-04-14T15:18:00Z" },
+    ]
+  },
+  {
+    id: "Padraig Flynn",
+    patient: "Padraig Flynn",
+    phone: "+447827001025",
+    initials: "PF",
+    preview: "Is there anything fun for kids with glasses?",
+    time: "13:02",
+    unread: true,
+    urgent: false,
+    sentiment: "positive",
+    thread: [
+      { from:"patient", text:"Hi, my son is getting his first pair of glasses and he's a bit worried about looking different. Do you have any fun colourful frames for kids?", time:"13:02", sent_at:"2026-04-14T13:02:00Z" },
+    ]
+  },
+  {
+    id: "Caoimhe O'Sullivan",
+    patient: "Caoimhe O'Sullivan",
+    phone: "+447827001026",
+    initials: "CO",
+    preview: "Are sports glasses good for tennis?",
+    time: "17:33",
+    unread: true,
+    urgent: false,
+    sentiment: null,
+    thread: [
+      { from:"patient", text:"Hi! Do your sports glasses have UV protection? I play tennis outdoors and want to protect my eyes.", time:"17:33", sent_at:"2026-04-14T17:33:00Z" },
+    ]
+  },
+];
 
 const REVIEWS = [
   { name:"Sarah M.",    stars:5, text:"Got a lovely WhatsApp the day after my appointment — such a personal touch. Couldn't not leave a review!", days:"1 day ago",   via:true  },
@@ -330,8 +793,13 @@ function Dashboard() {
         setSelectedThread(prev =>
           prev ? (mapped.find(m => m.id === prev.id) ?? null) : null
         );
+      } else {
+        setLiveInbox(DEMO_INBOX);
       }
-    } catch(e) { console.log('Using demo inbox', e); }
+    } catch(e) {
+      console.log('Using demo inbox');
+      setLiveInbox(DEMO_INBOX);
+    }
   };
 
   useEffect(() => {
