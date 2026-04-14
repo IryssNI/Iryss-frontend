@@ -1165,7 +1165,20 @@ function Dashboard() {
     {id:'order-1', label:'Confirm varifocal lens delivery — Shona Kay',          sub:'Delivery expected this week'},
     {id:'order-2', label:'Order daily trial lenses — new patient fitting Thursday', sub:'Fitting: Thursday 03 April'},
   ].map(t=>({...t, category:'orders', color:'#3B82F6', action:'Mark as chased →', onAction:()=>{}}));
-  const allTasks = [...urgentTasks, ...recallTasksList, ...apptTasks, ...highRiskTasksList, ...reviewTasksList, ...orderTasksList];
+  const myopiaTasks = MYOPIA_PATIENTS
+    .filter(p => p.status==="lapsed" || (p.alChange!==null && p.alChange>=0.20))
+    .map(p => ({
+      id:`myopia-${p.id}`,
+      category:'myopia',
+      color: (p.alChange!==null && p.alChange>=0.20) ? '#EF4444' : '#F59E0B',
+      label: p.status==="lapsed"
+        ? `${p.name} — myopia review overdue`
+        : `${p.name} — axial length progressing (${p.alChange.toFixed(2)} mm/yr)`,
+      sub:`Age ${p.age} · ${p.treatment} · Parent: ${p.parent}`,
+      action:'Review →',
+      onAction:()=>{ setMyopiaDetail(p); goNav("myopia"); }
+    }));
+  const allTasks = [...urgentTasks, ...recallTasksList, ...apptTasks, ...highRiskTasksList, ...myopiaTasks, ...reviewTasksList, ...orderTasksList];
   const incompleteTaskCount = allTasks.filter(t=>!tasksDone[t.id]).length;
 
   // Polished stat card
