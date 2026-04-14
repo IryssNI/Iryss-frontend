@@ -682,6 +682,67 @@ const UPCOMING_WEEK = [
   ]},
 ];
 
+// ═══════════════════════════════════════════════════════════════════════════
+// MYOPIA CLINIC — paediatric myopia management dataset
+// AL = axial length (mm). alChange = mm/yr over last 12 months.
+// Status rules: responding <0.10 mm/yr · slowing 0.10–0.20 · progressing >0.20
+// ═══════════════════════════════════════════════════════════════════════════
+const MYOPIA_PATIENTS = [
+  // ── Active — responding well
+  { id:"M-001", name:"Oliver Chen",       initials:"OC", age:9,  sphereOD:-2.50, sphereOS:-2.75, axialOD:24.8, axialOS:24.9, alChange:0.06, treatment:"MiSight 1 Day",     treatmentStart:"Jun 2025", lastReview:"Dec 2025", nextReview:"Jun 2026", parentalMyopia:"Both",   outdoorHrs:2.5, compliance:"excellent", category:"active",   status:"responding",  parent:"Wei Chen",       phone:"+447700900101" },
+  { id:"M-002", name:"Sophia Patel",      initials:"SP", age:10, sphereOD:-3.25, sphereOS:-3.00, axialOD:25.1, axialOS:25.0, alChange:0.08, treatment:"Stellest",          treatmentStart:"Sep 2024", lastReview:"Mar 2026", nextReview:"Sep 2026", parentalMyopia:"Mother", outdoorHrs:3.0, compliance:"good",      category:"active",   status:"responding",  parent:"Priya Patel",    phone:"+447700900102" },
+  { id:"M-003", name:"Noah Williams",     initials:"NW", age:11, sphereOD:-1.75, sphereOS:-2.00, axialOD:24.3, axialOS:24.4, alChange:0.04, treatment:"Ortho-K",           treatmentStart:"Jan 2025", lastReview:"Jan 2026", nextReview:"Jul 2026", parentalMyopia:"Father", outdoorHrs:4.0, compliance:"excellent", category:"active",   status:"responding",  parent:"Emma Williams",  phone:"+447700900103" },
+  { id:"M-004", name:"Ava Johnson",       initials:"AJ", age:8,  sphereOD:-1.50, sphereOS:-1.25, axialOD:23.9, axialOS:23.8, alChange:0.07, treatment:"MiSight 1 Day",     treatmentStart:"Feb 2025", lastReview:"Feb 2026", nextReview:"Aug 2026", parentalMyopia:"Both",   outdoorHrs:2.0, compliance:"good",      category:"active",   status:"responding",  parent:"Sarah Johnson",  phone:"+447700900104" },
+  { id:"M-005", name:"Ethan Kumar",       initials:"EK", age:12, sphereOD:-4.00, sphereOS:-3.75, axialOD:25.6, axialOS:25.4, alChange:0.09, treatment:"MiYOSMART",         treatmentStart:"Apr 2024", lastReview:"Oct 2025", nextReview:"Apr 2026", parentalMyopia:"Mother", outdoorHrs:1.5, compliance:"good",      category:"active",   status:"responding",  parent:"Anita Kumar",    phone:"+447700900105" },
+  // ── Active — slowing, borderline
+  { id:"M-006", name:"Mia Davies",        initials:"MD", age:10, sphereOD:-2.75, sphereOS:-2.50, axialOD:24.9, axialOS:24.7, alChange:0.14, treatment:"MiSight 1 Day",     treatmentStart:"Oct 2024", lastReview:"Oct 2025", nextReview:"Apr 2026", parentalMyopia:"Father", outdoorHrs:2.5, compliance:"fair",      category:"active",   status:"slowing",     parent:"Gareth Davies",  phone:"+447700900106" },
+  { id:"M-007", name:"Liam Thompson",     initials:"LT", age:11, sphereOD:-3.50, sphereOS:-3.75, axialOD:25.3, axialOS:25.4, alChange:0.16, treatment:"Atropine 0.025%",   treatmentStart:"Jul 2025", lastReview:"Jan 2026", nextReview:"Jul 2026", parentalMyopia:"Both",   outdoorHrs:2.0, compliance:"good",      category:"active",   status:"slowing",     parent:"Lisa Thompson",  phone:"+447700900107" },
+  { id:"M-008", name:"Isla Roberts",      initials:"IR", age:9,  sphereOD:-2.00, sphereOS:-2.25, axialOD:24.5, axialOS:24.6, alChange:0.12, treatment:"Stellest",          treatmentStart:"Jan 2025", lastReview:"Jan 2026", nextReview:"Jul 2026", parentalMyopia:"Mother", outdoorHrs:3.5, compliance:"excellent", category:"active",   status:"slowing",     parent:"Helen Roberts",  phone:"+447700900108" },
+  // ── Active — progressing (flagged: consider switch / combo)
+  { id:"M-009", name:"Jack Morgan",       initials:"JM", age:11, sphereOD:-4.25, sphereOS:-4.00, axialOD:25.9, axialOS:25.7, alChange:0.26, treatment:"MiSight 1 Day",     treatmentStart:"Sep 2024", lastReview:"Mar 2026", nextReview:"Sep 2026", parentalMyopia:"Both",   outdoorHrs:1.0, compliance:"poor",      category:"active",   status:"progressing", parent:"David Morgan",   phone:"+447700900109" },
+  { id:"M-010", name:"Amelia Brown",      initials:"AB", age:12, sphereOD:-5.00, sphereOS:-5.25, axialOD:26.2, axialOS:26.3, alChange:0.32, treatment:"Stellest",          treatmentStart:"May 2024", lastReview:"Nov 2025", nextReview:"May 2026", parentalMyopia:"Both",   outdoorHrs:1.5, compliance:"fair",      category:"active",   status:"progressing", parent:"Rachel Brown",   phone:"+447700900110" },
+  // ── Trial / fitting phase
+  { id:"M-011", name:"Harry Singh",       initials:"HS", age:10, sphereOD:-2.25, sphereOS:-2.00, axialOD:24.6, axialOS:24.5, alChange:null, treatment:"Ortho-K (trial)",   treatmentStart:"Feb 2026", lastReview:"Mar 2026", nextReview:"Apr 2026", parentalMyopia:"Father", outdoorHrs:3.0, compliance:"—",         category:"trial",    status:"trial",       parent:"Ravi Singh",     phone:"+447700900111" },
+  { id:"M-012", name:"Grace Evans",       initials:"GE", age:8,  sphereOD:-1.25, sphereOS:-1.50, axialOD:23.9, axialOS:24.0, alChange:null, treatment:"MiSight (fitting)", treatmentStart:"Mar 2026", lastReview:"Mar 2026", nextReview:"Apr 2026", parentalMyopia:"Both",   outdoorHrs:2.5, compliance:"—",         category:"trial",    status:"trial",       parent:"Megan Evans",    phone:"+447700900112" },
+  // ── Pre-myopic / at-risk (lifestyle + monitoring only)
+  { id:"M-013", name:"Lucas Green",       initials:"LG", age:6,  sphereOD:0.50,  sphereOS:0.50,  axialOD:23.0, axialOS:23.1, alChange:0.22, treatment:"Monitoring only",   treatmentStart:"—",        lastReview:"Jan 2026", nextReview:"Jul 2026", parentalMyopia:"Both",   outdoorHrs:1.5, compliance:"—",         category:"at-risk",  status:"at-risk",     parent:"Sophie Green",   phone:"+447700900113" },
+  { id:"M-014", name:"Freya Wilson",      initials:"FW", age:7,  sphereOD:0.25,  sphereOS:0.00,  axialOD:23.3, axialOS:23.4, alChange:0.28, treatment:"Monitoring only",   treatmentStart:"—",        lastReview:"Feb 2026", nextReview:"Aug 2026", parentalMyopia:"Both",   outdoorHrs:1.0, compliance:"—",         category:"at-risk",  status:"at-risk",     parent:"Kate Wilson",    phone:"+447700900114" },
+  { id:"M-015", name:"Theo Clarke",       initials:"TC", age:6,  sphereOD:0.75,  sphereOS:0.50,  axialOD:22.9, axialOS:23.0, alChange:0.18, treatment:"Lifestyle advice",  treatmentStart:"Feb 2026", lastReview:"Feb 2026", nextReview:"Aug 2026", parentalMyopia:"Mother", outdoorHrs:2.0, compliance:"—",         category:"at-risk",  status:"at-risk",     parent:"Ben Clarke",     phone:"+447700900115" },
+  // ── Stable, not on treatment
+  { id:"M-016", name:"Ruby Fisher",       initials:"RF", age:13, sphereOD:-2.00, sphereOS:-2.00, axialOD:24.5, axialOS:24.5, alChange:0.03, treatment:"Single vision",     treatmentStart:"—",        lastReview:"Dec 2025", nextReview:"Jun 2026", parentalMyopia:"Mother", outdoorHrs:3.5, compliance:"—",         category:"stable",   status:"stable",      parent:"Anna Fisher",    phone:"+447700900116" },
+  { id:"M-017", name:"Alfie Bennett",     initials:"AB", age:14, sphereOD:-3.50, sphereOS:-3.25, axialOD:25.3, axialOS:25.2, alChange:0.04, treatment:"Single vision",     treatmentStart:"—",        lastReview:"Nov 2025", nextReview:"May 2026", parentalMyopia:"Father", outdoorHrs:2.5, compliance:"—",         category:"stable",   status:"stable",      parent:"Mark Bennett",   phone:"+447700900117" },
+  // ── Graduated (AL stable ≥12m, age ≥15)
+  { id:"M-018", name:"Daisy Hall",        initials:"DH", age:16, sphereOD:-4.50, sphereOS:-4.25, axialOD:25.8, axialOS:25.7, alChange:0.02, treatment:"Graduated · was MiSight", treatmentStart:"—",  lastReview:"Feb 2026", nextReview:"Feb 2027", parentalMyopia:"Both",   outdoorHrs:3.0, compliance:"—",         category:"graduated",status:"graduated",   parent:"Louise Hall",    phone:"+447700900118" },
+  // ── Lapsed / overdue recall
+  { id:"M-019", name:"Archie Price",      initials:"AP", age:10, sphereOD:-3.00, sphereOS:-3.25, axialOD:25.0, axialOS:25.1, alChange:null, treatment:"MiSight 1 Day",     treatmentStart:"May 2024", lastReview:"Jul 2025", nextReview:"Jan 2026", parentalMyopia:"Both",   outdoorHrs:2.0, compliance:"unknown",   category:"lapsed",   status:"lapsed",      parent:"Tom Price",      phone:"+447700900119" },
+  { id:"M-020", name:"Poppy Cooper",      initials:"PC", age:11, sphereOD:-2.75, sphereOS:-2.50, axialOD:24.7, axialOS:24.6, alChange:null, treatment:"Stellest",          treatmentStart:"Aug 2024", lastReview:"Sep 2025", nextReview:"Mar 2026", parentalMyopia:"Mother", outdoorHrs:2.5, compliance:"unknown",   category:"lapsed",   status:"lapsed",      parent:"Jane Cooper",    phone:"+447700900120" },
+];
+
+const MYOPIA_TREATMENT_COLORS = {
+  "MiSight 1 Day":     "#0891B2",
+  "Stellest":          "#8B5CF6",
+  "MiYOSMART":         "#EC4899",
+  "Ortho-K":           "#F59E0B",
+  "Ortho-K (trial)":   "#F59E0B",
+  "MiSight (fitting)": "#0891B2",
+  "Atropine 0.025%":   "#10B981",
+  "Atropine 0.05%":    "#059669",
+  "Atropine 0.01%":    "#34D399",
+  "Monitoring only":   "#94A3B8",
+  "Lifestyle advice":  "#64748B",
+  "Single vision":     "#94A3B8",
+};
+const MYOPIA_STATUS = {
+  responding:  { label:"Responding",  color:"#10B981", bg:"rgba(16,185,129,.12)" },
+  slowing:     { label:"Slowing",     color:"#F59E0B", bg:"rgba(245,158,11,.12)" },
+  progressing: { label:"Progressing", color:"#EF4444", bg:"rgba(239,68,68,.12)"  },
+  trial:       { label:"In trial",    color:"#0891B2", bg:"rgba(8,145,178,.12)"  },
+  "at-risk":   { label:"At risk",     color:"#8B5CF6", bg:"rgba(139,92,246,.12)" },
+  stable:      { label:"Stable",      color:"#64748B", bg:"rgba(100,116,139,.12)" },
+  graduated:   { label:"Graduated",   color:"#94A3B8", bg:"rgba(148,163,184,.12)" },
+  lapsed:      { label:"Overdue",     color:"#EF4444", bg:"rgba(239,68,68,.12)"  },
+};
+
 const riskLabel = { high:"HIGH", medium:"MEDIUM", low:"LOW" };
 const riskBg    = { high:"rgba(239,68,68,.12)", medium:"rgba(245,158,11,.12)", low:"rgba(16,185,129,.12)" };
 const riskFg    = { high:"#EF4444", medium:"#D97706", low:"#059669" };
@@ -837,6 +898,8 @@ function Dashboard() {
   const [autoReorder, setAutoReorder]           = useState(false);
   const [autoReview, setAutoReview]             = useState(true);
   const [reviewTab, setReviewTab]               = useState("reviews");
+  const [myopiaTab, setMyopiaTab]               = useState("active");
+  const [myopiaDetail, setMyopiaDetail]         = useState(null);
   const [reviewSent, setReviewSent]             = useState({});
   const [showImport, setShowImport]             = useState(false);
   const [importStep, setImportStep]             = useState(1);
@@ -1134,6 +1197,7 @@ function Dashboard() {
     tasks:"Today's Tasks",
     patients:"Patients",
     recalls:"Recalls",
+    myopia:"Myopia Clinic",
     inbox:"Inbox",
     revenue:"Revenue",
     reviews:"Reviews",
@@ -1276,6 +1340,7 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
             { id:"patients",     label:"Patients",         icon:"◎", badge:PATIENTS.length },
             { id:"inbox",        label:"Inbox",            icon:"◻", urgentDot:urgentCount>0, urgentBadge:urgentCount },
             { id:"recalls",      label:"Recalls",          icon:"◷", badge:recallPatients.length, warnDot:complianceRate<80&&recallPatients.length>0 },
+            { id:"myopia",       label:"Myopia Clinic",    icon:"◉", badge:MYOPIA_PATIENTS.filter(p=>p.category==="active").length },
             { id:"reviews",      label:"Reviews",          icon:"◆" },
           ].map(item=>{
             const active = nav===item.id;
@@ -2191,6 +2256,217 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
               })()}
             </div>
           )}
+
+          {/* ═══ MYOPIA CLINIC ═══ */}
+          {nav==="myopia"&&(()=>{
+            const active     = MYOPIA_PATIENTS.filter(p=>p.category==="active");
+            const trial      = MYOPIA_PATIENTS.filter(p=>p.category==="trial");
+            const atRisk     = MYOPIA_PATIENTS.filter(p=>p.category==="at-risk");
+            const stable     = MYOPIA_PATIENTS.filter(p=>p.category==="stable");
+            const lapsed     = MYOPIA_PATIENTS.filter(p=>p.category==="lapsed");
+            const graduated  = MYOPIA_PATIENTS.filter(p=>p.category==="graduated");
+            const progressing = active.filter(p=>p.status==="progressing");
+            const responding  = active.filter(p=>p.status==="responding");
+            const pctResponding = active.length ? Math.round((responding.length/active.length)*100) : 0;
+            // Pipeline revenue: rough estimate — £450 avg lifetime contribution per active/trial patient over 6m
+            const pipelineRev = (active.length + trial.length) * 450;
+            // Treatment mix from active + trial
+            const treatmentMix = {};
+            [...active, ...trial].forEach(p=>{ treatmentMix[p.treatment] = (treatmentMix[p.treatment]||0)+1; });
+            const treatmentBreakdown = Object.entries(treatmentMix)
+              .map(([name,count])=>({ name, count, color: MYOPIA_TREATMENT_COLORS[name] || "#64748B" }))
+              .sort((a,b)=>b.count-a.count);
+            const totalInMix = active.length + trial.length;
+
+            const categoryMap = {
+              all: MYOPIA_PATIENTS, active, trial, "at-risk": atRisk, stable, lapsed, graduated,
+            };
+            const tabs = [
+              { id:"active",    label:"Active Treatment",    count:active.length    },
+              { id:"trial",     label:"Trial · Fitting",     count:trial.length     },
+              { id:"at-risk",   label:"Pre-myopic · At risk", count:atRisk.length   },
+              { id:"stable",    label:"Stable · Monitoring", count:stable.length    },
+              { id:"lapsed",    label:"Overdue Recall",      count:lapsed.length    },
+              { id:"graduated", label:"Graduated",           count:graduated.length },
+              { id:"all",       label:"All",                 count:MYOPIA_PATIENTS.length },
+            ];
+            const filtered = categoryMap[myopiaTab] || MYOPIA_PATIENTS;
+
+            return (
+            <div>
+              {/* Header */}
+              <div style={{ marginBottom:22 }}>
+                <h1 style={{ fontSize:24, fontWeight:800, color:C.text, letterSpacing:-0.5, margin:0, marginBottom:6 }}>Myopia Clinic</h1>
+                <p style={{ fontSize:14, color:C.slate, margin:0 }}>Paediatric myopia management — treatment, progression tracking &amp; recalls</p>
+              </div>
+
+              {/* AI insights banner */}
+              <div style={{ background:"linear-gradient(135deg,#0891B2 0%,#0E7490 100%)", borderRadius:14, padding:"16px 22px", marginBottom:22, display:"flex", alignItems:"center", gap:14, boxShadow:"0 4px 16px rgba(8,145,178,.18)" }}>
+                <div style={{ width:38, height:38, borderRadius:10, background:"rgba(255,255,255,.18)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:18, flexShrink:0, color:"#fff" }}>◈</div>
+                <div style={{ flex:1 }}>
+                  <div style={{ fontSize:11, color:"rgba(255,255,255,.7)", textTransform:"uppercase", letterSpacing:0.8, fontWeight:600, marginBottom:3 }}>IRYSS AI · MYOPIA INSIGHTS</div>
+                  <div style={{ fontSize:13.5, color:"#fff", fontWeight:500, lineHeight:1.5 }}>
+                    <b>{progressing.length} patients</b> progressing &gt;0.20 mm/yr — consider switch or combination therapy.{" "}
+                    <b>{lapsed.length} overdue</b> for 6-month review.{" "}
+                    <b>{atRisk.length} pre-myopic children</b> need lifestyle review.{" "}
+                    <b>1 child</b> turning 15 this quarter — schedule graduation discussion.
+                  </div>
+                </div>
+                <button onClick={()=>showToast("AI recommendations expanded — see patient detail view")}
+                  style={{ background:"rgba(255,255,255,.15)", color:"#fff", border:"1px solid rgba(255,255,255,.2)", borderRadius:10, padding:"9px 16px", fontSize:12, fontWeight:600, cursor:"pointer", fontFamily:F, flexShrink:0, whiteSpace:"nowrap" }}>
+                  View actions →
+                </button>
+              </div>
+
+              {/* KPI cards */}
+              <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:16, marginBottom:22 }}>
+                <SC label="Active on treatment"  value={active.length}         accent={C.teal}  sub={`${trial.length} in fitting phase`} />
+                <SC label="Responding well"      value={`${pctResponding}%`}   accent={C.green} sub="AL growth <0.10 mm/yr" trend={`${responding.length}/${active.length}`} trendUp={true} />
+                <SC label="Overdue for review"   value={lapsed.length}         accent={C.red}   sub=">6 months since last visit" />
+                <SC label="Pipeline revenue"     value={`£${pipelineRev.toLocaleString()}`} accent={C.amber} sub="Next 6 months · est." />
+              </div>
+
+              {/* Progression + Treatment mix row */}
+              <div style={{ display:"grid", gridTemplateColumns:"1.55fr 1fr", gap:16, marginBottom:22 }}>
+                {/* Axial length progression */}
+                <div style={{ background:C.card, borderRadius:16, border:`1px solid ${C.border}`, padding:"22px 24px", boxShadow:"0 2px 12px rgba(0,0,0,.05)" }}>
+                  <div style={{ display:"flex", alignItems:"baseline", justifyContent:"space-between", marginBottom:3 }}>
+                    <h3 style={{ fontSize:15, fontWeight:700, color:C.text, margin:0 }}>Axial Length Progression</h3>
+                    <span style={{ fontSize:11, color:C.slateLight, fontWeight:500 }}>Last 12 months · active patients</span>
+                  </div>
+                  <p style={{ fontSize:12, color:C.slate, margin:"0 0 16px 0" }}>
+                    Target &lt;0.10 mm/yr · amber 0.10–0.20 · red &gt;0.20 (consider switch)
+                  </p>
+                  {/* legend markers */}
+                  <div style={{ display:"flex", gap:14, marginBottom:10, fontSize:11, color:C.slate }}>
+                    <span style={{ display:"flex", alignItems:"center", gap:6 }}><span style={{ width:10, height:10, borderRadius:2, background:C.green }} />Responding</span>
+                    <span style={{ display:"flex", alignItems:"center", gap:6 }}><span style={{ width:10, height:10, borderRadius:2, background:C.amber }} />Slowing</span>
+                    <span style={{ display:"flex", alignItems:"center", gap:6 }}><span style={{ width:10, height:10, borderRadius:2, background:C.red }} />Progressing</span>
+                  </div>
+                  {active.slice().sort((a,b)=>b.alChange-a.alChange).map((p,i)=>{
+                    const pct = Math.min(100, (p.alChange/0.40)*100);
+                    const barColor = p.alChange<0.10 ? C.green : p.alChange<0.20 ? C.amber : C.red;
+                    return (
+                      <div key={p.id} onClick={()=>setMyopiaDetail(p)}
+                        style={{ display:"grid", gridTemplateColumns:"160px 1fr 90px", gap:12, alignItems:"center", padding:"9px 0", borderBottom:i<active.length-1?`1px solid #F1F5F9`:"none", cursor:"pointer" }}>
+                        <div style={{ display:"flex", alignItems:"center", gap:8, minWidth:0 }}>
+                          <Avatar initials={p.initials} bg={getColor(i)} size={26} />
+                          <div style={{ minWidth:0 }}>
+                            <div style={{ fontSize:12.5, fontWeight:600, color:C.navy, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{p.name}</div>
+                            <div style={{ fontSize:10.5, color:C.slateLight }}>Age {p.age} · {p.treatment}</div>
+                          </div>
+                        </div>
+                        <div style={{ position:"relative", height:10, background:"#F1F5F9", borderRadius:5, overflow:"visible" }}>
+                          <div style={{ height:"100%", width:`${pct}%`, background:barColor, borderRadius:5, transition:"width .4s" }} />
+                          {/* 0.10 target tick */}
+                          <div style={{ position:"absolute", top:-3, left:"25%", width:2, height:16, background:C.green, opacity:.35, borderRadius:1 }} />
+                          {/* 0.20 switch threshold */}
+                          <div style={{ position:"absolute", top:-3, left:"50%", width:2, height:16, background:C.red, opacity:.35, borderRadius:1 }} />
+                        </div>
+                        <div style={{ fontSize:13, fontWeight:700, color:barColor, textAlign:"right" }}>{p.alChange.toFixed(2)} mm</div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Treatment mix */}
+                <div style={{ background:C.card, borderRadius:16, border:`1px solid ${C.border}`, padding:"22px 24px", boxShadow:"0 2px 12px rgba(0,0,0,.05)" }}>
+                  <h3 style={{ fontSize:15, fontWeight:700, color:C.text, margin:0, marginBottom:3 }}>Treatment Mix</h3>
+                  <p style={{ fontSize:12, color:C.slate, margin:"0 0 18px 0" }}>Active + trial · {totalInMix} patients</p>
+                  {treatmentBreakdown.map(t=>{
+                    const pct = totalInMix>0 ? Math.round((t.count/totalInMix)*100) : 0;
+                    return (
+                      <div key={t.name} style={{ marginBottom:14 }}>
+                        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:5 }}>
+                          <span style={{ display:"flex", alignItems:"center", gap:8, fontSize:13, fontWeight:600, color:C.navy }}>
+                            <span style={{ width:8, height:8, borderRadius:"50%", background:t.color }} />
+                            {t.name}
+                          </span>
+                          <span style={{ fontSize:12, color:C.slate, fontWeight:500 }}>{t.count} · {pct}%</span>
+                        </div>
+                        <div style={{ height:6, background:"#F1F5F9", borderRadius:3, overflow:"hidden" }}>
+                          <div style={{ height:"100%", width:`${pct}%`, background:t.color, borderRadius:3, transition:"width .4s" }} />
+                        </div>
+                      </div>
+                    );
+                  })}
+                  <button onClick={()=>showToast("Reorder request sent to lab")}
+                    style={{ width:"100%", marginTop:10, background:"rgba(8,145,178,.08)", color:C.teal, border:`1px solid rgba(8,145,178,.2)`, borderRadius:10, padding:"9px 14px", fontSize:12, fontWeight:700, cursor:"pointer", fontFamily:F }}>
+                    Reorder low-stock lenses →
+                  </button>
+                </div>
+              </div>
+
+              {/* Category tabs */}
+              <div style={{ display:"flex", gap:8, marginBottom:16, flexWrap:"wrap" }}>
+                {tabs.map(t=>(
+                  <button key={t.id} onClick={()=>setMyopiaTab(t.id)} style={{
+                    padding:"9px 16px", borderRadius:10, cursor:"pointer", fontFamily:F, fontSize:13,
+                    fontWeight:myopiaTab===t.id?700:500,
+                    background:myopiaTab===t.id?"rgba(8,145,178,.08)":C.card,
+                    color:myopiaTab===t.id?C.teal:C.slate,
+                    border:`1px solid ${myopiaTab===t.id?"rgba(8,145,178,.2)":C.border}`,
+                    transition:"all .15s", display:"flex", alignItems:"center", gap:7
+                  }}>
+                    {t.label}
+                    <span style={{ opacity:.65, fontWeight:600, fontSize:11, background:myopiaTab===t.id?"rgba(8,145,178,.15)":"#F1F5F9", color:myopiaTab===t.id?C.teal:C.slateLight, padding:"1px 7px", borderRadius:10 }}>{t.count}</span>
+                  </button>
+                ))}
+              </div>
+
+              {/* Patient table */}
+              <div style={{ background:C.card, borderRadius:16, border:`1px solid ${C.border}`, overflow:"hidden", boxShadow:"0 2px 12px rgba(0,0,0,.06)" }}>
+                <div style={{ display:"grid", gridTemplateColumns:"1.4fr 60px 100px 110px 1.1fr 110px 110px 130px", gap:12, padding:"12px 20px", borderBottom:`1px solid ${C.border}`, background:C.bg }}>
+                  {["Patient","Age","Rx (SER)","Axial L.","Treatment","Next review","AL / yr","Status"].map(h=>(
+                    <div key={h} style={{ fontSize:11, fontWeight:600, color:C.slateLight, textTransform:"uppercase", letterSpacing:0.8 }}>{h}</div>
+                  ))}
+                </div>
+                {filtered.length===0 && (
+                  <div style={{ padding:"48px 20px", textAlign:"center", color:C.slate, fontSize:13 }}>No patients in this category yet.</div>
+                )}
+                {filtered.map((p,i)=>{
+                  const s = MYOPIA_STATUS[p.status] || MYOPIA_STATUS.stable;
+                  const serOD = p.sphereOD > 0 ? `+${p.sphereOD.toFixed(2)}` : p.sphereOD.toFixed(2);
+                  const serOS = p.sphereOS > 0 ? `+${p.sphereOS.toFixed(2)}` : p.sphereOS.toFixed(2);
+                  return (
+                    <div key={p.id} onClick={()=>setMyopiaDetail(p)}
+                      style={{ display:"grid", gridTemplateColumns:"1.4fr 60px 100px 110px 1.1fr 110px 110px 130px", gap:12, padding:"14px 20px", borderBottom:i<filtered.length-1?`1px solid #F1F5F9`:"none", alignItems:"center", background:C.white, cursor:"pointer", transition:"background .12s" }}
+                      onMouseEnter={e=>e.currentTarget.style.background=C.bg}
+                      onMouseLeave={e=>e.currentTarget.style.background=C.white}>
+                      <div style={{ display:"flex", alignItems:"center", gap:11 }}>
+                        <Avatar initials={p.initials} bg={getColor(parseInt(p.id.slice(2))-1)} size={34} />
+                        <div style={{ minWidth:0 }}>
+                          <div style={{ fontSize:13.5, fontWeight:700, color:C.navy, letterSpacing:-0.1 }}>{p.name}</div>
+                          <div style={{ fontSize:11, color:C.slateLight }}>Parent: {p.parent} · Myopia: {p.parentalMyopia}</div>
+                        </div>
+                      </div>
+                      <div style={{ fontSize:13, color:C.navy, fontWeight:600 }}>{p.age}</div>
+                      <div style={{ fontSize:12, color:C.slate, fontFamily:"ui-monospace,monospace" }}>
+                        <div>{serOD}</div>
+                        <div style={{ color:C.slateLight }}>{serOS}</div>
+                      </div>
+                      <div style={{ fontSize:12, color:C.slate, fontFamily:"ui-monospace,monospace" }}>
+                        <div>{p.axialOD.toFixed(1)}</div>
+                        <div style={{ color:C.slateLight }}>{p.axialOS.toFixed(1)}</div>
+                      </div>
+                      <div style={{ display:"flex", alignItems:"center", gap:7, minWidth:0 }}>
+                        <span style={{ width:8, height:8, borderRadius:"50%", background:MYOPIA_TREATMENT_COLORS[p.treatment]||"#64748B", flexShrink:0 }} />
+                        <span style={{ fontSize:12.5, color:C.navy, fontWeight:500, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{p.treatment}</span>
+                      </div>
+                      <div style={{ fontSize:12, color:C.slate, fontWeight:500 }}>{p.nextReview}</div>
+                      <div style={{ fontSize:12.5, fontWeight:700, color: p.alChange===null ? C.slateLight : (p.alChange<0.10?C.green: p.alChange<0.20?C.amber:C.red) }}>
+                        {p.alChange===null ? "—" : `${p.alChange.toFixed(2)} mm`}
+                      </div>
+                      <div>
+                        <span style={{ fontSize:11, fontWeight:700, padding:"4px 10px", borderRadius:20, background:s.bg, color:s.color, letterSpacing:0.2 }}>{s.label}</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+            );
+          })()}
 
           {/* ═══ INBOX ═══ */}
           {nav==="inbox"&&(()=>{
@@ -3766,6 +4042,96 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
           ))}
         </DrillPanel>
       )}
+
+      {/* ── Myopia patient detail drawer ── */}
+      {myopiaDetail&&(()=>{
+        const p = myopiaDetail;
+        const s = MYOPIA_STATUS[p.status] || MYOPIA_STATUS.stable;
+        const serOD = p.sphereOD > 0 ? `+${p.sphereOD.toFixed(2)}` : p.sphereOD.toFixed(2);
+        const serOS = p.sphereOS > 0 ? `+${p.sphereOS.toFixed(2)}` : p.sphereOS.toFixed(2);
+        // AI recommendation
+        let aiRec;
+        if (p.status==="progressing")      aiRec = { tone:"red",   text:`AL growth ${p.alChange?.toFixed(2)} mm/yr exceeds 0.20 mm threshold. Consider switching from ${p.treatment} or adding atropine 0.05% combination therapy. Reinforce outdoor time (currently ${p.outdoorHrs} hrs/day — aim for ≥2 hrs).` };
+        else if (p.status==="slowing")     aiRec = { tone:"amber", text:`Borderline progression (${p.alChange?.toFixed(2)} mm/yr). Reinforce compliance, check lens fit, and consider 3-month review instead of 6-month.` };
+        else if (p.status==="responding")  aiRec = { tone:"green", text:`Excellent response to ${p.treatment}. Continue current regimen. Next AL measurement at ${p.nextReview}.` };
+        else if (p.status==="at-risk")     aiRec = { tone:"purple",text:`Pre-myopic with AL growth ${p.alChange?.toFixed(2)} mm/yr and ${p.parentalMyopia.toLowerCase()} parental myopia. Lifestyle advice now; reassess at ${p.nextReview}. Consider early treatment if SER crosses -0.50 D.` };
+        else if (p.status==="lapsed")      aiRec = { tone:"red",   text:`Last seen ${p.lastReview} — review was due ${p.nextReview}. WhatsApp parent now to rebook before progression accelerates.` };
+        else if (p.status==="trial")       aiRec = { tone:"teal",  text:`Trial/fitting phase for ${p.treatment}. Confirm adaptation, comfort and compliance at 1-month follow-up, then set baseline AL.` };
+        else                               aiRec = { tone:"slate", text:`Stable. Continue annual review.` };
+        const toneMap = { red:C.red, amber:C.amber, green:C.green, purple:C.purple, teal:C.teal, slate:C.slate };
+        const recColor = toneMap[aiRec.tone];
+        return (
+          <DrillPanel title={p.name} sub={`Age ${p.age} · ${p.treatment} · ${s.label}`} onClose={()=>setMyopiaDetail(null)}>
+            {/* AI recommendation */}
+            <div style={{ background:`${recColor}14`, border:`1px solid ${recColor}33`, borderRadius:12, padding:"14px 16px", marginBottom:18, display:"flex", gap:10 }}>
+              <div style={{ width:28, height:28, borderRadius:8, background:recColor, color:"#fff", display:"flex", alignItems:"center", justifyContent:"center", fontSize:14, flexShrink:0, fontWeight:700 }}>◈</div>
+              <div>
+                <div style={{ fontSize:10, fontWeight:700, color:recColor, textTransform:"uppercase", letterSpacing:0.8, marginBottom:3 }}>IRYSS AI RECOMMENDATION</div>
+                <div style={{ fontSize:13, color:C.navy, lineHeight:1.5 }}>{aiRec.text}</div>
+              </div>
+            </div>
+
+            {/* Clinical snapshot */}
+            <div style={{ fontSize:11, fontWeight:600, color:C.slateLight, textTransform:"uppercase", letterSpacing:0.8, marginBottom:10 }}>Clinical Snapshot</div>
+            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, marginBottom:20 }}>
+              {[
+                { label:"Refraction OD (SER)", value:`${serOD} D` },
+                { label:"Refraction OS (SER)", value:`${serOS} D` },
+                { label:"Axial length OD",     value:`${p.axialOD.toFixed(2)} mm` },
+                { label:"Axial length OS",     value:`${p.axialOS.toFixed(2)} mm` },
+                { label:"AL growth (12 mo)",   value: p.alChange===null ? "—" : `${p.alChange.toFixed(2)} mm/yr`, color: p.alChange===null?C.slate : (p.alChange<0.10?C.green: p.alChange<0.20?C.amber:C.red) },
+                { label:"Compliance",          value:p.compliance },
+                { label:"Parental myopia",     value:p.parentalMyopia },
+                { label:"Outdoor time",        value:`${p.outdoorHrs} hrs/day` },
+              ].map((f,i)=>(
+                <div key={i} style={{ background:C.bg, borderRadius:10, padding:"10px 12px", border:`1px solid ${C.border}` }}>
+                  <div style={{ fontSize:10.5, color:C.slateLight, fontWeight:600, textTransform:"uppercase", letterSpacing:0.6, marginBottom:3 }}>{f.label}</div>
+                  <div style={{ fontSize:14, color:f.color||C.navy, fontWeight:700, fontFamily:"ui-monospace,monospace" }}>{f.value}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Treatment history */}
+            <div style={{ fontSize:11, fontWeight:600, color:C.slateLight, textTransform:"uppercase", letterSpacing:0.8, marginBottom:10 }}>Treatment &amp; Review Timeline</div>
+            <div style={{ background:C.bg, borderRadius:12, border:`1px solid ${C.border}`, padding:"12px 14px", marginBottom:20 }}>
+              <div style={{ display:"flex", justifyContent:"space-between", fontSize:13, padding:"6px 0", borderBottom:`1px solid ${C.border}` }}>
+                <span style={{ color:C.slate }}>Treatment start</span><span style={{ fontWeight:600, color:C.navy }}>{p.treatmentStart}</span>
+              </div>
+              <div style={{ display:"flex", justifyContent:"space-between", fontSize:13, padding:"6px 0", borderBottom:`1px solid ${C.border}` }}>
+                <span style={{ color:C.slate }}>Last review</span><span style={{ fontWeight:600, color:C.navy }}>{p.lastReview}</span>
+              </div>
+              <div style={{ display:"flex", justifyContent:"space-between", fontSize:13, padding:"6px 0" }}>
+                <span style={{ color:C.slate }}>Next review due</span><span style={{ fontWeight:700, color:p.status==="lapsed"?C.red:C.teal }}>{p.nextReview}</span>
+              </div>
+            </div>
+
+            {/* Parent contact */}
+            <div style={{ fontSize:11, fontWeight:600, color:C.slateLight, textTransform:"uppercase", letterSpacing:0.8, marginBottom:10 }}>Parent / Guardian</div>
+            <div style={{ background:C.bg, borderRadius:12, border:`1px solid ${C.border}`, padding:"12px 14px", marginBottom:20, display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+              <div>
+                <div style={{ fontSize:13, fontWeight:700, color:C.navy }}>{p.parent}</div>
+                <div style={{ fontSize:12, color:C.slate, fontFamily:"ui-monospace,monospace" }}>{p.phone}</div>
+              </div>
+              <button onClick={()=>{ showToast(`WhatsApp opened — messaging ${p.parent}`); setMyopiaDetail(null); goNav("inbox"); }}
+                style={{ background:"#25D366", color:"#fff", border:"none", borderRadius:10, padding:"9px 14px", fontSize:12, fontWeight:700, cursor:"pointer", fontFamily:F, display:"flex", alignItems:"center", gap:6 }}>
+                WhatsApp parent →
+              </button>
+            </div>
+
+            {/* Actions */}
+            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10 }}>
+              <button onClick={()=>showToast(`Review booked for ${p.name}`)}
+                style={{ background:`linear-gradient(135deg,${C.teal},${C.tealLt})`, color:"#fff", border:"none", borderRadius:10, padding:"12px 14px", fontSize:13, fontWeight:700, cursor:"pointer", fontFamily:F, boxShadow:"0 4px 12px rgba(8,145,178,.2)" }}>
+                Book 6-month review
+              </button>
+              <button onClick={()=>showToast(`Progress report generated for ${p.parent}`)}
+                style={{ background:C.card, color:C.navy, border:`1px solid ${C.border}`, borderRadius:10, padding:"12px 14px", fontSize:13, fontWeight:700, cursor:"pointer", fontFamily:F }}>
+                Parent progress report
+              </button>
+            </div>
+          </DrillPanel>
+        );
+      })()}
 
       {/* ── Recall drill panels ── */}
       {drill==="recall-due"&&(()=>{
