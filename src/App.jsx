@@ -1691,9 +1691,9 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                             </span>
                           </td>
                           <td style={{ padding:"16px 26px" }}>
-                            <span style={{ fontWeight:700, fontSize:14, color:daysOverdue>180?C.red:C.amber }}>{p.lastVisit}</span>
+                            <span style={{ fontWeight:700, fontSize:14, color:daysOverdue>180?C.red:C.amber }}>{daysOverdue}d</span>
                           </td>
-                          <td style={{ padding:"16px 26px", color:C.slateLight, fontSize:13 }}>{p.lastVisit} ago</td>
+                          <td style={{ padding:"16px 26px", color:C.slateLight, fontSize:13 }}>{p.lastVisit}</td>
                           <td style={{ padding:"16px 26px", textAlign:"right" }}>
                             {!waSent[p.id]
                               ? <button onClick={()=>openSendWA(p)} style={{ background:`linear-gradient(135deg,${C.teal},${C.tealLt})`, color:"#fff", border:"none", borderRadius:8, padding:"8px 18px", fontSize:13, fontWeight:600, cursor:"pointer", fontFamily:F, boxShadow:"0 2px 8px rgba(8,145,178,.25)", transition:"all .2s", whiteSpace:"nowrap" }}>Send WhatsApp</button>
