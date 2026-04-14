@@ -1288,6 +1288,10 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
           {/* ═══ AT-RISK PATIENTS ═══ */}
           {nav==="patients"&&(
             <div>
+              <div style={{ marginBottom:28 }}>
+                <h1 style={{ fontSize:24, fontWeight:800, color:C.text, letterSpacing:-0.5, margin:0, marginBottom:6 }}>Patients</h1>
+                <p style={{ fontSize:14, color:C.slate, margin:0 }}>Manage patient records and monitor health risk</p>
+              </div>
               <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:16, marginBottom:26 }}>
                 <SC label="High risk"             value={highRisk.length}    accent={`linear-gradient(90deg,${C.red},#F97316)`}    onDrill={()=>setDrill("high-risk")} trend="1 new" trendUp={false} />
                 <SC label="Medium risk"           value={medRisk.length}     accent={`linear-gradient(90deg,${C.amber},#EAB308)`}  onDrill={()=>setDrill("med-risk")} />
@@ -1318,19 +1322,19 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                   ))}
                 </div>
               </div>
-              <div style={{ background:C.white, borderRadius:16, border:`1px solid ${C.border}`, overflow:"hidden", boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
-                <div style={{ display:"grid", gridTemplateColumns:"1fr 110px 130px 100px 120px 150px", gap:12, padding:"12px 20px", borderBottom:`1px solid ${C.border}`, background:"#FAFBFC" }}>
+              <div style={{ background:C.card, borderRadius:16, border:`1px solid ${C.border}`, overflow:"hidden", boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
+                <div style={{ display:"grid", gridTemplateColumns:"1fr 110px 130px 100px 120px 150px", gap:12, padding:"12px 20px", borderBottom:`1px solid ${C.border}`, background:C.bg }}>
                   {["Patient","Last Visit","Product","Risk Score","Sentiment","Action"].map(h=>(
-                    <div key={h} style={{ fontSize:10, fontWeight:700, color:C.slateLight, textTransform:"uppercase", letterSpacing:1 }}>{h}</div>
+                    <div key={h} style={{ fontSize:11, fontWeight:600, color:C.slateLight, textTransform:"uppercase", letterSpacing:0.8 }}>{h}</div>
                   ))}
                 </div>
                 {filteredPts.map((p,i)=>{
                   const inboxEntry = liveInbox.find(m=>m.patient===p.name);
                   const sent = inboxEntry?.sentiment;
                   return (
-                  <div key={p.id} style={{ display:"grid", gridTemplateColumns:"1fr 110px 130px 100px 120px 150px", gap:12, padding:"15px 20px", borderBottom:i<filteredPts.length-1?`1px solid ${C.border}`:"none", alignItems:"center", background:i%2===0?C.white:"#FAFBFD", transition:"background .12s" }}
-                    onMouseEnter={e=>e.currentTarget.style.background="rgba(8,145,178,.04)"}
-                    onMouseLeave={e=>e.currentTarget.style.background=i%2===0?C.white:"#FAFBFD"}>
+                  <div key={p.id} style={{ display:"grid", gridTemplateColumns:"1fr 110px 130px 100px 120px 150px", gap:12, padding:"15px 20px", borderBottom:`1px solid #F1F5F9`, alignItems:"center", background:C.white, transition:"background .12s" }}
+                    onMouseEnter={e=>e.currentTarget.style.background=C.bg}
+                    onMouseLeave={e=>e.currentTarget.style.background=C.white}>
                     <div style={{ display:"flex", alignItems:"center", gap:10 }}>
                       <Avatar initials={p.initials} bg={p.risk==="high"?C.red:p.risk==="medium"?C.amber:C.green} size={32} />
                       <div>
@@ -1367,8 +1371,12 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
           {/* ═══ RECALLS ═══ */}
           {nav==="recalls"&&(
             <div>
+              <div style={{ marginBottom:28 }}>
+                <h1 style={{ fontSize:24, fontWeight:800, color:C.text, letterSpacing:-0.5, margin:0, marginBottom:6 }}>Recalls</h1>
+                <p style={{ fontSize:14, color:C.slate, margin:0 }}>Schedule and track patient recall campaigns</p>
+              </div>
               {/* Auto-send toggle + status */}
-              <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:24, background:C.white, borderRadius:14, padding:"16px 22px", border:`1px solid ${C.border}`, boxShadow:"0 2px 8px rgba(0,0,0,.05)" }}>
+              <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:24, background:C.card, borderRadius:14, padding:"16px 22px", border:`1px solid ${C.border}`, boxShadow:"0 2px 8px rgba(0,0,0,.05)" }}>
                 <div style={{ display:"flex", alignItems:"center", gap:12 }}>
                   {autoSend
                     ? <span style={{ background:"rgba(16,185,129,.12)", color:C.green, fontWeight:700, fontSize:12, padding:"5px 14px", borderRadius:20, display:"flex", alignItems:"center", gap:6 }}><span style={{ width:7, height:7, borderRadius:"50%", background:C.green, display:"inline-block", boxShadow:"0 0 6px rgba(16,185,129,.6)" }} />Automation Active</span>
@@ -1387,7 +1395,7 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
               {/* Tabs */}
               <div style={{ display:"flex", gap:8, marginBottom:22 }}>
                 {[{id:"eye-test",label:"👁 Eye Test Recalls"},{id:"lens-reorder",label:"◉ Lens Reorders"},{id:"compliance",label:"📋 Compliance"}].map(t=>(
-                  <button key={t.id} onClick={()=>setRecallTab(t.id)} style={{ padding:"9px 20px", borderRadius:10, cursor:"pointer", fontFamily:F, fontSize:13, fontWeight:recallTab===t.id?700:500, background:recallTab===t.id?C.teal:C.white, color:recallTab===t.id?"#fff":C.slate, border:`1px solid ${recallTab===t.id?C.teal:C.border}`, transition:"all .15s" }}>{t.label}</button>
+                  <button key={t.id} onClick={()=>setRecallTab(t.id)} style={{ padding:"9px 20px", borderRadius:10, cursor:"pointer", fontFamily:F, fontSize:13, fontWeight:recallTab===t.id?700:500, background:recallTab===t.id?"rgba(8,145,178,0.08)":C.card, color:recallTab===t.id?C.teal:C.slate, border:`1px solid ${recallTab===t.id?"rgba(8,145,178,0.2)":C.border}`, transition:"all .15s" }}>{t.label}</button>
                 ))}
               </div>
 
@@ -1400,10 +1408,10 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                     <SC label="Sending this week" value={Math.min(recallPatients.length,3)} accent={`linear-gradient(90deg,${C.amber},#EAB308)`} sub="Scheduled" onDrill={()=>setDrill("recall-this-week")} />
                     <SC label="Est. revenue if all return" value={`£${recallRevenue.toLocaleString()}`} accent={`linear-gradient(90deg,${C.green},#34D399)`} sub={`${recallPatients.length} patients`} onDrill={()=>setDrill("recall-revenue")} />
                   </div>
-                  <div style={{ background:C.white, borderRadius:16, border:`1px solid ${C.border}`, overflow:"hidden", boxShadow:"0 2px 12px rgba(0,0,0,.06)" }}>
-                    <div style={{ display:"grid", gridTemplateColumns:"1fr 120px 130px 130px 100px 160px", gap:12, padding:"12px 20px", borderBottom:`1px solid ${C.border}`, background:"#FAFBFC" }}>
+                  <div style={{ background:C.card, borderRadius:16, border:`1px solid ${C.border}`, overflow:"hidden", boxShadow:"0 2px 12px rgba(0,0,0,.06)" }}>
+                    <div style={{ display:"grid", gridTemplateColumns:"1fr 120px 130px 130px 100px 160px", gap:12, padding:"12px 20px", borderBottom:`1px solid ${C.border}`, background:C.bg }}>
                       {["Patient","Last Visit","Due Date","Status","Risk Score","Action"].map(h=>(
-                        <div key={h} style={{ fontSize:10, fontWeight:700, color:C.slateLight, textTransform:"uppercase", letterSpacing:1 }}>{h}</div>
+                        <div key={h} style={{ fontSize:11, fontWeight:600, color:C.slateLight, textTransform:"uppercase", letterSpacing:0.8 }}>{h}</div>
                       ))}
                     </div>
                     {recallPatients.map((p,i)=>{
@@ -1417,9 +1425,9 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                       const statusColor = overdue?C.red:dueSoon?C.amber:C.slate;
                       const statusBg = overdue?"rgba(239,68,68,.08)":dueSoon?"rgba(245,158,11,.08)":"transparent";
                       return (
-                        <div key={p.id} style={{ display:"grid", gridTemplateColumns:"1fr 120px 130px 130px 100px 160px", gap:12, padding:"15px 20px", borderBottom:i<recallPatients.length-1?`1px solid ${C.border}`:"none", alignItems:"center", background:i%2===0?C.white:"#FAFBFD", transition:"background .12s" }}
-                          onMouseEnter={e=>e.currentTarget.style.background="rgba(8,145,178,.04)"}
-                          onMouseLeave={e=>e.currentTarget.style.background=i%2===0?C.white:"#FAFBFD"}>
+                        <div key={p.id} style={{ display:"grid", gridTemplateColumns:"1fr 120px 130px 130px 100px 160px", gap:12, padding:"15px 20px", borderBottom:`1px solid #F1F5F9`, alignItems:"center", background:C.white, transition:"background .12s" }}
+                          onMouseEnter={e=>e.currentTarget.style.background=C.bg}
+                          onMouseLeave={e=>e.currentTarget.style.background=C.white}>
                           <div style={{ display:"flex", alignItems:"center", gap:10 }}>
                             <Avatar initials={p.initials} bg={p.risk==="high"?C.red:p.risk==="medium"?C.amber:C.green} size={32} />
                             <div>
@@ -1457,19 +1465,19 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                     <SC label="Avg months lapsed" value={Math.round(reorderPatients.reduce((a,p)=>a+parseMonthsAgo(p.lastVisit),0)/(reorderPatients.length||1))} accent={`linear-gradient(90deg,${C.amber},#EAB308)`} sub="Since last visit" />
                     <SC label="Est. reorder revenue" value={`£${reorderPatients.reduce((a,p)=>a+Math.round(p.revenue*0.4),0).toLocaleString()}`} accent={`linear-gradient(90deg,${C.green},#34D399)`} sub="If all reorder" />
                   </div>
-                  <div style={{ background:C.white, borderRadius:16, border:`1px solid ${C.border}`, overflow:"hidden", boxShadow:"0 2px 12px rgba(0,0,0,.06)" }}>
-                    <div style={{ display:"grid", gridTemplateColumns:"1fr 130px 160px 100px 160px", gap:12, padding:"12px 20px", borderBottom:`1px solid ${C.border}`, background:"#FAFBFC" }}>
+                  <div style={{ background:C.card, borderRadius:16, border:`1px solid ${C.border}`, overflow:"hidden", boxShadow:"0 2px 12px rgba(0,0,0,.06)" }}>
+                    <div style={{ display:"grid", gridTemplateColumns:"1fr 130px 160px 100px 160px", gap:12, padding:"12px 20px", borderBottom:`1px solid ${C.border}`, background:C.bg }}>
                       {["Patient","Last Visit","Lens Product","Risk","Action"].map(h=>(
-                        <div key={h} style={{ fontSize:10, fontWeight:700, color:C.slateLight, textTransform:"uppercase", letterSpacing:1 }}>{h}</div>
+                        <div key={h} style={{ fontSize:11, fontWeight:600, color:C.slateLight, textTransform:"uppercase", letterSpacing:0.8 }}>{h}</div>
                       ))}
                     </div>
                     {reorderPatients.map((p,i)=>{
                       const months = parseMonthsAgo(p.lastVisit);
                       const urgent = months>=6;
                       return (
-                        <div key={p.id} style={{ display:"grid", gridTemplateColumns:"1fr 130px 160px 100px 160px", gap:12, padding:"15px 20px", borderBottom:i<reorderPatients.length-1?`1px solid ${C.border}`:"none", alignItems:"center", background:i%2===0?C.white:"#FAFBFD", transition:"background .12s" }}
-                          onMouseEnter={e=>e.currentTarget.style.background="rgba(8,145,178,.04)"}
-                          onMouseLeave={e=>e.currentTarget.style.background=i%2===0?C.white:"#FAFBFD"}>
+                        <div key={p.id} style={{ display:"grid", gridTemplateColumns:"1fr 130px 160px 100px 160px", gap:12, padding:"15px 20px", borderBottom:`1px solid #F1F5F9`, alignItems:"center", background:C.white, transition:"background .12s" }}
+                          onMouseEnter={e=>e.currentTarget.style.background=C.bg}
+                          onMouseLeave={e=>e.currentTarget.style.background=C.white}>
                           <div style={{ display:"flex", alignItems:"center", gap:10 }}>
                             <Avatar initials={p.initials} bg={urgent?C.red:C.teal} size={32} />
                             <div>
@@ -1632,13 +1640,18 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
             // Pinned message for current conversation
             const pinned = selectedThread ? pinnedMessages[selectedThread.id] : null;
             return (
-              <div style={{ display:"grid", gridTemplateColumns:"300px 1fr", gap:18, height:"calc(100vh - 160px)" }}>
+              <div>
+                <div style={{ marginBottom:28 }}>
+                  <h1 style={{ fontSize:24, fontWeight:800, color:C.text, letterSpacing:-0.5, margin:0, marginBottom:6 }}>Inbox</h1>
+                  <p style={{ fontSize:14, color:C.slate, margin:0 }}>Manage patient conversations and messages</p>
+                </div>
+                <div style={{ display:"grid", gridTemplateColumns:"300px 1fr", gap:18, height:"calc(100vh - 240px)" }}>
 
                 {/* ── CONVERSATION LIST ── */}
-                <div style={{ background:C.white, borderRadius:16, border:`1px solid ${C.border}`, overflow:"hidden", display:"flex", flexDirection:"column", boxShadow:"0 1px 4px rgba(0,0,0,.05)" }}>
+                <div style={{ background:C.card, borderRadius:16, border:`1px solid ${C.border}`, overflow:"hidden", display:"flex", flexDirection:"column", boxShadow:"0 1px 4px rgba(0,0,0,.05)" }}>
                   {/* Header */}
-                  <div style={{ padding:"14px 14px 10px", borderBottom:`1px solid ${C.border}`, flexShrink:0, background:C.white }}>
-                    <div style={{ fontWeight:700, fontSize:15, marginBottom:10, color:C.navy, letterSpacing:-0.3 }}>Messages</div>
+                  <div style={{ padding:"14px 14px 10px", borderBottom:`1px solid ${C.border}`, flexShrink:0, background:C.bg }}>
+                    <div style={{ fontWeight:700, fontSize:15, marginBottom:10, color:C.text, letterSpacing:-0.3 }}>Messages</div>
                     {/* Search */}
                     <div style={{ position:"relative", marginBottom:10 }}>
                       <span style={{ position:"absolute", left:10, top:"50%", transform:"translateY(-50%)", fontSize:12, pointerEvents:"none", color:C.slateLight }}>🔍</span>
@@ -1696,10 +1709,10 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
 
                 {/* ── THREAD PANEL ── */}
                 {selectedThread?(
-                  <div style={{ background:C.white, borderRadius:16, border:`1px solid ${C.border}`, display:"flex", flexDirection:"column", overflow:"hidden", boxShadow:"0 1px 4px rgba(0,0,0,.05)" }}>
+                  <div style={{ background:C.card, borderRadius:16, border:`1px solid ${C.border}`, display:"flex", flexDirection:"column", overflow:"hidden", boxShadow:"0 1px 4px rgba(0,0,0,.05)" }}>
 
                     {/* Thread header */}
-                    <div style={{ padding:"12px 18px", borderBottom:`1px solid ${C.border}`, display:"flex", alignItems:"center", gap:12, flexShrink:0, background:C.white }}>
+                    <div style={{ padding:"12px 18px", borderBottom:`1px solid ${C.border}`, display:"flex", alignItems:"center", gap:12, flexShrink:0, background:C.bg }}>
                       <Avatar initials={selectedThread.initials} bg={getColor(liveInbox.indexOf(selectedThread))} size={40} />
                       <div style={{ flex:1 }}>
                         <div onClick={()=>openTimeline(selectedThread)} style={{ fontWeight:700, fontSize:15, letterSpacing:-0.3, cursor:"pointer", color:C.navy }} onMouseEnter={e=>e.target.style.color=C.teal} onMouseLeave={e=>e.target.style.color=C.navy}>{selectedThread.patient}</div>
@@ -1836,17 +1849,22 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                   </div>
                 )}
               </div>
+              </div>
             );
           })()}
 
           {/* ═══ REVENUE ═══ */}
           {nav==="revenue"&&(
             <div>
+              <div style={{ marginBottom:28 }}>
+                <h1 style={{ fontSize:24, fontWeight:800, color:C.text, letterSpacing:-0.5, margin:0, marginBottom:6 }}>Revenue</h1>
+                <p style={{ fontSize:14, color:C.slate, margin:0 }}>Track and optimize revenue opportunities</p>
+              </div>
               {/* Tab bar */}
               <div style={{ display:"flex", gap:4, marginBottom:24, background:C.bg, borderRadius:12, padding:4, width:"fit-content", border:`1px solid ${C.border}` }}>
                 {[["overview","Overview"],["lens","Lens Plans"]].map(([id,label])=>(
                   <button key={id} onClick={()=>setRevenueTab(id)} style={{ padding:"8px 20px", borderRadius:9, border:"none", fontFamily:F, fontWeight:600, fontSize:13, cursor:"pointer", transition:"all .15s",
-                    background:revenueTab===id?C.white:"transparent", color:revenueTab===id?C.navy:C.slate,
+                    background:revenueTab===id?C.card:"transparent", color:revenueTab===id?C.navy:C.slate,
                     boxShadow:revenueTab===id?"0 1px 4px rgba(0,0,0,.08)":"none" }}>{label}</button>
                 ))}
               </div>
@@ -1876,8 +1894,8 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                     </div>
 
                     {/* Table */}
-                    <div style={{ background:C.white, borderRadius:16, padding:22, border:`1px solid ${C.border}`, boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
-                      <div style={{ fontWeight:700, fontSize:15, marginBottom:16, letterSpacing:-0.3 }}>Contact Lens Patients — Plan Eligibility</div>
+                    <div style={{ background:C.card, borderRadius:16, padding:22, border:`1px solid ${C.border}`, boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
+                      <div style={{ fontWeight:700, fontSize:15, marginBottom:16, letterSpacing:-0.3, color:C.text }}>Contact Lens Patients — Plan Eligibility</div>
                       {lensPatients.length===0
                         ? <div style={{ color:C.slate, fontSize:13 }}>No contact lens patients found in current data.</div>
                         : lensPatients.map((p,i)=>{
@@ -1933,8 +1951,8 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                 return (
                   <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:18 }}>
                     {/* Left — revenue table */}
-                    <div style={{ background:C.white, borderRadius:16, padding:22, border:`1px solid ${C.border}`, boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
-                      <div style={{ fontWeight:700, fontSize:15, marginBottom:16, letterSpacing:-0.3 }}>Revenue by patient</div>
+                    <div style={{ background:C.card, borderRadius:16, padding:22, border:`1px solid ${C.border}`, boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
+                      <div style={{ fontWeight:700, fontSize:15, marginBottom:16, letterSpacing:-0.3, color:C.text }}>Revenue by patient</div>
                       {PATIENTS.map((p,i)=>(
                         <div key={p.id} style={{ display:"flex", alignItems:"center", gap:10, padding:"10px 0", borderBottom:i<PATIENTS.length-1?`1px solid ${C.border}`:"none" }}>
                           <Avatar initials={p.initials} bg={p.risk==="high"?C.red:p.risk==="medium"?C.amber:C.green} size={30} />
@@ -1954,8 +1972,8 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                     <div style={{ display:"flex", flexDirection:"column", gap:18 }}>
 
                       {/* 1 — Revenue bar chart */}
-                      <div style={{ background:C.white, borderRadius:16, padding:22, border:`1px solid ${C.border}`, boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
-                        <div style={{ fontWeight:700, fontSize:15, marginBottom:16, letterSpacing:-0.3 }}>Revenue by Patient</div>
+                      <div style={{ background:C.card, borderRadius:16, padding:22, border:`1px solid ${C.border}`, boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
+                        <div style={{ fontWeight:700, fontSize:15, marginBottom:16, letterSpacing:-0.3, color:C.text }}>Revenue by Patient</div>
                         {sortedPts.map(p=>{
                           const barColor = p.risk==="high"?C.red:p.risk==="medium"?C.amber:C.green;
                           const barPct   = Math.round((p.revenue/maxRev)*100);
@@ -1974,8 +1992,8 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                       </div>
 
                       {/* 2 — Revenue at risk summary */}
-                      <div style={{ background:C.white, borderRadius:16, padding:22, border:`1px solid ${C.border}`, boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
-                        <div style={{ fontWeight:700, fontSize:15, marginBottom:16, letterSpacing:-0.3 }}>Revenue at Risk Summary</div>
+                      <div style={{ background:C.card, borderRadius:16, padding:22, border:`1px solid ${C.border}`, boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
+                        <div style={{ fontWeight:700, fontSize:15, marginBottom:16, letterSpacing:-0.3, color:C.text }}>Revenue at Risk Summary</div>
                         {[
                           { label:"High risk",   value:highRev, color:C.red,   bg:"rgba(239,68,68,.08)"   },
                           { label:"Medium risk", value:medRev,  color:C.amber, bg:"rgba(245,158,11,.08)"  },
@@ -2035,8 +2053,12 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
           {/* ═══ REVIEWS ═══ */}
           {nav==="reviews"&&(
             <div>
+              <div style={{ marginBottom:28 }}>
+                <h1 style={{ fontSize:24, fontWeight:800, color:C.text, letterSpacing:-0.5, margin:0, marginBottom:6 }}>Reviews</h1>
+                <p style={{ fontSize:14, color:C.slate, margin:0 }}>Monitor and grow your online reputation</p>
+              </div>
               {/* Automation banner */}
-              <div style={{ background:C.white, borderRadius:14, padding:"16px 22px", border:`1px solid ${C.border}`, boxShadow:"0 2px 8px rgba(0,0,0,.05)", marginBottom:22, display:"flex", alignItems:"center", gap:20 }}>
+              <div style={{ background:C.card, borderRadius:14, padding:"16px 22px", border:`1px solid ${C.border}`, boxShadow:"0 2px 8px rgba(0,0,0,.05)", marginBottom:22, display:"flex", alignItems:"center", gap:20 }}>
                 <div style={{ flex:1 }}>
                   <div style={{ fontWeight:700, fontSize:14, color:C.navy, marginBottom:3, display:"flex", alignItems:"center", gap:10 }}>
                     ⭐ Review Request Automation
@@ -2068,7 +2090,7 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
               {/* Tabs */}
               <div style={{ display:"flex", gap:8, marginBottom:18 }}>
                 {[{id:"reviews",label:"⭐ Recent Reviews"},{id:"requests",label:"📨 Review Requests"}].map(t=>(
-                  <button key={t.id} onClick={()=>setReviewTab(t.id)} style={{ padding:"9px 20px", borderRadius:10, cursor:"pointer", fontFamily:F, fontSize:13, fontWeight:reviewTab===t.id?700:500, background:reviewTab===t.id?C.teal:C.white, color:reviewTab===t.id?"#fff":C.slate, border:`1px solid ${reviewTab===t.id?C.teal:C.border}`, transition:"all .15s" }}>{t.label}</button>
+                  <button key={t.id} onClick={()=>setReviewTab(t.id)} style={{ padding:"9px 20px", borderRadius:10, cursor:"pointer", fontFamily:F, fontSize:13, fontWeight:reviewTab===t.id?700:500, background:reviewTab===t.id?"rgba(8,145,178,0.08)":C.card, color:reviewTab===t.id?C.teal:C.slate, border:`1px solid ${reviewTab===t.id?"rgba(8,145,178,0.2)":C.border}`, transition:"all .15s" }}>{t.label}</button>
                 ))}
               </div>
 
@@ -2076,8 +2098,8 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                 <div style={{ display:"grid", gridTemplateColumns:"1fr 320px", gap:18 }}>
                   <div>
                     {/* Reviews list */}
-                    <div style={{ background:C.white, borderRadius:16, padding:22, border:`1px solid ${C.border}`, marginBottom:18, boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
-                      <div style={{ fontWeight:700, fontSize:15, marginBottom:16, letterSpacing:-0.3 }}>Recent reviews via Iryss</div>
+                    <div style={{ background:C.card, borderRadius:16, padding:22, border:`1px solid ${C.border}`, marginBottom:18, boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
+                      <div style={{ fontWeight:700, fontSize:15, marginBottom:16, letterSpacing:-0.3, color:C.text }}>Recent reviews via Iryss</div>
                       {REVIEWS.map((r,i)=>(
                         <div key={i} style={{ padding:"14px 0", borderBottom:i<REVIEWS.length-1?`1px solid ${C.border}`:"none" }}>
                           <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:6 }}>
@@ -2096,8 +2118,8 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                     </div>
 
                     {/* How it works */}
-                    <div style={{ background:C.white, borderRadius:16, padding:22, border:`1px solid ${C.border}`, boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
-                      <div style={{ fontWeight:700, fontSize:15, marginBottom:14, letterSpacing:-0.3 }}>How it works</div>
+                    <div style={{ background:C.card, borderRadius:16, padding:22, border:`1px solid ${C.border}`, boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
+                      <div style={{ fontWeight:700, fontSize:15, marginBottom:14, letterSpacing:-0.3, color:C.text }}>How it works</div>
                       <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:12 }}>
                         {[
                           { step:"1", title:"Appointment logged",     desc:"Patient attends. Click 'Log appointment' to start the automation." },
@@ -2117,8 +2139,8 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                   {/* Right column: charts */}
                   <div style={{ display:"flex", flexDirection:"column", gap:18 }}>
                     {/* Star rating breakdown */}
-                    <div style={{ background:C.white, borderRadius:16, padding:22, border:`1px solid ${C.border}`, boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
-                      <div style={{ fontWeight:700, fontSize:15, marginBottom:16, letterSpacing:-0.3 }}>★ Rating Breakdown</div>
+                    <div style={{ background:C.card, borderRadius:16, padding:22, border:`1px solid ${C.border}`, boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
+                      <div style={{ fontWeight:700, fontSize:15, marginBottom:16, letterSpacing:-0.3, color:C.text }}>★ Rating Breakdown</div>
                       {STAR_BREAKDOWN.map(row=>(
                         <div key={row.stars} style={{ display:"flex", alignItems:"center", gap:10, marginBottom:8 }}>
                           <div style={{ fontSize:12, fontWeight:700, color:"#FBBC05", width:18, textAlign:"right", flexShrink:0 }}>{row.stars}</div>
@@ -2132,8 +2154,8 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                     </div>
 
                     {/* Top review themes */}
-                    <div style={{ background:C.white, borderRadius:16, padding:22, border:`1px solid ${C.border}`, boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
-                      <div style={{ fontWeight:700, fontSize:15, marginBottom:4, letterSpacing:-0.3 }}>💬 Top Review Themes</div>
+                    <div style={{ background:C.card, borderRadius:16, padding:22, border:`1px solid ${C.border}`, boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
+                      <div style={{ fontWeight:700, fontSize:15, marginBottom:4, letterSpacing:-0.3, color:C.text }}>💬 Top Review Themes</div>
                       <div style={{ fontSize:12, color:C.slate, marginBottom:16 }}>What patients mention most</div>
                       {REVIEW_THEMES.map((t,i)=>(
                         <div key={i} style={{ marginBottom:14 }}>
@@ -2362,10 +2384,14 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
           {/* ═══ SETTINGS ═══ */}
           {nav==="settings"&&(
             <div style={{ maxWidth:780 }}>
+              <div style={{ marginBottom:28 }}>
+                <h1 style={{ fontSize:24, fontWeight:800, color:C.text, letterSpacing:-0.5, margin:0, marginBottom:6 }}>Settings</h1>
+                <p style={{ fontSize:14, color:C.slate, margin:0 }}>Manage your practice settings and preferences</p>
+              </div>
 
               {/* ── Practice Details ── */}
-              <div style={{ background:C.white, borderRadius:16, border:`1px solid ${C.border}`, padding:"24px 28px", marginBottom:22, boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
-                <div style={{ fontWeight:700, fontSize:16, color:C.navy, marginBottom:4, letterSpacing:-0.4 }}>🏥 Practice Details</div>
+              <div style={{ background:C.card, borderRadius:16, border:`1px solid ${C.border}`, padding:"24px 28px", marginBottom:22, boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
+                <div style={{ fontWeight:700, fontSize:16, color:C.text, marginBottom:4, letterSpacing:-0.4 }}>🏥 Practice Details</div>
                 <div style={{ fontSize:13, color:C.slate, marginBottom:20 }}>Your practice information used across all Iryss automations.</div>
                 <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:16, marginBottom:20 }}>
                   {[
@@ -2390,8 +2416,8 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
               </div>
 
               {/* ── Notifications ── */}
-              <div style={{ background:C.white, borderRadius:16, border:`1px solid ${C.border}`, padding:"24px 28px", marginBottom:22, boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
-                <div style={{ fontWeight:700, fontSize:16, color:C.navy, marginBottom:4, letterSpacing:-0.4 }}>🔔 Notifications</div>
+              <div style={{ background:C.card, borderRadius:16, border:`1px solid ${C.border}`, padding:"24px 28px", marginBottom:22, boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
+                <div style={{ fontWeight:700, fontSize:16, color:C.text, marginBottom:4, letterSpacing:-0.4 }}>🔔 Notifications</div>
                 <div style={{ fontSize:13, color:C.slate, marginBottom:20 }}>Configure how and when you hear from Iryss.</div>
 
                 {/* Daily Digest card */}
@@ -2506,6 +2532,10 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
             const lostRevEst = competitorMentions.length * 320;
             return (
               <div>
+                <div style={{ marginBottom:28 }}>
+                  <h1 style={{ fontSize:24, fontWeight:800, color:C.text, letterSpacing:-0.5, margin:0, marginBottom:6 }}>Intelligence</h1>
+                  <p style={{ fontSize:14, color:C.slate, margin:0 }}>Monitor competitor activity and market insights</p>
+                </div>
                 {/* KPI row */}
                 <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:16, marginBottom:24 }}>
                   <SC label="Competitor mentions"  value={competitorMentions.length}                    accent={`linear-gradient(90deg,${C.red},#F97316)`}    sub="Live from inbox" trend={competitorMentions.length>0?"Action needed":null} trendUp={false} />
@@ -2516,8 +2546,8 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
 
                 <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:18, marginBottom:22 }}>
                   {/* Mentions table */}
-                  <div style={{ background:C.white, borderRadius:16, padding:22, border:`1px solid ${C.border}`, boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
-                    <div style={{ fontWeight:700, fontSize:15, marginBottom:16, letterSpacing:-0.3 }}>Competitor Mentions</div>
+                  <div style={{ background:C.card, borderRadius:16, padding:22, border:`1px solid ${C.border}`, boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
+                    <div style={{ fontWeight:700, fontSize:15, marginBottom:16, letterSpacing:-0.3, color:C.text }}>Competitor Mentions</div>
                     {competitorMentions.length===0
                       ? <div style={{ padding:"32px 0", textAlign:"center", color:C.slate, fontSize:14 }}>No competitor mentions detected yet. Iryss is actively monitoring your inbox.</div>
                       : competitorMentions.map((m,i)=>(
@@ -2553,8 +2583,8 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                   {/* Right column */}
                   <div style={{ display:"flex", flexDirection:"column", gap:18 }}>
                     {/* Competitor breakdown bar chart */}
-                    <div style={{ background:C.white, borderRadius:16, padding:22, border:`1px solid ${C.border}`, boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
-                      <div style={{ fontWeight:700, fontSize:15, marginBottom:16, letterSpacing:-0.3 }}>Competitor Breakdown</div>
+                    <div style={{ background:C.card, borderRadius:16, padding:22, border:`1px solid ${C.border}`, boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
+                      <div style={{ fontWeight:700, fontSize:15, marginBottom:16, letterSpacing:-0.3, color:C.text }}>Competitor Breakdown</div>
                       {competitorCounts.length===0
                         ? <div style={{ color:C.slate, fontSize:13 }}>No mentions yet.</div>
                         : competitorCounts.map(c=>(
