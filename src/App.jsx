@@ -913,6 +913,7 @@ function Dashboard() {
   const [intelSent, setIntelSent]               = useState({});
   const [tasksDone, setTasksDone]               = useState({});
   const [completedCollapsed, setCompletedCollapsed] = useState(false);
+  const [showAllReengage, setShowAllReengage] = useState(false);
   const [taskJustCompleted, setTaskJustCompleted] = useState({});
 
   useEffect(() => {
@@ -1644,12 +1645,55 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                     <div style={{ fontSize:14, color:C.slate }}>Iryss has your practice covered.</div>
                   </div>
                 ) : (<>
+                  {/* Priority order: Urgent first, then quick wins, then bulk */}
                   <Section emoji="🔴" label="URGENT"       color="#E11D48" tasks={urgentTasks} />
-                  <Section emoji="🟠" label="RECALLS"      color="#D97706" tasks={recallTasksList} />
+                  <Section emoji="👁" label="MYOPIA"       color="#8B5CF6" tasks={myopiaTasks} />
                   <Section emoji="📅" label="APPOINTMENTS" color="#0891B2" tasks={apptTasks} />
-                  <Section emoji="⚠️" label="HIGH RISK"    color="#D97706" tasks={highRiskTasksList} />
-                  <Section emoji="⭐" label="REVIEWS"      color="#D97706" tasks={reviewTasksList} />
                   <Section emoji="🔵" label="ORDERS"       color="#3B82F6" tasks={orderTasksList} />
+                  <Section emoji="⭐" label="REVIEWS"      color="#D97706" tasks={reviewTasksList} />
+                  <Section emoji="🟠" label="RECALLS"      color="#D97706" tasks={recallTasksList} />
+
+                  {/* Grouped re-engage card instead of 20+ individual cards */}
+                  {(()=>{
+                    const reengageTasks = highRiskTasksList.filter(t=>!tasksDone[t.id]);
+                    if (reengageTasks.length===0) return null;
+                    return (
+                      <div style={{ marginBottom:28 }}>
+                        <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:12 }}>
+                          <span style={{ fontSize:14 }}>⚠️</span>
+                          <span style={{ fontSize:11, fontWeight:700, color:"#D97706", textTransform:"uppercase", letterSpacing:1 }}>RE-ENGAGE</span>
+                          <span style={{ fontSize:11, color:"#9CA3AF" }}>{reengageTasks.length} patient{reengageTasks.length!==1?"s":""}</span>
+                        </div>
+                        <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:14, overflow:"hidden", boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
+                          <div style={{ padding:"16px 22px", display:"flex", alignItems:"center", justifyContent:"space-between", borderBottom:`1px solid ${C.border}` }}>
+                            <div>
+                              <div style={{ fontSize:14, fontWeight:700, color:C.text }}>{reengageTasks.length} high-risk patients need re-engagement</div>
+                              <div style={{ fontSize:12, color:C.slate, marginTop:2 }}>Send WhatsApp messages to bring them back</div>
+                            </div>
+                            <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+                              <span style={{ background:"#FEF2F2", color:"#EF4444", fontSize:12, fontWeight:600, padding:"4px 12px", borderRadius:20 }}>£{highRisk.reduce((s,p)=>s+p.revenue,0).toLocaleString()} at risk</span>
+                            </div>
+                          </div>
+                          {reengageTasks.slice(0, showAllReengage ? reengageTasks.length : 3).map(task=>(
+                            <div key={task.id} style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 22px", borderBottom:`1px solid #F1F5F9` }}>
+                              <Avatar initials={task.label.replace("Re-engage ","").split(" ").map(w=>w[0]).join("").slice(0,2)} bg={C.red} size={32} />
+                              <div style={{ flex:1, minWidth:0 }}>
+                                <div style={{ fontSize:13, fontWeight:600, color:C.text }}>{task.label.replace("Re-engage ","")}</div>
+                                <div style={{ fontSize:11, color:C.slate }}>{task.sub}</div>
+                              </div>
+                              <button onClick={e=>{e.stopPropagation();task.onAction();}} style={{ background:"none", border:`1px solid ${C.teal}`, borderRadius:8, padding:"5px 12px", fontSize:12, fontWeight:600, color:C.teal, cursor:"pointer", fontFamily:F, whiteSpace:"nowrap" }}>Send WhatsApp →</button>
+                              <div onClick={()=>completeTask(task.id)} style={{ width:22, height:22, borderRadius:"50%", flexShrink:0, cursor:"pointer", border:`2px solid ${C.border}`, background:"transparent", display:"flex", alignItems:"center", justifyContent:"center", transition:"background .3s" }} />
+                            </div>
+                          ))}
+                          {reengageTasks.length>3&&(
+                            <button onClick={()=>setShowAllReengage(v=>!v)} style={{ width:"100%", padding:"12px", background:C.bg, border:"none", borderTop:`1px solid ${C.border}`, color:C.teal, fontSize:13, fontWeight:600, cursor:"pointer", fontFamily:F }}>
+                              {showAllReengage ? "Show less" : `Show all ${reengageTasks.length} patients →`}
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </>)}
 
                 {doneCount>0&&(
