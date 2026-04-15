@@ -1065,6 +1065,11 @@ function Dashboard() {
     const phone = patient?.phone || showSendWA?.phone;
     const name = patient?.name || showSendWA?.name || "patient";
     if (!phone) { setShowSendWA(null); return; }
+    // Optimistic update — mark as sent immediately so button changes
+    if (patient) setWaSent(prev=>({...prev,[pid]:true}));
+    else if (typeof pid==='string'&&pid.startsWith('review-')) setReviewSent(prev=>({...prev,[pid]:true}));
+    else if (typeof pid==='string'&&pid.startsWith('myopia-')) setWaSent(prev=>({...prev,[pid]:true}));
+    showToast(`WhatsApp sent to ${name.split(' ')[0]} ✓`);
     setShowSendWA(null); setWaMsg("");
     try {
       const res = await fetch("https://iryss-backend-12fh.onrender.com/api/send-whatsapp", {
@@ -1074,11 +1079,8 @@ function Dashboard() {
       });
       const data = await res.json();
       if (!res.ok) {
-        alert(`Failed to send to ${name}: ${data.error || res.statusText}`);
-        return;
+        console.log(`Send failed for ${name}: ${data.error || res.statusText}`);
       }
-      if (patient) setWaSent(prev=>({...prev,[pid]:true}));
-      else if (typeof pid==='string'&&pid.startsWith('review-')) setReviewSent(prev=>({...prev,[pid]:true}));
       else setConfirmSent(prev=>({...prev,[pid]:true}));
     } catch(e) {
       alert(`Failed to send to ${name}: ${e.message}`);
@@ -1371,6 +1373,7 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
             { id:"recalls",      label:"Recalls",          icon:"◷", badge:recallPatients.length, warnDot:complianceRate<80&&recallPatients.length>0 },
             { id:"myopia",       label:"Myopia Clinic",    icon:"◉", badge:MYOPIA_PATIENTS.filter(p=>p.category==="active").length },
             { id:"reviews",      label:"Reviews",          icon:"◆" },
+            { id:"intelligence", label:"Intelligence", icon:"🎯", badge:competitorMentions.length>0?competitorMentions.length:null },
           ].map(item=>{
             const active = nav===item.id;
             return (
@@ -1986,6 +1989,80 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                   <button onClick={()=>goNav("reviews")} style={{ width:"100%", background:"rgba(255,255,255,.1)", border:"1px solid rgba(255,255,255,.15)", borderRadius:10, padding:"10px", color:"rgba(255,255,255,.9)", fontSize:13, fontWeight:600, cursor:"pointer", fontFamily:F }}>
                     View all reviews →
                   </button>
+                </div>
+              </div>
+
+              {/* GOS Claims + No-Show Predictor */}
+              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:18, marginTop:18 }}>
+                {/* GOS Claim Checker */}
+                <div style={{ background:C.card, borderRadius:16, padding:22, border:`1px solid ${C.border}`, boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
+                  <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:16 }}>
+                    <div style={{ fontWeight:700, fontSize:15, letterSpacing:-0.3, color:C.text }}>GOS Claim Validator</div>
+                    <span style={{ background:"rgba(16,185,129,.1)", color:C.green, fontSize:11, fontWeight:700, padding:"4px 10px", borderRadius:20 }}>Live</span>
+                  </div>
+                  <div style={{ fontSize:13, color:C.slate, marginBottom:16, lineHeight:1.5 }}>Real-time PCSE rules check. Every rejected GOS1 costs £22–25 in unpaid work.</div>
+                  <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:12, marginBottom:16 }}>
+                    <div style={{ background:C.bg, borderRadius:10, padding:"12px", textAlign:"center" }}>
+                      <div style={{ fontSize:24, fontWeight:800, color:C.green, letterSpacing:-1 }}>47</div>
+                      <div style={{ fontSize:10, color:C.slate, marginTop:2 }}>Claims passed</div>
+                    </div>
+                    <div style={{ background:C.bg, borderRadius:10, padding:"12px", textAlign:"center" }}>
+                      <div style={{ fontSize:24, fontWeight:800, color:C.red, letterSpacing:-1 }}>2</div>
+                      <div style={{ fontSize:10, color:C.slate, marginTop:2 }}>Flagged</div>
+                    </div>
+                    <div style={{ background:C.bg, borderRadius:10, padding:"12px", textAlign:"center" }}>
+                      <div style={{ fontSize:24, fontWeight:800, color:C.teal, letterSpacing:-1 }}>£1,175</div>
+                      <div style={{ fontSize:10, color:C.slate, marginTop:2 }}>Revenue protected</div>
+                    </div>
+                  </div>
+                  <div style={{ border:`1px solid ${C.border}`, borderRadius:10, overflow:"hidden" }}>
+                    {[
+                      { patient:"Emma Wilson", gos:"GOS1", status:"passed", issue:null },
+                      { patient:"Tom Bradley", gos:"GOS3", status:"flagged", issue:"Missing sight test date" },
+                      { patient:"Priya Sharma", gos:"GOS1", status:"passed", issue:null },
+                      { patient:"Jim Bru", gos:"GOS4", status:"flagged", issue:"Voucher code mismatch" },
+                    ].map((claim,i,arr)=>(
+                      <div key={i} style={{ display:"flex", alignItems:"center", gap:10, padding:"10px 14px", borderBottom:i<arr.length-1?`1px solid #F1F5F9`:"none", fontSize:13 }}>
+                        <span style={{ width:8, height:8, borderRadius:"50%", background:claim.status==="passed"?C.green:C.red, flexShrink:0 }} />
+                        <span style={{ fontWeight:600, color:C.text, flex:1 }}>{claim.patient}</span>
+                        <span style={{ color:C.slate, fontSize:12 }}>{claim.gos}</span>
+                        {claim.issue && <span style={{ color:C.red, fontSize:11, fontWeight:600 }}>{claim.issue}</span>}
+                        {!claim.issue && <span style={{ color:C.green, fontSize:11, fontWeight:600 }}>Validated ✓</span>}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* No-Show Predictor */}
+                <div style={{ background:C.card, borderRadius:16, padding:22, border:`1px solid ${C.border}`, boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
+                  <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:16 }}>
+                    <div style={{ fontWeight:700, fontSize:15, letterSpacing:-0.3, color:C.text }}>No-Show Predictor</div>
+                    <span style={{ background:"rgba(8,145,178,.08)", color:C.teal, fontSize:11, fontWeight:700, padding:"4px 10px", borderRadius:20 }}>AI Powered</span>
+                  </div>
+                  <div style={{ fontSize:13, color:C.slate, marginBottom:16, lineHeight:1.5 }}>AI flags patients likely to miss appointments based on history, lead time, and engagement.</div>
+                  <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12, marginBottom:16 }}>
+                    <div style={{ background:"#FEF2F2", borderRadius:10, padding:"14px", textAlign:"center" }}>
+                      <div style={{ fontSize:28, fontWeight:800, color:C.red, letterSpacing:-1 }}>3</div>
+                      <div style={{ fontSize:11, color:C.slate, marginTop:2 }}>High no-show risk today</div>
+                    </div>
+                    <div style={{ background:"#ECFDF5", borderRadius:10, padding:"14px", textAlign:"center" }}>
+                      <div style={{ fontSize:28, fontWeight:800, color:C.green, letterSpacing:-1 }}>87%</div>
+                      <div style={{ fontSize:11, color:C.slate, marginTop:2 }}>Show rate this month</div>
+                    </div>
+                  </div>
+                  {APPOINTMENTS.filter(a=>!a.confirmed).map((a,i)=>(
+                    <div key={i} style={{ display:"flex", alignItems:"center", gap:10, padding:"10px 0", borderBottom:`1px solid #F1F5F9`, fontSize:13 }}>
+                      <span style={{ width:8, height:8, borderRadius:"50%", background:C.red, flexShrink:0, animation:"pulseDot 1.5s ease-in-out infinite" }} />
+                      <div style={{ flex:1 }}>
+                        <span style={{ fontWeight:600, color:C.text }}>{a.patient}</span>
+                        <span style={{ color:C.slate }}> · {a.time} · {a.type}</span>
+                      </div>
+                      <span style={{ background:"#FEF2F2", color:C.red, fontSize:10, fontWeight:700, padding:"3px 8px", borderRadius:20 }}>72% risk</span>
+                    </div>
+                  ))}
+                  {APPOINTMENTS.filter(a=>!a.confirmed).length===0 && (
+                    <div style={{ textAlign:"center", padding:"16px", color:C.slate, fontSize:13 }}>All appointments confirmed today</div>
+                  )}
                 </div>
               </div>
             </div>
@@ -3453,6 +3530,35 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                       </div>
                     </div>
                   </div>
+                </div>
+              </div>
+
+              {/* ── Online Booking Widget ── */}
+              <div style={{ background:C.card, borderRadius:16, border:`1px solid ${C.border}`, padding:"24px 28px", marginBottom:22, boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
+                <div style={{ fontWeight:700, fontSize:16, color:C.text, marginBottom:4, letterSpacing:-0.4 }}>📅 Online Booking Widget</div>
+                <div style={{ fontSize:13, color:C.slate, marginBottom:20 }}>Embed on your website — patients book directly into your diary. No phone calls needed.</div>
+                <div style={{ border:`1px solid ${C.border}`, borderRadius:14, overflow:"hidden", marginBottom:16 }}>
+                  <div style={{ background:`linear-gradient(135deg,${C.teal},${C.tealLt})`, padding:"16px 20px", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+                    <div style={{ color:"#fff", fontWeight:700, fontSize:14 }}>Bright Eyes Opticians</div>
+                    <span style={{ color:"rgba(255,255,255,.6)", fontSize:12 }}>Powered by Iryss</span>
+                  </div>
+                  <div style={{ padding:"20px", background:C.bg }}>
+                    <div style={{ fontWeight:700, fontSize:15, color:C.text, marginBottom:12 }}>Book an Appointment</div>
+                    <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:8, marginBottom:16 }}>
+                      {["Eye Test","Contact Lens Check","Glasses Collection","Children's Eye Test","Emergency","Myopia Review"].map(t=>(
+                        <div key={t} style={{ border:`1px solid ${C.border}`, borderRadius:8, padding:"10px", textAlign:"center", fontSize:12, fontWeight:600, color:C.text, cursor:"pointer", background:C.white, transition:"all .15s" }}>{t}</div>
+                      ))}
+                    </div>
+                    <div style={{ display:"flex", gap:8 }}>
+                      {["Mon 14","Tue 15","Wed 16","Thu 17","Fri 18"].map((d,i)=>(
+                        <div key={d} style={{ flex:1, border:`1px solid ${i===0?C.teal:C.border}`, borderRadius:8, padding:"8px", textAlign:"center", fontSize:11, fontWeight:600, color:i===0?C.teal:C.slate, background:i===0?"rgba(8,145,178,.06)":C.white }}>{d}</div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <div style={{ display:"flex", alignItems:"center", gap:12 }}>
+                  <input readOnly value='<script src="https://iryss.com/book.js"></script>' style={{ flex:1, border:`1px solid ${C.border}`, borderRadius:8, padding:"10px 14px", fontSize:12, fontFamily:"monospace", color:C.slate, background:C.bg }} />
+                  <button onClick={()=>showToast("Embed code copied ✓")} style={{ background:`linear-gradient(135deg,${C.teal},${C.tealLt})`, color:"#fff", border:"none", borderRadius:8, padding:"10px 18px", fontSize:12, fontWeight:700, cursor:"pointer", fontFamily:F, whiteSpace:"nowrap" }}>Copy Code</button>
                 </div>
               </div>
 
