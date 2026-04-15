@@ -3331,6 +3331,53 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                 </button>
               </div>
 
+              {/* ── CRM Integrations ── */}
+              <div style={{ background:C.card, borderRadius:16, border:`1px solid ${C.border}`, padding:"24px 28px", marginBottom:22, boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
+                <div style={{ fontWeight:700, fontSize:16, color:C.text, marginBottom:4, letterSpacing:-0.4 }}>🔗 CRM Integrations</div>
+                <div style={{ fontSize:13, color:C.slate, marginBottom:20 }}>Connect your practice management system to sync patient data automatically. One click — no IT needed.</div>
+
+                <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12 }}>
+                  {[
+                    { name:"Optisoft",        desc:"UK's most popular independent PMS",          connected:true  },
+                    { name:"Ocuco",            desc:"Enterprise optical management",              connected:false },
+                    { name:"Optix",            desc:"Cloud-based practice management",            connected:false },
+                    { name:"Blink",            desc:"Domiciliary & practice PMS",                connected:false },
+                    { name:"Opticabase",       desc:"Cloud PMS for UK opticians",                connected:false },
+                    { name:"EYEris",           desc:"Practice management & clinical records",    connected:false },
+                    { name:"RevolutionEHR",    desc:"Cloud EHR for optometry",                   connected:false },
+                    { name:"Crystal PM",       desc:"Practice management & POS",                 connected:false },
+                    { name:"MaximEyes",        desc:"EHR & practice management",                 connected:false },
+                    { name:"Eyefinity",        desc:"VSP's practice management platform",        connected:false },
+                    { name:"CSV Import",       desc:"Upload patient data from any system",       connected:true  },
+                    { name:"API",              desc:"Custom integration via REST API",            connected:false },
+                  ].map(crm=>(
+                    <div key={crm.name} style={{ border:`1px solid ${crm.connected?"rgba(16,185,129,.3)":C.border}`, borderRadius:12, padding:"16px 18px", display:"flex", alignItems:"center", gap:14, background:crm.connected?"rgba(16,185,129,.03)":C.white, transition:"all .2s" }}
+                      onMouseEnter={e=>{if(!crm.connected){e.currentTarget.style.borderColor=C.teal;e.currentTarget.style.boxShadow="0 2px 8px rgba(8,145,178,.08)";}}}
+                      onMouseLeave={e=>{if(!crm.connected){e.currentTarget.style.borderColor=C.border;e.currentTarget.style.boxShadow="none";}}}>
+                      <div style={{ width:40, height:40, borderRadius:10, background:crm.connected?"rgba(16,185,129,.1)":"#F1F5F9", display:"flex", alignItems:"center", justifyContent:"center", fontWeight:800, fontSize:14, color:crm.connected?C.green:C.slate, flexShrink:0 }}>
+                        {crm.name==="CSV Import"?"📄":crm.name==="API"?"⚡":crm.name.slice(0,2).toUpperCase()}
+                      </div>
+                      <div style={{ flex:1, minWidth:0 }}>
+                        <div style={{ fontSize:14, fontWeight:700, color:C.text }}>{crm.name}</div>
+                        <div style={{ fontSize:11, color:C.slate, marginTop:1 }}>{crm.desc}</div>
+                      </div>
+                      {crm.connected ? (
+                        <span style={{ background:"rgba(16,185,129,.1)", color:C.green, fontSize:11, fontWeight:700, padding:"5px 12px", borderRadius:20, display:"flex", alignItems:"center", gap:5, flexShrink:0 }}>
+                          <span style={{ width:6, height:6, borderRadius:"50%", background:C.green, display:"inline-block" }} />Connected
+                        </span>
+                      ) : (
+                        <button onClick={()=>showToast(`${crm.name} connected successfully ✓`)}
+                          style={{ background:"none", border:`1.5px solid rgba(8,145,178,.25)`, borderRadius:8, padding:"6px 14px", fontSize:12, fontWeight:600, color:C.teal, cursor:"pointer", fontFamily:F, whiteSpace:"nowrap", transition:"all .15s" }}
+                          onMouseEnter={e=>{e.currentTarget.style.background="rgba(8,145,178,.06)";}}
+                          onMouseLeave={e=>{e.currentTarget.style.background="none";}}>
+                          Connect
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
               {/* ── Notifications ── */}
               <div style={{ background:C.card, borderRadius:16, border:`1px solid ${C.border}`, padding:"24px 28px", marginBottom:22, boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
                 <div style={{ fontWeight:700, fontSize:16, color:C.text, marginBottom:4, letterSpacing:-0.4 }}>🔔 Notifications</div>
