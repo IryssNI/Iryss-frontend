@@ -1168,7 +1168,7 @@ function Dashboard() {
     {id:'order-0', label:'Chase Acuvue Oasys trial order — Jim Bru',            sub:'Outstanding 3 days'},
     {id:'order-1', label:'Confirm varifocal lens delivery — Shona Kay',          sub:'Delivery expected this week'},
     {id:'order-2', label:'Order daily trial lenses — new patient fitting Thursday', sub:'Fitting: Thursday 03 April'},
-  ].map(t=>({...t, category:'orders', color:'#3B82F6', action:'Mark as chased →', onAction:()=>{}}));
+  ].map(t=>({...t, category:'orders', color:'#3B82F6', action:'Mark as chased →', onAction:()=>{ completeTask(t.id); showToast(`Order chased — ${t.label.split("—")[1]?.trim()||"supplier notified"}`); }}));
   function openMyopiaParentWA(p) {
     const parentFirst = p.parent.split(' ')[0];
     const childFirst = p.name.split(' ')[0];
@@ -3684,7 +3684,17 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                       <div style={{ fontSize:13, color:"rgba(255,255,255,.8)", lineHeight:1.6, marginBottom:16 }}>
                         Each win-back WhatsApp takes 30 seconds. Recovering just half these patients would add <span style={{ color:"#fff", fontWeight:700 }}>£{Math.round(lostRevEst*0.5).toLocaleString()}</span> back to your practice.
                       </div>
-                      <button onClick={()=>{}} style={{ width:"100%", background:`linear-gradient(135deg,${C.teal},${C.tealLt})`, color:"#fff", border:"none", borderRadius:10, padding:"11px", fontWeight:700, fontSize:13, cursor:"pointer", fontFamily:F, boxShadow:"0 4px 16px rgba(8,145,178,.4)", opacity:competitorMentions.length===0?0.5:1 }}>
+                      <button disabled={competitorMentions.length===0} onClick={()=>{
+                        if (competitorMentions.length===0) return;
+                        const unsent = competitorMentions.filter((m,i)=>!intelSent[`${m.patient}-${i}`]);
+                        if (unsent.length===0) { showToast("All win-back messages already sent"); return; }
+                        setIntelSent(s=>{
+                          const next = {...s};
+                          competitorMentions.forEach((m,i)=>{ next[`${m.patient}-${i}`] = true; });
+                          return next;
+                        });
+                        showToast(`${unsent.length} win-back WhatsApp${unsent.length>1?"s":""} sent · est. £${Math.round(unsent.length*320*0.5).toLocaleString()} recovered`);
+                      }} style={{ width:"100%", background:`linear-gradient(135deg,${C.teal},${C.tealLt})`, color:"#fff", border:"none", borderRadius:10, padding:"11px", fontWeight:700, fontSize:13, cursor:competitorMentions.length===0?"not-allowed":"pointer", fontFamily:F, boxShadow:"0 4px 16px rgba(8,145,178,.4)", opacity:competitorMentions.length===0?0.5:1 }}>
                         {competitorMentions.length===0?"No mentions to action":"Send All Win-Back Messages →"}
                       </button>
                     </div>
