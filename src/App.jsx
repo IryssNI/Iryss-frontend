@@ -1166,6 +1166,20 @@ function Dashboard() {
     {id:'order-1', label:'Confirm varifocal lens delivery — Shona Kay',          sub:'Delivery expected this week'},
     {id:'order-2', label:'Order daily trial lenses — new patient fitting Thursday', sub:'Fitting: Thursday 03 April'},
   ].map(t=>({...t, category:'orders', color:'#3B82F6', action:'Mark as chased →', onAction:()=>{}}));
+  function openMyopiaParentWA(p) {
+    const parentFirst = p.parent.split(' ')[0];
+    const childFirst = p.name.split(' ')[0];
+    let msg = '';
+    if (p.status === "lapsed") {
+      msg = `Hi ${parentFirst}, this is Bright Eyes Opticians. ${childFirst}'s myopia review is now overdue — it's important we monitor their eye growth regularly to ensure their treatment is working effectively.\n\nWould you like to book a review appointment? We have availability this week.\n\nBright Eyes Opticians`;
+    } else if (p.alChange !== null && p.alChange >= 0.20) {
+      msg = `Hi ${parentFirst}, this is Bright Eyes Opticians. Following ${childFirst}'s recent review, we'd like to discuss their myopia progression — their axial length growth is ${p.alChange.toFixed(2)} mm/year, which is above our target rate.\n\nWe'd like to review their treatment plan. Could you come in this week for a consultation?\n\nBright Eyes Opticians`;
+    } else {
+      msg = `Hi ${parentFirst}, this is Bright Eyes Opticians. Just a reminder that ${childFirst}'s next myopia review is coming up. Would you like to book an appointment?\n\nBright Eyes Opticians`;
+    }
+    setShowSendWA({ id: p.id, name: p.parent, phone: p.parentPhone || "+447700000000", risk: "low", lastVisit: "" });
+    setWaMsg(msg);
+  }
   const myopiaTasks = MYOPIA_PATIENTS
     .filter(p => p.status==="lapsed" || (p.alChange!==null && p.alChange>=0.20))
     .map(p => ({
@@ -1176,8 +1190,8 @@ function Dashboard() {
         ? `${p.name} — myopia review overdue`
         : `${p.name} — axial length progressing (${p.alChange.toFixed(2)} mm/yr)`,
       sub:`Age ${p.age} · ${p.treatment} · Parent: ${p.parent}`,
-      action:'Review →',
-      onAction:()=>{ setMyopiaDetail(p); goNav("myopia"); }
+      action:'WhatsApp Parent →',
+      onAction:()=>openMyopiaParentWA(p)
     }));
   const allTasks = [...urgentTasks, ...recallTasksList, ...apptTasks, ...highRiskTasksList, ...myopiaTasks, ...reviewTasksList, ...orderTasksList];
   const incompleteTaskCount = allTasks.filter(t=>!tasksDone[t.id]).length;
