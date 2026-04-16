@@ -8,415 +8,1429 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👁</text></svg>">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root{--accent:#0891B2;--accent-lt:#06B6D4;--grad:linear-gradient(135deg,#0891B2,#06B6D4,#22D3EE);--text:#0F172A;--sub:#475569;--muted:#94A3B8;--bg:#FFF;--alt:#F8FAFB;--border:#E2E8F0;--green:#10B981;--red:#EF4444;--amber:#F59E0B}
+:root{
+  --accent:#0891B2;
+  --accent-lt:#06B6D4;
+  --grad:linear-gradient(135deg,#0891B2,#06B6D4,#22D3EE);
+  --dark:#0C1220;
+  --dark-alt:#1A2744;
+  --text:#0F172A;
+  --sub:#475569;
+  --muted:#94A3B8;
+  --bg:#FFF;
+  --alt:#F8FAFB;
+  --border:#E2E8F0;
+  --green:#10B981;
+  --red:#EF4444;
+  --amber:#F59E0B;
+}
+
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:var(--text);background:var(--bg);-webkit-font-smoothing:antialiased;scroll-behavior:smooth}
+
+body{
+  font-family:'Plus Jakarta Sans',system-ui,sans-serif;
+  color:var(--text);
+  background:var(--bg);
+  -webkit-font-smoothing:antialiased;
+  scroll-behavior:smooth;
+}
+
 a{text-decoration:none;color:inherit}
 .wrap{max-width:1200px;margin:0 auto;padding:0 32px}
 
 /* Animations */
-@keyframes fadeInUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
-@keyframes fadeIn{from{opacity:0}to{opacity:1}}
-@keyframes pulse-orb{0%{transform:translate(0,0) scale(1)}50%{transform:translate(8px,-8px) scale(1.05)}100%{transform:translate(0,0) scale(1)}}
-@keyframes count-up{from{opacity:0}to{opacity:1}}
+@keyframes fadeInUp{
+  from{opacity:0;transform:translateY(24px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+@keyframes fadeIn{
+  from{opacity:0}
+  to{opacity:1}
+}
+
+@keyframes pulse-orb{
+  0%{transform:translate(0,0) scale(1)}
+  50%{transform:translate(8px,-8px) scale(1.05)}
+  100%{transform:translate(0,0) scale(1)}
+}
+
+@keyframes float{
+  0%, 100%{transform:translateY(0px)}
+  50%{transform:translateY(-12px)}
+}
+
+@keyframes count-up{
+  from{opacity:0}
+  to{opacity:1}
+}
+
 .animate-fade-in-up{animation:fadeInUp .6s ease-out forwards;opacity:0}
 .animate-fade-in{animation:fadeIn .6s ease-out forwards}
 
-/* Nav */
-.nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(255,255,255,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);transition:box-shadow .3s ease}
-.nav.scrolled{box-shadow:0 2px 12px rgba(0,0,0,.08)}
-.nav .wrap{height:64px;display:flex;align-items:center;justify-content:space-between}
-.logo{font-size:24px;font-weight:800;letter-spacing:-1px;display:flex;align-items:center}.logo span{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.nav-links{display:flex;align-items:center;gap:28px}
-.nav-links a{font-size:14px;font-weight:500;color:var(--sub);transition:color .2s}.nav-links a:hover{color:var(--accent)}
-.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 28px;border-radius:10px;font-weight:700;font-size:14px;border:none;cursor:pointer;transition:all .2s;font-family:inherit}
-.btn-p{background:var(--grad);color:#fff;box-shadow:0 2px 8px rgba(8,145,178,.25)}.btn-p:hover{box-shadow:0 4px 16px rgba(8,145,178,.4);transform:translateY(-1px)}
-.btn-s{background:#fff;color:var(--text);border:1.5px solid var(--border)}.btn-s:hover{border-color:var(--accent);color:var(--accent)}
-.btn-sm{padding:10px 20px;font-size:13px;border-radius:8px}
+/* NAV */
+.nav{
+  position:fixed;
+  top:0;
+  left:0;
+  right:0;
+  z-index:100;
+  background:rgba(255,255,255,.92);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+  transition:box-shadow .3s ease;
+}
 
-/* Hero */
-.hero{padding:130px 32px 60px;text-align:center;background:linear-gradient(180deg,var(--alt),#fff);position:relative;overflow:hidden}
-.hero::before{content:'';position:absolute;top:-100px;right:-100px;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(8,145,178,.28),rgba(6,182,212,.15) 40%,transparent 70%);pointer-events:none;animation:pulse-orb 8s ease-in-out infinite;filter:blur(40px)}
-.hero::after{content:'';position:absolute;bottom:-80px;left:-120px;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(34,211,238,.22),rgba(8,145,178,.10) 40%,transparent 70%);pointer-events:none;animation:pulse-orb 10s ease-in-out infinite reverse;filter:blur(40px)}
-.hero-img{position:absolute;border-radius:20px;opacity:.08;object-fit:cover;pointer-events:none;z-index:0}
-.hero>*{position:relative;z-index:1}
-.badge{display:inline-flex;align-items:center;gap:8px;background:rgba(8,145,178,.06);border:1px solid rgba(8,145,178,.12);color:var(--accent);font-size:13px;font-weight:600;padding:6px 16px;border-radius:20px;margin-bottom:24px;animation:fadeInUp .6s ease-out}
-.badge .dot{width:6px;height:6px;border-radius:50%;background:var(--green)}
-.hero h1{font-size:clamp(36px,5vw,60px);font-weight:800;letter-spacing:-2px;line-height:1.1;margin-bottom:20px;max-width:750px;margin-left:auto;margin-right:auto;animation:fadeInUp .6s ease-out .1s forwards;opacity:0}
-.hero h1 .accent{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.hero>p:first-of-type{font-size:clamp(15px,1.8vw,18px);color:var(--accent);font-weight:700;margin-bottom:8px;animation:fadeInUp .6s ease-out .2s forwards;opacity:0}
-.hero>p:nth-of-type(2){font-size:clamp(14px,1.6vw,19px);color:var(--sub);max-width:580px;margin:0 auto 32px;line-height:1.6;animation:fadeInUp .6s ease-out .3s forwards;opacity:0}
-.hero-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;animation:fadeInUp .6s ease-out .4s forwards;opacity:0}
+.nav.scrolled{
+  box-shadow:0 4px 16px rgba(0,0,0,.08);
+}
+
+.nav .wrap{
+  height:64px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+
+.logo{
+  font-size:24px;
+  font-weight:800;
+  letter-spacing:-1px;
+  display:flex;
+  align-items:center;
+  text-decoration:none;
+}
+
+.logo span{
+  background:var(--grad);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+
+.nav-links{
+  display:flex;
+  align-items:center;
+  gap:32px;
+}
+
+.nav-links a{
+  font-size:14px;
+  font-weight:500;
+  color:var(--sub);
+  transition:color .2s;
+}
+
+.nav-links a:hover{
+  color:var(--accent);
+}
+
+.btn{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:12px 28px;
+  border-radius:10px;
+  font-weight:700;
+  font-size:14px;
+  border:none;
+  cursor:pointer;
+  transition:all .2s;
+  font-family:inherit;
+}
+
+.btn-p{
+  background:var(--grad);
+  color:#fff;
+  box-shadow:0 2px 8px rgba(8,145,178,.25);
+}
+
+.btn-p:hover{
+  box-shadow:0 4px 16px rgba(8,145,178,.4);
+  transform:translateY(-1px);
+}
+
+.btn-s{
+  background:#fff;
+  color:var(--text);
+  border:1.5px solid var(--border);
+}
+
+.btn-s:hover{
+  border-color:var(--accent);
+  color:var(--accent);
+}
+
+.btn-sm{
+  padding:10px 20px;
+  font-size:13px;
+  border-radius:8px;
+}
+
+/* HERO */
+.hero{
+  padding:130px 32px 60px;
+  text-align:center;
+  background:linear-gradient(180deg,var(--dark) 0%,var(--dark-alt) 100%);
+  position:relative;
+  overflow:hidden;
+  color:#fff;
+}
+
+.hero::before{
+  content:'';
+  position:absolute;
+  top:-100px;
+  right:-100px;
+  width:600px;
+  height:600px;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(8,145,178,.2),rgba(6,182,212,.1) 40%,transparent 70%);
+  pointer-events:none;
+  animation:pulse-orb 8s ease-in-out infinite;
+  filter:blur(60px);
+}
+
+.hero::after{
+  content:'';
+  position:absolute;
+  bottom:-80px;
+  left:-120px;
+  width:500px;
+  height:500px;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(34,211,238,.15),rgba(8,145,178,.08) 40%,transparent 70%);
+  pointer-events:none;
+  animation:pulse-orb 10s ease-in-out infinite reverse;
+  filter:blur(60px);
+}
+
+.hero-specs{
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-56%);
+  opacity:.05;
+  pointer-events:none;
+  z-index:0;
+}
+
+.hero>*{
+  position:relative;
+  z-index:1;
+}
+
+.badge{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.15);
+  color:rgba(255,255,255,.9);
+  font-size:13px;
+  font-weight:600;
+  padding:8px 18px;
+  border-radius:20px;
+  margin-bottom:24px;
+  animation:fadeInUp .6s ease-out;
+}
+
+.badge .dot{
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:var(--green);
+}
+
+.hero h1{
+  font-size:clamp(36px,5vw,60px);
+  font-weight:800;
+  letter-spacing:-2px;
+  line-height:1.1;
+  margin-bottom:20px;
+  max-width:800px;
+  margin-left:auto;
+  margin-right:auto;
+  animation:fadeInUp .6s ease-out .1s forwards;
+  opacity:0;
+}
+
+.hero h1 .accent{
+  background:var(--grad);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+
+.hero>p:first-of-type{
+  font-size:clamp(15px,1.8vw,18px);
+  color:var(--accent-lt);
+  font-weight:600;
+  margin-bottom:8px;
+  animation:fadeInUp .6s ease-out .2s forwards;
+  opacity:0;
+  max-width:700px;
+  margin-left:auto;
+  margin-right:auto;
+}
+
+.hero>p:nth-of-type(2){
+  font-size:clamp(14px,1.6vw,18px);
+  color:rgba(255,255,255,.6);
+  max-width:680px;
+  margin:0 auto 32px;
+  line-height:1.6;
+  animation:fadeInUp .6s ease-out .3s forwards;
+  opacity:0;
+}
+
+.hero-btns{
+  display:flex;
+  gap:14px;
+  justify-content:center;
+  flex-wrap:wrap;
+  animation:fadeInUp .6s ease-out .4s forwards;
+  opacity:0;
+}
+
+/* Dashboard Preview Card */
+.dashboard-card{
+  background:#fff;
+  border-radius:20px;
+  padding:32px;
+  box-shadow:0 20px 60px rgba(0,0,0,.15);
+  max-width:900px;
+  margin:-80px auto 0;
+  position:relative;
+  z-index:10;
+  animation:fadeInUp .8s ease-out .5s forwards, float 4s ease-in-out infinite .8s;
+  opacity:0;
+}
+
+.dashboard-card p{
+  text-align:center;
+  font-size:14px;
+  color:var(--sub);
+  margin-top:20px;
+  font-weight:500;
+}
+
+/* Social Proof */
+.trust-bar{
+  padding:40px 32px;
+  text-align:center;
+  background:#fff;
+  border-bottom:1px solid var(--border);
+}
+
+.trust-bar p{
+  font-size:13px;
+  color:var(--muted);
+  margin-bottom:6px;
+}
+
+.trust-bar .trust-items{
+  font-size:12px;
+  color:var(--muted);
+  font-weight:500;
+}
+
+.trust-bar .trust-items span{
+  margin:0 12px;
+}
 
 /* Problem/Solution */
-.ps-grid{display:grid;grid-template-columns:1fr 1fr;gap:28px;padding:60px 0}
-.ps-card{border-radius:20px;padding:40px;backdrop-filter:blur(8px);transition:all .3s ease}
-.ps-card.problem{background:linear-gradient(135deg,rgba(254,242,242,.6),rgba(255,245,245,.6));border:1px solid #FECACA;box-shadow:0 4px 20px rgba(239,68,68,.06)}
-.ps-card.solution{background:linear-gradient(135deg,rgba(236,253,245,.6),rgba(240,255,244,.6));border:1px solid #A7F3D0;box-shadow:0 4px 20px rgba(16,185,129,.06)}
-.ps-card:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.1)}
-.ps-badge{display:inline-block;font-size:12px;font-weight:700;padding:5px 14px;border-radius:20px;text-transform:uppercase;letter-spacing:1px;margin-bottom:20px}
-.ps-card.problem .ps-badge{background:rgba(239,68,68,.1);color:#DC2626}
-.ps-card.solution .ps-badge{background:rgba(16,185,129,.1);color:#059669}
-.ps-card h2{font-size:24px;font-weight:800;letter-spacing:-0.5px;margin-bottom:16px}
-.ps-item{display:flex;align-items:flex-start;gap:12px;margin-bottom:14px}
-.ps-item .icon{font-size:16px;flex-shrink:0;margin-top:3px}
-.ps-item h4{font-weight:700;font-size:14px;margin-bottom:2px}
-.ps-item p{font-size:13px;color:var(--sub);line-height:1.5}
+.sec-ps{
+  padding:80px 32px;
+  background:#fff;
+}
+
+.sec-ps .wrap{
+  max-width:1200px;
+  margin:0 auto;
+}
+
+.ps-header{
+  text-align:center;
+  margin-bottom:60px;
+}
+
+.ps-header h2{
+  font-size:clamp(28px,3.5vw,40px);
+  font-weight:800;
+  letter-spacing:-1px;
+  margin-bottom:12px;
+}
+
+.ps-header p{
+  font-size:16px;
+  color:var(--sub);
+  max-width:560px;
+  margin:0 auto;
+}
+
+.ps-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:32px;
+  margin-bottom:48px;
+}
+
+.ps-col{
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+}
+
+.ps-card{
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:24px;
+  transition:all .3s ease;
+}
+
+.ps-card.problem{
+  border-left:4px solid var(--red);
+}
+
+.ps-card.solution{
+  border-left:4px solid var(--green);
+}
+
+.ps-card:hover{
+  transform:translateY(-2px);
+  box-shadow:0 8px 24px rgba(0,0,0,.08);
+}
+
+.ps-card h4{
+  font-size:15px;
+  font-weight:700;
+  margin-bottom:8px;
+  color:var(--text);
+  line-height:1.4;
+}
+
+.ps-card p{
+  font-size:13px;
+  color:var(--sub);
+  line-height:1.6;
+}
+
+.ps-card em{
+  font-style:italic;
+  color:var(--muted);
+  font-weight:500;
+}
+
+.ps-quote-container{
+  background:linear-gradient(135deg,rgba(8,145,178,.03),rgba(34,211,238,.02));
+  border:1px solid rgba(8,145,178,.1);
+  border-radius:16px;
+  padding:28px;
+  text-align:center;
+}
+
+.ps-quote-container p{
+  font-size:15px;
+  font-weight:600;
+  color:var(--text);
+  line-height:1.7;
+}
+
+.ps-quote-container p::before{
+  content:'"';
+  color:var(--accent);
+  font-size:24px;
+}
+
+.ps-quote-container p::after{
+  content:'"';
+  color:var(--accent);
+  font-size:24px;
+}
 
 /* Stats */
-.stats{background:var(--alt);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:40px 0}
-.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:32px;text-align:center}
-.stat-n{font-size:36px;font-weight:800;letter-spacing:-1px;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;counter-increment:stat-counter}
-.stat-l{font-size:13px;color:var(--muted);margin-top:4px}
+.stats{
+  background:var(--alt);
+  border-top:1px solid var(--border);
+  border-bottom:1px solid var(--border);
+  padding:60px 32px;
+}
+
+.stats-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:32px;
+  max-width:1200px;
+  margin:0 auto;
+}
+
+.stat-item{
+  text-align:center;
+}
+
+.stat-n{
+  font-size:44px;
+  font-weight:800;
+  letter-spacing:-2px;
+  background:var(--grad);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  margin-bottom:4px;
+}
+
+.stat-label{
+  font-size:12px;
+  font-weight:700;
+  color:var(--muted);
+  text-transform:uppercase;
+  letter-spacing:1px;
+  margin-bottom:8px;
+}
+
+.stat-l{
+  font-size:13px;
+  color:var(--sub);
+  line-height:1.5;
+}
+
+.stat-l em{
+  display:block;
+  font-size:11px;
+  font-style:normal;
+  color:var(--muted);
+  margin-top:4px;
+}
 
 /* Section */
-.sec{padding:80px 0}.sec-h{text-align:center;margin-bottom:48px}
-.sec-badge{display:inline-block;background:rgba(8,145,178,.06);color:var(--accent);font-size:12px;font-weight:700;padding:5px 14px;border-radius:20px;text-transform:uppercase;letter-spacing:1px;margin-bottom:14px}
-.sec-title{font-size:clamp(28px,3.5vw,40px);font-weight:800;letter-spacing:-1px;margin-bottom:10px}
-.sec-sub{font-size:16px;color:var(--sub);max-width:520px;margin:0 auto;line-height:1.6}
+.sec{
+  padding:80px 32px;
+  background:#fff;
+}
+
+.sec-h{
+  text-align:center;
+  margin-bottom:60px;
+  max-width:1200px;
+  margin-left:auto;
+  margin-right:auto;
+}
+
+.sec-badge{
+  display:inline-block;
+  background:rgba(8,145,178,.06);
+  color:var(--accent);
+  font-size:12px;
+  font-weight:700;
+  padding:6px 16px;
+  border-radius:20px;
+  text-transform:uppercase;
+  letter-spacing:1px;
+  margin-bottom:16px;
+}
+
+.sec-title{
+  font-size:clamp(28px,3.5vw,40px);
+  font-weight:800;
+  letter-spacing:-1px;
+  margin-bottom:12px;
+}
+
+.sec-sub{
+  font-size:16px;
+  color:var(--sub);
+  max-width:560px;
+  margin:0 auto;
+  line-height:1.6;
+}
 
 /* Features */
-.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
-.feat{background:#fff;border:1px solid var(--border);border-radius:16px;padding:28px;cursor:pointer;transition:all .3s ease;position:relative;overflow:hidden}
-.feat::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--accent);transform:scaleX(0);transform-origin:left;transition:transform .3s ease}
-.feat:hover::before{transform:scaleX(1)}
-.feat:hover{box-shadow:0 8px 30px rgba(0,0,0,.06);transform:translateY(-4px);border-color:rgba(8,145,178,.2)}
-.feat-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:16px}
-.feat h3{font-size:17px;font-weight:700;margin-bottom:6px;letter-spacing:-0.3px}
-.feat p{font-size:13px;color:var(--sub);line-height:1.6;margin-bottom:12px}
-.feat-tag{display:inline-block;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px}
-.feat-peek{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--accent);margin-top:14px;opacity:0;transition:opacity .2s}
-.feat:hover .feat-peek{opacity:1}
+.feat-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:24px;
+  max-width:1200px;
+  margin:0 auto;
+}
+
+.feat{
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:28px;
+  cursor:pointer;
+  transition:all .3s ease;
+  position:relative;
+  overflow:hidden;
+}
+
+.feat::before{
+  content:'';
+  position:absolute;
+  top:0;
+  left:0;
+  right:0;
+  height:3px;
+  background:var(--accent);
+  transform:scaleX(0);
+  transform-origin:left;
+  transition:transform .3s ease;
+}
+
+.feat:hover::before{
+  transform:scaleX(1);
+}
+
+.feat:hover{
+  box-shadow:0 8px 32px rgba(0,0,0,.08);
+  transform:translateY(-4px);
+  border-color:rgba(8,145,178,.2);
+}
+
+.feat-icon{
+  width:48px;
+  height:48px;
+  border-radius:12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:22px;
+  margin-bottom:16px;
+}
+
+.feat h3{
+  font-size:17px;
+  font-weight:700;
+  margin-bottom:8px;
+  letter-spacing:-0.3px;
+  color:var(--text);
+}
+
+.feat p{
+  font-size:13px;
+  color:var(--sub);
+  line-height:1.6;
+  margin-bottom:14px;
+}
+
+.feat-tag{
+  display:inline-block;
+  font-size:11px;
+  font-weight:700;
+  padding:4px 12px;
+  border-radius:6px;
+  background:rgba(8,145,178,.08);
+  color:var(--accent);
+}
+
+.feat-peek{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  font-size:12px;
+  font-weight:600;
+  color:var(--accent);
+  margin-top:16px;
+  opacity:0;
+  transition:opacity .2s;
+}
+
+.feat:hover .feat-peek{
+  opacity:1;
+}
 
 /* Modal */
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(6px);z-index:200;align-items:center;justify-content:center}
-.modal-overlay.active{display:flex}
-.modal{background:#fff;border-radius:20px;max-width:900px;width:90%;max-height:85vh;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.2);position:relative}
-.modal-header{padding:20px 28px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
-.modal-header h3{font-size:18px;font-weight:700}
-.modal-close{width:36px;height:36px;border-radius:10px;background:#F1F5F9;border:none;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;color:var(--sub)}
-.modal-body{padding:0;overflow:hidden}
-.modal-body iframe{width:100%;height:65vh;border:none}
+.modal-overlay{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.5);
+  backdrop-filter:blur(6px);
+  z-index:200;
+  align-items:center;
+  justify-content:center;
+}
 
-/* How it works */
-.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:32px;max-width:900px;margin:0 auto;position:relative}
-.steps::before{content:'';position:absolute;top:26px;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);z-index:0}
-.step{text-align:center;position:relative;z-index:1}
-.step-n{width:52px;height:52px;border-radius:14px;background:var(--grad);color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;margin:0 auto 14px;position:relative}
-.step h3{font-size:17px;font-weight:700;margin-bottom:6px}
-.step p{font-size:13px;color:var(--sub);line-height:1.6}
+.modal-overlay.active{
+  display:flex;
+}
+
+.modal{
+  background:#fff;
+  border-radius:20px;
+  max-width:920px;
+  width:90%;
+  max-height:85vh;
+  overflow:hidden;
+  box-shadow:0 20px 60px rgba(0,0,0,.2);
+  position:relative;
+}
+
+.modal-header{
+  padding:20px 28px;
+  border-bottom:1px solid var(--border);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+
+.modal-header h3{
+  font-size:18px;
+  font-weight:700;
+  color:var(--text);
+}
+
+.modal-close{
+  width:36px;
+  height:36px;
+  border-radius:10px;
+  background:#F1F5F9;
+  border:none;
+  cursor:pointer;
+  font-size:18px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:var(--sub);
+  transition:all .2s;
+}
+
+.modal-close:hover{
+  background:var(--border);
+  color:var(--text);
+}
+
+.modal-body{
+  padding:28px;
+  overflow-y:auto;
+  max-height:65vh;
+}
+
+.modal-footer{
+  padding:16px 28px;
+  border-top:1px solid var(--border);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.modal-footer span{
+  font-size:13px;
+  color:var(--muted);
+}
+
+/* How It Works */
+.steps-sec{
+  background:var(--alt);
+  padding:80px 32px;
+}
+
+.steps{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:40px;
+  max-width:900px;
+  margin:0 auto;
+  position:relative;
+}
+
+.steps::before{
+  content:'';
+  position:absolute;
+  top:26px;
+  left:0;
+  right:0;
+  height:2px;
+  background:linear-gradient(90deg,transparent,var(--accent),transparent);
+  z-index:0;
+}
+
+.step{
+  text-align:center;
+  position:relative;
+  z-index:1;
+}
+
+.step-n{
+  width:56px;
+  height:56px;
+  border-radius:12px;
+  background:var(--grad);
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:24px;
+  font-weight:800;
+  margin:0 auto 16px;
+}
+
+.step h3{
+  font-size:17px;
+  font-weight:700;
+  margin-bottom:8px;
+  color:var(--text);
+}
+
+.step p{
+  font-size:13px;
+  color:var(--sub);
+  line-height:1.6;
+}
 
 /* Pricing */
-.price-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;max-width:1000px;margin:0 auto}
-.price-card{background:#fff;border:1px solid var(--border);border-radius:20px;padding:36px;text-align:center;position:relative;transition:all .3s ease}
-.price-card:hover{box-shadow:0 8px 30px rgba(0,0,0,.06)}
-.price-card.pop{border:2px solid var(--accent);box-shadow:0 8px 30px rgba(8,145,178,.1)}
-.price-card.pop::before{content:'';position:absolute;inset:0;border-radius:20px;background:radial-gradient(circle at center,rgba(8,145,178,.02),transparent 70%);pointer-events:none}
-.price-pop-tag{position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:var(--grad);color:#fff;font-size:12px;font-weight:700;padding:5px 18px;border-radius:20px;white-space:nowrap;box-shadow:0 4px 12px rgba(8,145,178,.3)}
-.price-name{font-size:16px;font-weight:600;color:var(--sub);margin-bottom:4px}
-.price-amt{font-size:48px;font-weight:800;letter-spacing:-2px;margin:12px 0 2px}
-.price-per{font-size:14px;color:var(--muted)}
-.price-desc{font-size:13px;color:var(--sub);margin:12px 0 20px;line-height:1.5}
-.price-list{list-style:none;text-align:left;margin:0 0 24px}
-.price-list li{padding:9px 0;border-bottom:1px solid var(--border);font-size:13px;color:var(--sub);display:flex;align-items:center;gap:10px}
-.price-list li::before{content:'✓';color:var(--green);font-weight:800;font-size:14px}
-.price-list li.disabled{opacity:.4}
-.price-list li.disabled::before{content:'—';color:var(--muted)}
+.sec-pricing{
+  padding:80px 32px;
+  background:#fff;
+}
+
+.price-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:28px;
+  max-width:1100px;
+  margin:0 auto;
+}
+
+.price-card{
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:20px;
+  padding:40px 32px;
+  text-align:center;
+  position:relative;
+  transition:all .3s ease;
+}
+
+.price-card:hover{
+  box-shadow:0 8px 32px rgba(0,0,0,.08);
+}
+
+.price-card.pop{
+  border:2px solid var(--accent);
+  box-shadow:0 8px 32px rgba(8,145,178,.15);
+  transform:scale(1.02);
+}
+
+.price-card.pop::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  border-radius:20px;
+  background:radial-gradient(circle at center,rgba(8,145,178,.02),transparent 70%);
+  pointer-events:none;
+}
+
+.price-pop-tag{
+  position:absolute;
+  top:-14px;
+  left:50%;
+  transform:translateX(-50%);
+  background:var(--grad);
+  color:#fff;
+  font-size:12px;
+  font-weight:700;
+  padding:6px 20px;
+  border-radius:20px;
+  white-space:nowrap;
+  box-shadow:0 4px 12px rgba(8,145,178,.3);
+}
+
+.price-name{
+  font-size:16px;
+  font-weight:600;
+  color:var(--sub);
+  margin-bottom:6px;
+}
+
+.price-amt{
+  font-size:48px;
+  font-weight:800;
+  letter-spacing:-2px;
+  color:var(--text);
+  margin:12px 0 2px;
+}
+
+.price-amt span{
+  font-size:16px;
+  font-weight:500;
+  color:var(--muted);
+  letter-spacing:normal;
+}
+
+.price-per{
+  font-size:14px;
+  color:var(--muted);
+  margin-bottom:16px;
+}
+
+.price-desc{
+  font-size:13px;
+  color:var(--sub);
+  margin-bottom:24px;
+  line-height:1.5;
+  min-height:40px;
+}
+
+.price-list{
+  list-style:none;
+  text-align:left;
+  margin:0 0 28px;
+}
+
+.price-list li{
+  padding:12px 0;
+  border-bottom:1px solid var(--border);
+  font-size:13px;
+  color:var(--sub);
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.price-list li::before{
+  content:'✓';
+  color:var(--green);
+  font-weight:800;
+  font-size:14px;
+  flex-shrink:0;
+}
+
+.price-list li.disabled{
+  opacity:.4;
+}
+
+.price-list li.disabled::before{
+  content:'—';
+  color:var(--muted);
+}
+
+.price-list li:last-child{
+  border-bottom:none;
+}
+
+.price-card .btn{
+  width:100%;
+  justify-content:center;
+}
+
+.price-note{
+  text-align:center;
+  margin-top:32px;
+  font-size:13px;
+  color:var(--muted);
+}
 
 /* CTA */
-.cta{background:linear-gradient(135deg,#0C1220,#1A2744);padding:80px 32px;text-align:center;color:#fff;position:relative;overflow:hidden}
-.cta::before{content:'';position:absolute;inset:0;background-image:radial-gradient(circle at 1px 1px,rgba(255,255,255,.05) 1px,transparent 1px);background-size:30px 30px;pointer-events:none;z-index:0}
-.cta h2{font-size:clamp(28px,3.5vw,38px);font-weight:800;letter-spacing:-1px;margin-bottom:12px;position:relative;z-index:1}
-.cta p{font-size:16px;color:rgba(255,255,255,.6);margin-bottom:32px;max-width:480px;margin-left:auto;margin-right:auto;position:relative;z-index:1}
-.cta .hero-btns{position:relative;z-index:1}
+.cta{
+  background:linear-gradient(135deg,var(--dark) 0%,var(--dark-alt) 100%);
+  padding:80px 32px;
+  text-align:center;
+  color:#fff;
+  position:relative;
+  overflow:hidden;
+}
+
+.cta::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background-image:radial-gradient(circle at 1px 1px,rgba(255,255,255,.05) 1px,transparent 1px);
+  background-size:30px 30px;
+  pointer-events:none;
+  z-index:0;
+}
+
+.cta h2{
+  font-size:clamp(28px,3.5vw,40px);
+  font-weight:800;
+  letter-spacing:-1px;
+  margin-bottom:12px;
+  position:relative;
+  z-index:1;
+}
+
+.cta p{
+  font-size:16px;
+  color:rgba(255,255,255,.6);
+  margin-bottom:32px;
+  max-width:520px;
+  margin-left:auto;
+  margin-right:auto;
+  position:relative;
+  z-index:1;
+}
+
+.cta-btns{
+  display:flex;
+  gap:14px;
+  justify-content:center;
+  flex-wrap:wrap;
+  position:relative;
+  z-index:1;
+  margin-bottom:20px;
+}
+
+.cta-note{
+  font-size:12px;
+  color:rgba(255,255,255,.3);
+  position:relative;
+  z-index:1;
+}
+
+.cta-note span{
+  margin:0 6px;
+}
 
 /* Footer */
-.footer{padding:40px 32px;border-top:1px solid var(--border);text-align:center}
-.footer-logo{font-size:20px;font-weight:800;margin-bottom:6px;display:inline-block}.footer-logo span{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.footer-links{display:flex;justify-content:center;gap:20px;margin:12px 0;font-size:12px;flex-wrap:wrap}
-.footer-links a{color:var(--muted);transition:color .2s}.footer-links a:hover{color:var(--accent)}
-.footer-t{font-size:12px;color:var(--muted)}
+.footer{
+  padding:48px 32px;
+  border-top:1px solid var(--border);
+  text-align:center;
+  background:#fff;
+}
+
+.footer-logo{
+  font-size:22px;
+  font-weight:800;
+  margin-bottom:8px;
+  display:inline-block;
+}
+
+.footer-logo span{
+  background:var(--grad);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+
+.footer-links{
+  display:flex;
+  justify-content:center;
+  gap:24px;
+  margin:16px 0;
+  font-size:13px;
+  flex-wrap:wrap;
+}
+
+.footer-links a{
+  color:var(--muted);
+  transition:color .2s;
+}
+
+.footer-links a:hover{
+  color:var(--accent);
+}
+
+.footer-t{
+  font-size:12px;
+  color:var(--muted);
+  margin-top:12px;
+}
 
 /* Responsive */
 @media(max-width:768px){
-  .ps-grid,.feat-grid,.price-grid,.stats-grid,.steps{grid-template-columns:1fr}
   .nav-links a:not(.btn){display:none}
-  .stats-grid{grid-template-columns:repeat(2,1fr)}
+  .nav-links{gap:16px}
+  .ps-grid,.feat-grid,.price-grid,.stats-grid,.steps{grid-template-columns:1fr}
   .steps::before{display:none}
+  .price-card.pop{transform:scale(1)}
   .wrap{padding:0 24px}
+  .hero{padding:100px 24px 50px}
+  .hero h1{font-size:32px}
+  .sec{padding:60px 24px}
+  .sec-ps{padding:60px 24px}
+  .stats{padding:40px 24px}
+  .trust-bar{padding:30px 24px}
+  .dashboard-card{max-width:95%;padding:24px}
 }
 
 @media(max-width:480px){
-  .hero{padding:100px 24px 50px}
-  .hero h1{font-size:32px}
+  .hero{padding:80px 20px 40px}
+  .hero h1{font-size:28px}
   .nav .wrap{height:56px;padding:0 20px}
   .logo{font-size:20px}
+  .nav-links{gap:8px}
+  .btn-sm{padding:8px 16px;font-size:12px}
+  .dashboard-card{margin:-60px 0 0;padding:16px}
+  .ps-grid{gap:16px}
+  .feat-grid,.price-grid{gap:16px}
+  .stats-grid{gap:16px}
 }
 </style>
 </head>
 <body>
 
 <!-- NAV -->
-<nav class="nav" id="nav"><div class="wrap" style="height:64px;display:flex;align-items:center;justify-content:space-between;">
-  <a href="#" style="text-decoration:none;display:flex;align-items:center" class="logo">IRY<span>SS</span></a>
-  <div class="nav-links">
-    <a href="#features">Features</a>
-    <a href="#pricing">Pricing</a>
-    <a href="#how">How It Works</a>
-    <a href="mailto:IryssNI@outlook.com" class="btn btn-p btn-sm">Book a Demo</a>
+<nav class="nav" id="nav">
+  <div class="wrap">
+    <a href="#" class="logo">IRY<span>SS</span></a>
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#how">How It Works</a>
+      <a href="mailto:IryssNI@outlook.com" class="btn btn-p btn-sm">Book a Demo</a>
+    </div>
   </div>
-</div></nav>
+</nav>
 
 <!-- HERO -->
 <section class="hero">
-  <svg class="hero-specs" width="260" height="90" viewBox="0 0 260 90" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-56%);opacity:.04;pointer-events:none;z-index:0">
+  <svg class="hero-specs" width="260" height="90" viewBox="0 0 260 90" fill="none" xmlns="http://www.w3.org/2000/svg">
     <ellipse cx="75" cy="45" rx="65" ry="38" stroke="#0891B2" stroke-width="5"/>
     <ellipse cx="185" cy="45" rx="65" ry="38" stroke="#0891B2" stroke-width="5"/>
     <path d="M140 45 C135 30 125 30 120 45" stroke="#0891B2" stroke-width="5" stroke-linecap="round"/>
     <path d="M10 45 C5 35 2 30 0 28" stroke="#0891B2" stroke-width="4" stroke-linecap="round"/>
     <path d="M250 45 C255 35 258 30 260 28" stroke="#0891B2" stroke-width="4" stroke-linecap="round"/>
   </svg>
-  <div class="badge"><span class="dot"></span> Built exclusively for UK &amp; Irish optical practices</div>
+  <div class="badge"><span class="dot"></span> Built for UK &amp; Irish optical practices</div>
   <h1>Stop losing patients.<br>Start <span class="accent">recovering revenue.</span></h1>
-  <p style="color:var(--accent);font-weight:700;font-size:clamp(15px,1.8vw,18px);margin-bottom:8px">The smart CRM plug-in built for independent optician practice owners.</p>
-  <p>Re-engage lapsed patients via WhatsApp, automate your recalls, and recover lost revenue &mdash; before they walk into a competitor.</p>
+  <p>The smart CRM plug-in built for independent optician practice owners.</p>
+  <p>Re-engage lapsed patients via WhatsApp, automate your recalls, and recover lost revenue — before they walk into a competitor.</p>
   <div class="hero-btns">
-    <a href="mailto:IryssNI@outlook.com" class="btn btn-p">Book a Demo &rarr;</a>
+    <a href="mailto:IryssNI@outlook.com" class="btn btn-p">Book a Demo →</a>
     <a href="#features" class="btn btn-s">See Features</a>
   </div>
 </section>
 
-<!-- PROBLEM / SOLUTION -->
+<!-- DASHBOARD PREVIEW CARD -->
 <div class="wrap">
-  <div class="ps-grid">
-    <div class="ps-card problem" style="background:linear-gradient(135deg,rgba(254,242,242,.6),rgba(255,245,245,.6));border:1px solid #FECACA;box-shadow:0 4px 20px rgba(239,68,68,.06)">
-      <div class="ps-badge">The Problem</div>
-      <h2>Patients leave. Your CRM doesn&rsquo;t notice.</h2>
-      <div class="ps-item"><span class="icon" style="color:#EF4444">&#10007;</span><div><h4>16 million NHS appointments missed yearly</h4><p>Optical practices face the same DNA challenge. <em>(NHS England Digital, 2024)</em></p></div></div>
-      <div class="ps-item"><span class="icon" style="color:#EF4444">&#10007;</span><div><h4>1 in 4 recall letters get a rebooking</h4><p>Paper and SMS don&rsquo;t cut it anymore. <em>(AOP Practice Management Reports)</em></p></div></div>
-      <div class="ps-item"><span class="icon" style="color:#EF4444">&#10007;</span><div><h4>Multiples are outspending you</h4><p>Independents need smarter retention, not bigger budgets. <em>(Optician Online, 2024)</em></p></div></div>
-      <div class="ps-item"><span class="icon" style="color:#EF4444">&#10007;</span><div><h4>Your CRM stores records. That&rsquo;s it.</h4><p>Optisoft, Ocuco, Optix &mdash; none detect risk or automate WhatsApp recalls.</p></div></div>
+  <div class="dashboard-card">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:16px">
+      <div style="border:1px solid #E2E8F0;border-radius:14px;padding:20px;text-align:center">
+        <div style="font-size:11px;color:#94A3B8;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">Patient Health</div>
+        <div style="position:relative;display:inline-block">
+          <svg width="140" height="140" viewBox="0 0 200 200" style="transform:rotate(-90deg)">
+            <circle cx="100" cy="100" r="80" fill="none" stroke="#F1F5F9" stroke-width="24"/>
+            <circle cx="100" cy="100" r="80" fill="none" stroke="#10B981" stroke-width="24" stroke-dasharray="200 303" stroke-linecap="round"/>
+            <circle cx="100" cy="100" r="80" fill="none" stroke="#EF4444" stroke-width="24" stroke-dasharray="160 343" stroke-dashoffset="-200" stroke-linecap="round"/>
+            <circle cx="100" cy="100" r="80" fill="none" stroke="#06B6D4" stroke-width="24" stroke-dasharray="80 423" stroke-dashoffset="-360" stroke-linecap="round"/>
+          </svg>
+          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center"><div style="font-size:28px;font-weight:800;color:#0F172A">125</div><div style="font-size:10px;color:#94A3B8">Total Patients</div></div>
+        </div>
+        <div style="display:flex;gap:12px;justify-content:center;margin-top:10px;flex-wrap:wrap;font-size:11px">
+          <span style="display:flex;align-items:center;gap:3px"><span style="width:6px;height:6px;border-radius:50%;background:#10B981"></span>Healthy 57</span>
+          <span style="display:flex;align-items:center;gap:3px"><span style="width:6px;height:6px;border-radius:50%;background:#EF4444"></span>At Risk 43</span>
+          <span style="display:flex;align-items:center;gap:3px"><span style="width:6px;height:6px;border-radius:50%;background:#06B6D4"></span>Recovered 25</span>
+        </div>
+      </div>
+      <div style="border:1px solid #E2E8F0;border-radius:14px;padding:20px">
+        <div style="font-size:11px;color:#94A3B8;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">Risk Breakdown</div>
+        <div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><span style="font-size:12px;font-weight:600">High Risk</span><span style="font-size:11px;font-weight:700;color:#EF4444">12</span></div><div style="height:6px;background:#F1F5F9;border-radius:3px"><div style="height:100%;width:28%;background:#EF4444;border-radius:3px"></div></div></div>
+        <div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><span style="font-size:12px;font-weight:600">Medium Risk</span><span style="font-size:11px;font-weight:700;color:#F59E0B">18</span></div><div style="height:6px;background:#F1F5F9;border-radius:3px"><div style="height:100%;width:42%;background:#F59E0B;border-radius:3px"></div></div></div>
+        <div><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><span style="font-size:12px;font-weight:600">Low Risk</span><span style="font-size:11px;font-weight:700;color:#10B981">13</span></div><div style="height:6px;background:#F1F5F9;border-radius:3px"><div style="height:100%;width:30%;background:#10B981;border-radius:3px"></div></div></div>
+        <div style="padding:10px;background:rgba(8,145,178,.04);border:1px solid rgba(8,145,178,.1);border-radius:8px;font-size:11px;color:#64748B;margin-top:12px"><strong style="color:#0891B2">3 patients</strong> flagged as competitor-mention risk</div>
+      </div>
     </div>
-    <div class="ps-card solution" style="background:linear-gradient(135deg,rgba(236,253,245,.6),rgba(240,255,244,.6));border:1px solid #A7F3D0;box-shadow:0 4px 20px rgba(16,185,129,.06)">
-      <div class="ps-badge">The Solution</div>
-      <h2>IRYSS catches what your CRM misses.</h2>
-      <div class="ps-item"><span class="icon" style="color:#10B981">&#10003;</span><div><h4>AI flags at-risk patients instantly</h4><p>Visit history, recall gaps, and engagement &mdash; scored and ranked automatically.</p></div></div>
-      <div class="ps-item"><span class="icon" style="color:#10B981">&#10003;</span><div><h4>98% WhatsApp open rate</h4><p>30M UK users. 73% message brands daily. They read WhatsApp. <em>(SQM Magazine, 2025)</em></p></div></div>
-      <div class="ps-item"><span class="icon" style="color:#10B981">&#10003;</span><div><h4>Automated recalls that actually work</h4><p>Outperforms phone calls and paper letters every time. <em>(College of Optometrists)</em></p></div></div>
-      <div class="ps-item"><span class="icon" style="color:#10B981">&#10003;</span><div><h4>One click to connect. Zero training.</h4><p>Plugs into XEYEX, Optisoft, Ocuco in 60 seconds. Works alongside your CRM.</p></div></div>
+    <div style="background:linear-gradient(135deg,rgba(8,145,178,.05),rgba(34,211,238,.03));border:1px solid rgba(8,145,178,.1);border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:10px">
+      <div style="width:28px;height:28px;border-radius:6px;background:linear-gradient(135deg,#0891B2,#06B6D4);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff;font-size:12px;font-weight:700">✦</div>
+      <div style="font-size:12px;color:#64748B;line-height:1.4"><strong style="color:#0F172A">21 contact lens patients</strong> overdue for reorder. Automated WhatsApp nudges scheduled.</div>
     </div>
+    <p>See everything at a glance. Patient health, risk scores, and automated actions — all in one dashboard.</p>
   </div>
 </div>
 
-<!-- STATS -->
-<div class="stats"><div class="wrap">
-  <div class="stats-grid">
-    <div><div class="stat-n" data-target="16">16</div><div class="stat-label">M</div><div class="stat-l">NHS appointments missed annually<br><em style="font-size:10px;font-style:normal;color:#CBD5E1">NHS England Digital, 2024</em></div></div>
-    <div><div class="stat-n" data-target="30">30</div><div class="stat-label">M</div><div class="stat-l">UK monthly active WhatsApp users<br><em style="font-size:10px;font-style:normal;color:#CBD5E1">SQM Magazine, 2025</em></div></div>
-    <div><div class="stat-n" data-target="98">98</div><div class="stat-label">%</div><div class="stat-l">WhatsApp open rate vs 21% SMS<br><em style="font-size:10px;font-style:normal;color:#CBD5E1">SQM Magazine / D7 Networks, 2025</em></div></div>
-    <div><div class="stat-n" data-target="73">73</div><div class="stat-label">%</div><div class="stat-l">of UK users message brands daily<br><em style="font-size:10px;font-style:normal;color:#CBD5E1">SQM Magazine, 2025</em></div></div>
-  </div>
-</div></div>
+<!-- SOCIAL PROOF -->
+<div class="trust-bar">
+  <p>Trusted by independent optical practices across the UK &amp; Ireland</p>
+  <div class="trust-items"><span>GDPR compliant</span><span>·</span><span>EU data servers</span><span>·</span><span>Built in Belfast</span></div>
+</div>
 
-<!-- TRUST STRIP -->
-<div style="padding:48px 32px;text-align:center;background:#fff">
-  <p style="font-size:13px;color:var(--muted)">Trusted by independent optician practices across the UK &amp; Ireland</p>
+<!-- PROBLEM / SOLUTION -->
+<section class="sec-ps">
+  <div class="wrap">
+    <div class="ps-header">
+      <h2>Does this sound like your practice?</h2>
+      <p>The gap between managing patients and keeping them engaged.</p>
+    </div>
+
+    <div class="ps-grid">
+      <div class="ps-col">
+        <div class="ps-card problem">
+          <h4>How many patients are overdue and you don't even know?</h4>
+          <p>16 million NHS appointments are missed annually. <em>(NHS England Digital, 2024)</em></p>
+        </div>
+        <div class="ps-card problem">
+          <h4>Are your recall letters actually getting read?</h4>
+          <p>Only 1 in 4 paper or SMS recalls result in rebooking. <em>(AOP Practice Management)</em></p>
+        </div>
+        <div class="ps-card problem">
+          <h4>Are the multiples winning patients you should be keeping?</h4>
+          <p>Multiples outspend most independents on marketing. Your edge is the relationship. <em>(Optician Online, 2024)</em></p>
+        </div>
+      </div>
+
+      <div class="ps-col">
+        <div class="ps-card solution">
+          <h4>What if you could see who's at risk — before they leave?</h4>
+          <p>IRYSS scores every patient on visit history, recall compliance, and engagement. You see the risk. You act before it's too late.</p>
+        </div>
+        <div class="ps-card solution">
+          <h4>What if your recalls had a 98% open rate?</h4>
+          <p>30 million UK users on WhatsApp. 73% message brands daily. IRYSS sends recalls where patients actually look. <em>(SQM Magazine, 2025)</em></p>
+        </div>
+        <div class="ps-card solution">
+          <h4>What if rebooking happened automatically?</h4>
+          <p>Automated WhatsApp recalls outperform phone calls and paper. Patients reply, confirm, rebook — without your team chasing. <em>(College of Optometrists)</em></p>
+        </div>
+        <div class="ps-card solution">
+          <h4>What if your patients could WhatsApp you 24/7?</h4>
+          <p>Queries, rebookings, lens reorders — patients message when it suits them. IRYSS handles it around the clock.</p>
+        </div>
+        <div class="ps-card solution">
+          <h4>What if you had a dedicated myopia dashboard?</h4>
+          <p>All your myopic children tracked in one place. Axial length progression, treatment plans, parent WhatsApp, AI recommendations.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ps-quote-container">
+      <p>Your CRM is brilliant at managing appointments and storing records. But it was never designed to retain patients. That's where IRYSS comes in.</p>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="wrap">
+    <div class="stats-grid">
+      <div class="stat-item">
+        <div class="stat-n" data-target="16">16</div>
+        <div class="stat-label">M</div>
+        <div class="stat-l">NHS appointments missed annually<em>NHS England Digital, 2024</em></div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-n" data-target="30">30</div>
+        <div class="stat-label">M</div>
+        <div class="stat-l">UK monthly active WhatsApp users<em>SQM Magazine, 2025</em></div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-n" data-target="98">98</div>
+        <div class="stat-label">%</div>
+        <div class="stat-l">WhatsApp open rate<em>SQM Magazine / D7 Networks, 2025</em></div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-n" data-target="73">73</div>
+        <div class="stat-label">%</div>
+        <div class="stat-l">UK users message brands daily<em>SQM Magazine, 2025</em></div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- FEATURES -->
-<section class="sec" id="features"><div class="wrap">
-  <div class="sec-h">
-    <div class="sec-badge">Features</div>
-    <h2 class="sec-title">Everything your CRM doesn't do</h2>
-    <p class="sec-sub">Click any feature to see it in action.</p>
+<section class="sec" id="features">
+  <div class="wrap">
+    <div class="sec-h">
+      <div class="sec-badge">Features</div>
+      <h2 class="sec-title">Built to work alongside your CRM</h2>
+      <p class="sec-sub">Your practice management system runs the day-to-day. IRYSS handles retention. Click any feature to see it in action.</p>
+    </div>
+
+    <div class="feat-grid">
+      <div class="feat" onclick="openModal('WhatsApp Inbox','inbox')">
+        <div class="feat-icon" style="background:rgba(8,145,178,.08)">💬</div>
+        <h3>WhatsApp-Native Inbox</h3>
+        <p>Two-way WhatsApp messaging. Not SMS. Not email. 98% open rates. Sentiment analysis built-in.</p>
+        <span class="feat-tag">No CRM offers this</span>
+        <div class="feat-peek">See it in action →</div>
+      </div>
+
+      <div class="feat" onclick="openModal('AI Patient Retention','retention')">
+        <div class="feat-icon" style="background:rgba(239,68,68,.06)">🎯</div>
+        <h3>AI Patient Retention</h3>
+        <p>Automatically identifies at-risk patients and re-engages them. Risk scoring, competitor detection, and smart nudges.</p>
+        <span class="feat-tag" style="background:rgba(239,68,68,.06);color:var(--red)">AI-powered risk scoring</span>
+        <div class="feat-peek">See it in action →</div>
+      </div>
+
+      <div class="feat" onclick="openModal('Practice Health Score','healthscore')">
+        <div class="feat-icon" style="background:rgba(16,185,129,.06)">📊</div>
+        <h3>Practice Health Score</h3>
+        <p>One visual score that tells you how healthy your practice is. Retention, revenue recovery, compliance — all at a glance.</p>
+        <span class="feat-tag" style="background:rgba(16,185,129,.06);color:var(--green)">Unique to IRYSS</span>
+        <div class="feat-peek">See it in action →</div>
+      </div>
+
+      <div class="feat" onclick="openModal('Myopia Clinic','myopia')">
+        <div class="feat-icon" style="background:rgba(139,92,246,.06)">👁</div>
+        <h3>Myopia Clinic</h3>
+        <p>Paediatric myopia management. Axial length progression charts, treatment tracking, parent WhatsApp, AI recommendations.</p>
+        <span class="feat-tag" style="background:rgba(139,92,246,.06);color:#8B5CF6">UK Delphi + IMI guidelines</span>
+        <div class="feat-peek">See it in action →</div>
+      </div>
+
+      <div class="feat" onclick="openModal('GOS Claim Validator','gos')">
+        <div class="feat-icon" style="background:rgba(245,158,11,.06)">📋</div>
+        <h3>GOS Claim Validator</h3>
+        <p>Real-time PCSE rules checking. Every rejected GOS1 costs £22–25. IRYSS catches errors before submission.</p>
+        <span class="feat-tag" style="background:rgba(245,158,11,.06);color:var(--amber)">Zero-reject claims</span>
+        <div class="feat-peek">See it in action →</div>
+      </div>
+
+      <div class="feat" onclick="openModal('Google Review Automation','reviews')">
+        <div class="feat-icon" style="background:rgba(8,145,178,.08)">⭐</div>
+        <h3>Google Review Automation</h3>
+        <p>Automatically sends review requests to happy patients. 4.9 star rating with 73% conversion rate.</p>
+        <span class="feat-tag">+38 reviews/month</span>
+        <div class="feat-peek">See it in action →</div>
+      </div>
+
+      <div class="feat" onclick="openModal('No-Show Predictor','noshow')">
+        <div class="feat-icon" style="background:rgba(239,68,68,.06)">📅</div>
+        <h3>No-Show Predictor</h3>
+        <p>AI flags patients likely to miss appointments. Automated WhatsApp reminders at 48hr and 2hr before.</p>
+        <span class="feat-tag" style="background:rgba(239,68,68,.06);color:var(--red)">Reduce no-shows by 40%</span>
+        <div class="feat-peek">See it in action →</div>
+      </div>
+
+      <div class="feat" onclick="openModal('Contact Lens Defence','recalls')">
+        <div class="feat-icon" style="background:rgba(16,185,129,.06)">◉</div>
+        <h3>Contact Lens Defection Defence</h3>
+        <p>Automated reorder nudges when supply runs low. One-tap WhatsApp reorder. Stops patients defecting to online retailers.</p>
+        <span class="feat-tag" style="background:rgba(16,185,129,.06);color:var(--green)">Biggest revenue leak plugged</span>
+        <div class="feat-peek">See it in action →</div>
+      </div>
+
+      <div class="feat" onclick="openModal('Competitor Intelligence','intelligence')">
+        <div class="feat-icon" style="background:rgba(245,158,11,.06)">🎯</div>
+        <h3>Competitor Intelligence</h3>
+        <p>Detects when patients mention competitors in their messages. Alerts you instantly so you can win them back.</p>
+        <span class="feat-tag" style="background:rgba(245,158,11,.06);color:var(--amber)">No CRM does this</span>
+        <div class="feat-peek">See it in action →</div>
+      </div>
+    </div>
   </div>
-  <div class="feat-grid">
-
-    <div class="feat" onclick="openModal('WhatsApp Inbox','inbox')">
-      <div class="feat-icon" style="background:rgba(8,145,178,.08)">💬</div>
-      <h3>WhatsApp-Native Inbox</h3>
-      <p>Two-way WhatsApp messaging. Not SMS. Not email. 98% open rates. AI analyses sentiment automatically.</p>
-      <span class="feat-tag" style="background:rgba(8,145,178,.06);color:var(--accent)">No CRM offers this</span>
-      <div class="feat-peek">See it in action &rarr;</div>
-    </div>
-
-    <div class="feat" onclick="openModal('AI Patient Retention','retention')">
-      <div class="feat-icon" style="background:rgba(239,68,68,.06)">🎯</div>
-      <h3>AI Patient Retention</h3>
-      <p>Automatically identifies at-risk patients and re-engages them. Risk scoring, competitor detection, and smart nudges.</p>
-      <span class="feat-tag" style="background:rgba(239,68,68,.06);color:var(--red)">AI-powered risk scoring</span>
-      <div class="feat-peek">See it in action &rarr;</div>
-    </div>
-
-    <div class="feat" onclick="openModal('Practice Health Score','healthscore')">
-      <div class="feat-icon" style="background:rgba(16,185,129,.06)">📊</div>
-      <h3>Practice Health Score</h3>
-      <p>One visual score that tells you how healthy your practice is. Retention, revenue recovery, compliance &mdash; all at a glance.</p>
-      <span class="feat-tag" style="background:rgba(16,185,129,.06);color:var(--green)">Unique to IRYSS</span>
-      <div class="feat-peek">See it in action &rarr;</div>
-    </div>
-
-    <div class="feat" onclick="openModal('Myopia Clinic','myopia')">
-      <div class="feat-icon" style="background:rgba(139,92,246,.06)">👁</div>
-      <h3>Myopia Clinic</h3>
-      <p>Paediatric myopia management. Axial length progression charts, treatment tracking, parent WhatsApp, AI recommendations.</p>
-      <span class="feat-tag" style="background:rgba(139,92,246,.06);color:#8B5CF6">UK Delphi + IMI guidelines</span>
-      <div class="feat-peek">See it in action &rarr;</div>
-    </div>
-
-    <div class="feat" onclick="openModal('GOS Claim Validator','gos')">
-      <div class="feat-icon" style="background:rgba(245,158,11,.06)">📋</div>
-      <h3>GOS Claim Validator</h3>
-      <p>Real-time PCSE rules checking. Every rejected GOS1 costs £22–25. IRYSS catches errors before submission.</p>
-      <span class="feat-tag" style="background:rgba(245,158,11,.06);color:var(--amber)">Zero-reject claims</span>
-      <div class="feat-peek">See it in action &rarr;</div>
-    </div>
-
-    <div class="feat" onclick="openModal('Google Review Automation','reviews')">
-      <div class="feat-icon" style="background:rgba(8,145,178,.08)">⭐</div>
-      <h3>Google Review Automation</h3>
-      <p>Automatically sends review requests to happy patients. 4.9 star rating with 73% conversion rate.</p>
-      <span class="feat-tag" style="background:rgba(8,145,178,.06);color:var(--accent)">+38 reviews/month</span>
-      <div class="feat-peek">See it in action &rarr;</div>
-    </div>
-
-    <div class="feat" onclick="openModal('No-Show Predictor','noshow')">
-      <div class="feat-icon" style="background:rgba(239,68,68,.06)">📅</div>
-      <h3>No-Show Predictor</h3>
-      <p>AI flags patients likely to miss appointments. Automated WhatsApp reminders at 48hr and 2hr before.</p>
-      <span class="feat-tag" style="background:rgba(239,68,68,.06);color:var(--red)">Reduce no-shows by 40%</span>
-      <div class="feat-peek">See it in action &rarr;</div>
-    </div>
-
-    <div class="feat" onclick="openModal('Contact Lens Defence','recalls')">
-      <div class="feat-icon" style="background:rgba(16,185,129,.06)">◉</div>
-      <h3>Contact Lens Defection Defence</h3>
-      <p>Automated reorder nudges when supply runs low. One-tap WhatsApp reorder. Stops patients defecting to online retailers.</p>
-      <span class="feat-tag" style="background:rgba(16,185,129,.06);color:var(--green)">Biggest revenue leak plugged</span>
-      <div class="feat-peek">See it in action &rarr;</div>
-    </div>
-
-    <div class="feat" onclick="openModal('Competitor Intelligence','intelligence')">
-      <div class="feat-icon" style="background:rgba(245,158,11,.06)">🎯</div>
-      <h3>Competitor Intelligence</h3>
-      <p>Detects when patients mention competitors in their messages. Alerts you instantly so you can win them back.</p>
-      <span class="feat-tag" style="background:rgba(245,158,11,.06);color:var(--amber)">No CRM does this</span>
-      <div class="feat-peek">See it in action &rarr;</div>
-    </div>
-
-  </div>
-</div></section>
+</section>
 
 <!-- HOW IT WORKS -->
-<section style="background:var(--alt);padding:80px 32px" id="how"><div class="wrap">
-  <div class="sec-h">
-    <div class="sec-badge">How It Works</div>
-    <h2 class="sec-title">Three steps. Five minutes. Done.</h2>
-    <p class="sec-sub">No training. No IT. No disruption to your day.</p>
+<section class="steps-sec" id="how">
+  <div class="wrap">
+    <div class="sec-h">
+      <div class="sec-badge">How It Works</div>
+      <h2 class="sec-title">Three steps. Five minutes. Done.</h2>
+      <p class="sec-sub">No training. No IT. No disruption to your day.</p>
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-n">1</div>
+        <h3>Connect your CRM</h3>
+        <p>One click to connect XEYEX, Optisoft, or any PMS. Patient data syncs automatically. Or import via CSV.</p>
+      </div>
+      <div class="step">
+        <div class="step-n">2</div>
+        <h3>IRYSS analyses &amp; acts</h3>
+        <p>AI identifies at-risk patients, sends WhatsApp messages, automates recalls, and manages reviews overnight.</p>
+      </div>
+      <div class="step">
+        <div class="step-n">3</div>
+        <h3>You see the results</h3>
+        <p>Patients rebook, revenue recovers, reviews increase. Open your dashboard each morning and watch it happen.</p>
+      </div>
+    </div>
   </div>
-  <div class="steps">
-    <div class="step"><div class="step-n">1</div><h3>Connect your CRM</h3><p>One click to connect XEYEX, Optisoft, or any PMS. Patient data syncs automatically. Or import via CSV.</p></div>
-    <div class="step"><div class="step-n">2</div><h3>IRYSS analyses &amp; acts</h3><p>AI identifies at-risk patients, sends WhatsApp messages, automates recalls, and manages reviews overnight.</p></div>
-    <div class="step"><div class="step-n">3</div><h3>You see the results</h3><p>Patients rebook, revenue recovers, reviews increase. Open your dashboard each morning and watch it happen.</p></div>
-  </div>
-</div></section>
+</section>
 
 <!-- PRICING -->
-<section class="sec" id="pricing"><div class="wrap">
-  <div class="sec-h">
-    <div class="sec-badge">Pricing</div>
-    <h2 class="sec-title">Simple, transparent pricing</h2>
-    <p class="sec-sub">No per-user fees. No hidden add-ons. Cancel anytime.</p>
+<section class="sec-pricing" id="pricing">
+  <div class="wrap">
+    <div class="sec-h">
+      <div class="sec-badge">Pricing</div>
+      <h2 class="sec-title">Simple, transparent pricing</h2>
+      <p class="sec-sub">No per-user fees. No hidden add-ons. Cancel anytime.</p>
+    </div>
+
+    <div class="price-grid">
+      <div class="price-card">
+        <div class="price-name">Starter</div>
+        <div class="price-amt">&pound;79<span>/mo</span></div>
+        <div class="price-per">per practice</div>
+        <div class="price-desc">Essential patient retention for smaller practices getting started.</div>
+        <ul class="price-list">
+          <li>Up to 500 patients</li>
+          <li>WhatsApp inbox &amp; messaging</li>
+          <li>Patient risk scoring</li>
+          <li>Recall automation</li>
+          <li>Google review requests</li>
+          <li>Daily digest email</li>
+          <li>CRM integration (1 system)</li>
+          <li class="disabled">Myopia Clinic</li>
+          <li class="disabled">GOS claim validation</li>
+          <li class="disabled">Competitor intelligence</li>
+          <li class="disabled">No-show prediction</li>
+          <li class="disabled">Online booking widget</li>
+        </ul>
+        <a href="mailto:IryssNI@outlook.com" class="btn btn-s">Start Free Trial</a>
+      </div>
+
+      <div class="price-card pop">
+        <div class="price-pop-tag">Most Popular</div>
+        <div class="price-name">Pro</div>
+        <div class="price-amt">&pound;149<span>/mo</span></div>
+        <div class="price-per">per practice</div>
+        <div class="price-desc">The full IRYSS experience. Everything you need to retain every patient.</div>
+        <ul class="price-list">
+          <li>Unlimited patients</li>
+          <li>WhatsApp inbox &amp; messaging</li>
+          <li>Patient risk scoring &amp; AI</li>
+          <li>Recall &amp; reorder automation</li>
+          <li>Google review automation</li>
+          <li>Daily digest email</li>
+          <li>CRM integration (unlimited)</li>
+          <li>Myopia Clinic management</li>
+          <li>GOS claim validation</li>
+          <li>Competitor intelligence</li>
+          <li>No-show prediction</li>
+          <li>Online booking widget</li>
+        </ul>
+        <a href="mailto:IryssNI@outlook.com" class="btn btn-p">Start Free Trial →</a>
+      </div>
+
+      <div class="price-card">
+        <div class="price-name">Enterprise</div>
+        <div class="price-amt">&pound;249<span>/mo</span></div>
+        <div class="price-per">per practice</div>
+        <div class="price-desc">For multi-site groups and practices that want white-glove onboarding.</div>
+        <ul class="price-list">
+          <li>Everything in Pro</li>
+          <li>Multi-site dashboard</li>
+          <li>Dedicated account manager</li>
+          <li>Custom WhatsApp templates</li>
+          <li>API access</li>
+          <li>Priority support</li>
+          <li>Custom integrations</li>
+          <li>Staff training sessions</li>
+          <li>Quarterly business reviews</li>
+          <li>Custom compliance reports</li>
+          <li>SLA guarantee</li>
+          <li>White-label option</li>
+        </ul>
+        <a href="mailto:IryssNI@outlook.com" class="btn btn-s">Contact Sales</a>
+      </div>
+    </div>
+
+    <p class="price-note">All plans include a 30-day free trial. No credit card required.</p>
   </div>
-  <div class="price-grid">
-
-    <!-- STARTER -->
-    <div class="price-card">
-      <div class="price-name">Starter</div>
-      <div class="price-amt">&pound;79<span style="font-size:16px;font-weight:500;color:var(--muted);letter-spacing:0">/mo</span></div>
-      <div class="price-per">per practice</div>
-      <div class="price-desc">Essential patient retention for smaller practices getting started.</div>
-      <ul class="price-list">
-        <li>Up to 500 patients</li>
-        <li>WhatsApp inbox &amp; messaging</li>
-        <li>Patient risk scoring</li>
-        <li>Recall automation</li>
-        <li>Google review requests</li>
-        <li>Daily digest email</li>
-        <li>CRM integration (1 system)</li>
-        <li class="disabled">Myopia Clinic</li>
-        <li class="disabled">GOS claim validation</li>
-        <li class="disabled">Competitor intelligence</li>
-        <li class="disabled">No-show prediction</li>
-        <li class="disabled">Online booking widget</li>
-      </ul>
-      <a href="mailto:IryssNI@outlook.com" class="btn btn-s" style="width:100%;justify-content:center">Start Free Trial</a>
-    </div>
-
-    <!-- PRO -->
-    <div class="price-card pop">
-      <div class="price-pop-tag">Most Popular</div>
-      <div class="price-name">Pro</div>
-      <div class="price-amt">&pound;149<span style="font-size:16px;font-weight:500;color:var(--muted);letter-spacing:0">/mo</span></div>
-      <div class="price-per">per practice</div>
-      <div class="price-desc">The full IRYSS experience. Everything you need to retain every patient.</div>
-      <ul class="price-list">
-        <li>Unlimited patients</li>
-        <li>WhatsApp inbox &amp; messaging</li>
-        <li>Patient risk scoring &amp; AI</li>
-        <li>Recall &amp; reorder automation</li>
-        <li>Google review automation</li>
-        <li>Daily digest email</li>
-        <li>CRM integration (unlimited)</li>
-        <li>Myopia Clinic management</li>
-        <li>GOS claim validation</li>
-        <li>Competitor intelligence</li>
-        <li>No-show prediction</li>
-        <li>Online booking widget</li>
-      </ul>
-      <a href="mailto:IryssNI@outlook.com" class="btn btn-p" style="width:100%;justify-content:center">Start Free Trial &rarr;</a>
-    </div>
-
-    <!-- ENTERPRISE -->
-    <div class="price-card">
-      <div class="price-name">Enterprise</div>
-      <div class="price-amt">&pound;249<span style="font-size:16px;font-weight:500;color:var(--muted);letter-spacing:0">/mo</span></div>
-      <div class="price-per">per practice</div>
-      <div class="price-desc">For multi-site groups and practices that want white-glove onboarding.</div>
-      <ul class="price-list">
-        <li>Everything in Pro</li>
-        <li>Multi-site dashboard</li>
-        <li>Dedicated account manager</li>
-        <li>Custom WhatsApp templates</li>
-        <li>API access</li>
-        <li>Priority support</li>
-        <li>Custom integrations</li>
-        <li>Staff training sessions</li>
-        <li>Quarterly business reviews</li>
-        <li>Custom compliance reports</li>
-        <li>SLA guarantee</li>
-        <li>White-label option</li>
-      </ul>
-      <a href="mailto:IryssNI@outlook.com" class="btn btn-s" style="width:100%;justify-content:center">Contact Sales</a>
-    </div>
-
-  </div>
-  <p style="text-align:center;margin-top:24px;font-size:13px;color:var(--muted)">All plans include a 30-day free trial. No credit card required.</p>
-</div></section>
+</section>
 
 <!-- CTA -->
 <section class="cta">
   <h2>Ready to stop losing patients?</h2>
-  <p>Join the opticians recovering thousands in revenue every month with IRYSS.</p>
-  <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap">
-    <a href="mailto:IryssNI@outlook.com" class="btn btn-p">Book a Demo &rarr;</a>
+  <p>Join the opticians recovering revenue every month with IRYSS.</p>
+  <div class="cta-btns">
+    <a href="mailto:IryssNI@outlook.com" class="btn btn-p">Book a Demo →</a>
   </div>
-  <p style="margin-top:24px;font-size:12px;color:rgba(255,255,255,.3)">GDPR compliant &middot; EU data servers &middot; Built in Belfast</p>
+  <div class="cta-note">
+    <span>GDPR compliant</span>
+    <span>·</span>
+    <span>EU data servers</span>
+    <span>·</span>
+    <span>Built in Belfast</span>
+  </div>
 </section>
 
 <!-- FOOTER -->
 <footer class="footer">
-  <div><a href="#" style="text-decoration:none;display:inline-block" class="footer-logo">IRY<span>SS</span></a></div>
+  <a href="#" class="footer-logo">IRY<span>SS</span></a>
   <div class="footer-links">
     <a href="#">Privacy</a>
     <a href="#">Terms</a>
@@ -427,15 +1441,15 @@ a{text-decoration:none;color:inherit}
 
 <!-- MODAL -->
 <div class="modal-overlay" id="modal" onclick="closeModal(event)">
-  <div class="modal" onclick="event.stopPropagation()" style="max-width:960px">
+  <div class="modal" onclick="event.stopPropagation()">
     <div class="modal-header">
       <h3 id="modal-title">Feature Preview</h3>
       <button class="modal-close" onclick="closeModal()">&times;</button>
     </div>
-    <div class="modal-body" style="padding:28px;overflow-y:auto;max-height:70vh" id="modal-content"></div>
-    <div style="padding:16px 28px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
-      <span style="font-size:13px;color:var(--muted)">This is a preview of the IRYSS dashboard</span>
-      <a href="mailto:IryssNI@outlook.com" class="btn btn-p btn-sm" style="text-decoration:none">Book a Demo &rarr;</a>
+    <div class="modal-body" id="modal-content"></div>
+    <div class="modal-footer">
+      <span>This is a preview of the IRYSS dashboard</span>
+      <a href="mailto:IryssNI@outlook.com" class="btn btn-p btn-sm">Book a Demo →</a>
     </div>
   </div>
 </div>
@@ -518,7 +1532,7 @@ const previews = {
         </div>
       </div>
       <div style="background:linear-gradient(135deg,rgba(8,145,178,.05),rgba(34,211,238,.03));border:1px solid rgba(8,145,178,.1);border-radius:12px;padding:14px 18px;display:flex;align-items:center;gap:12px">
-        <div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#0891B2,#06B6D4);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff;font-size:14px">&#10038;</div>
+        <div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#0891B2,#06B6D4);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff;font-size:14px">✦</div>
         <div style="font-size:13px;color:#64748B"><strong style="color:#0F172A">21 contact lens patients</strong> are overdue for reorder. Automated WhatsApp nudges are scheduled for this week.</div>
       </div>
     </div>`,
@@ -553,11 +1567,11 @@ const previews = {
       <div style="border:1px solid #E2E8F0;border-radius:12px;overflow:hidden;margin-bottom:16px">
         <div style="padding:14px 18px;font-weight:700;font-size:14px;border-bottom:1px solid #E2E8F0">Recent Validations</div>
         <div style="display:grid;grid-template-columns:1fr 100px 80px 140px;padding:10px 18px;background:#F8FAFB;font-size:10px;font-weight:600;color:#94A3B8;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid #E2E8F0"><span>Patient</span><span>GOS Form</span><span>Status</span><span>Issue</span></div>
-        <div style="display:grid;grid-template-columns:1fr 100px 80px 140px;padding:12px 18px;align-items:center;border-bottom:1px solid #F1F5F9;font-size:13px"><span style="font-weight:600">Mary O&rsquo;Donnell</span><span style="color:#64748B">GOS1</span><span style="color:#10B981;font-weight:700;font-size:11px">VALID</span><span style="font-size:11px;color:#94A3B8">&mdash;</span></div>
+        <div style="display:grid;grid-template-columns:1fr 100px 80px 140px;padding:12px 18px;align-items:center;border-bottom:1px solid #F1F5F9;font-size:13px"><span style="font-weight:600">Mary O'Donnell</span><span style="color:#64748B">GOS1</span><span style="color:#10B981;font-weight:700;font-size:11px">VALID</span><span style="font-size:11px;color:#94A3B8">—</span></div>
         <div style="display:grid;grid-template-columns:1fr 100px 80px 140px;padding:12px 18px;align-items:center;border-bottom:1px solid #F1F5F9;font-size:13px;background:rgba(245,158,11,.03)"><span style="font-weight:600">Sean Murphy</span><span style="color:#64748B">GOS1</span><span style="color:#F59E0B;font-weight:700;font-size:11px">WARNING</span><span style="font-size:11px;color:#F59E0B">Missing HC cert ref</span></div>
-        <div style="display:grid;grid-template-columns:1fr 100px 80px 140px;padding:12px 18px;align-items:center;font-size:13px"><span style="font-weight:600">Clare Hughes</span><span style="color:#64748B">GOS3</span><span style="color:#10B981;font-weight:700;font-size:11px">VALID</span><span style="font-size:11px;color:#94A3B8">&mdash;</span></div>
+        <div style="display:grid;grid-template-columns:1fr 100px 80px 140px;padding:12px 18px;align-items:center;font-size:13px"><span style="font-weight:600">Clare Hughes</span><span style="color:#64748B">GOS3</span><span style="color:#10B981;font-weight:700;font-size:11px">VALID</span><span style="font-size:11px;color:#94A3B8">—</span></div>
       </div>
-      <div style="background:rgba(245,158,11,.04);border:1px solid rgba(245,158,11,.15);border-radius:12px;padding:14px 18px;display:flex;align-items:center;gap:12px"><div style="font-size:20px;flex-shrink:0">&#9888;</div><div style="font-size:13px;color:#64748B"><strong style="color:#0F172A">Sean Murphy GOS1:</strong> HC certificate reference missing. PCSE will reject without it. <span style="color:#0891B2;font-weight:600;cursor:pointer">Fix now &rarr;</span></div></div>
+      <div style="background:rgba(245,158,11,.04);border:1px solid rgba(245,158,11,.15);border-radius:12px;padding:14px 18px;display:flex;align-items:center;gap:12px"><div style="font-size:20px;flex-shrink:0">&#9888;</div><div style="font-size:13px;color:#64748B"><strong style="color:#0F172A">Sean Murphy GOS1:</strong> HC certificate reference missing. PCSE will reject without it. <span style="color:#0891B2;font-weight:600;cursor:pointer">Fix now →</span></div></div>
     </div>`,
   noshow: `
     <div style="font-family:'Plus Jakarta Sans',sans-serif">
@@ -567,24 +1581,24 @@ const previews = {
         <div style="border:1px solid #E2E8F0;border-radius:12px;padding:16px;text-align:center"><div style="font-size:28px;font-weight:800;color:#0891B2">18</div><div style="font-size:11px;color:#94A3B8;margin-top:4px">Reminders sent this week</div></div>
       </div>
       <div style="border:1px solid #E2E8F0;border-radius:12px;overflow:hidden;margin-bottom:16px">
-        <div style="padding:14px 18px;font-weight:700;font-size:14px;border-bottom:1px solid #E2E8F0">Tomorrow&rsquo;s Appointments &mdash; Risk Flags</div>
+        <div style="padding:14px 18px;font-weight:700;font-size:14px;border-bottom:1px solid #E2E8F0">Tomorrow's Appointments — Risk Flags</div>
         <div style="display:grid;grid-template-columns:1fr 80px 100px 130px;padding:10px 18px;background:#F8FAFB;font-size:10px;font-weight:600;color:#94A3B8;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid #E2E8F0"><span>Patient</span><span>Time</span><span>Risk</span><span>Reminder</span></div>
         <div style="display:grid;grid-template-columns:1fr 80px 100px 130px;padding:12px 18px;align-items:center;border-bottom:1px solid #F1F5F9;font-size:13px;background:rgba(239,68,68,.02)"><span style="font-weight:600">Ciara Walsh</span><span style="color:#64748B">09:30</span><span><span style="background:rgba(239,68,68,.08);color:#EF4444;padding:3px 10px;border-radius:10px;font-size:11px;font-weight:700">High</span></span><span style="color:#10B981;font-size:12px;font-weight:600">✓ Sent 48hr + 2hr</span></div>
         <div style="display:grid;grid-template-columns:1fr 80px 100px 130px;padding:12px 18px;align-items:center;border-bottom:1px solid #F1F5F9;font-size:13px"><span style="font-weight:600">Patrick Maguire</span><span style="color:#64748B">11:00</span><span><span style="background:rgba(245,158,11,.08);color:#F59E0B;padding:3px 10px;border-radius:10px;font-size:11px;font-weight:700">Medium</span></span><span style="color:#10B981;font-size:12px;font-weight:600">✓ Sent 48hr</span></div>
         <div style="display:grid;grid-template-columns:1fr 80px 100px 130px;padding:12px 18px;align-items:center;font-size:13px"><span style="font-weight:600">Donna Campbell</span><span style="color:#64748B">14:15</span><span><span style="background:rgba(239,68,68,.08);color:#EF4444;padding:3px 10px;border-radius:10px;font-size:11px;font-weight:700">High</span></span><span style="color:#F59E0B;font-size:12px;font-weight:600">&#9202; 2hr pending</span></div>
       </div>
-      <div style="background:rgba(16,185,129,.04);border:1px solid rgba(16,185,129,.15);border-radius:12px;padding:14px 18px;font-size:13px;color:#64748B"><strong style="color:#0F172A">Ciara Walsh</strong> has missed 2 of her last 4 appointments. WhatsApp confirmation requested &mdash; she replied &ldquo;Yes, I&rsquo;ll be there!&rdquo;</div>
+      <div style="background:rgba(16,185,129,.04);border:1px solid rgba(16,185,129,.15);border-radius:12px;padding:14px 18px;font-size:13px;color:#64748B"><strong style="color:#0F172A">Ciara Walsh</strong> has missed 2 of her last 4 appointments. WhatsApp confirmation requested — she replied "Yes, I'll be there!"</div>
     </div>`,
   myopia: `
     <div style="font-family:'Plus Jakarta Sans',sans-serif">
       <div style="background:linear-gradient(135deg,#0891B2,#06B6D4);border-radius:14px;padding:18px 22px;color:#fff;margin-bottom:16px">
         <div style="font-size:10px;letter-spacing:1px;opacity:.6;margin-bottom:6px">IRYSS AI · MYOPIA INSIGHTS</div>
-        <div style="font-size:14px;line-height:1.5"><strong>2 patients</strong> progressing &gt;0.20 mm/yr — consider switch. <strong>2 overdue</strong> for 6-month review. <strong>3 pre-myopic children</strong> need lifestyle review.</div>
+        <div style="font-size:14px;line-height:1.5"><strong>2 patients</strong> progressing >0.20 mm/yr — consider switch. <strong>2 overdue</strong> for 6-month review. <strong>3 pre-myopic children</strong> need lifestyle review.</div>
       </div>
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px">
         <div style="border:1px solid #E2E8F0;border-radius:12px;padding:14px;border-left:3px solid #EF4444"><div style="font-size:10px;color:#94A3B8;text-transform:uppercase;letter-spacing:.5px">Active</div><div style="font-size:28px;font-weight:800;margin:4px 0">10</div><div style="font-size:11px;color:#64748B">2 in fitting</div></div>
-        <div style="border:1px solid #E2E8F0;border-radius:12px;padding:14px;border-left:3px solid #10B981"><div style="font-size:10px;color:#94A3B8;text-transform:uppercase;letter-spacing:.5px">Responding</div><div style="font-size:28px;font-weight:800;margin:4px 0">50%</div><div style="font-size:11px;color:#10B981">5/10 &lt;0.10 mm/yr</div></div>
-        <div style="border:1px solid #E2E8F0;border-radius:12px;padding:14px;border-left:3px solid #F59E0B"><div style="font-size:10px;color:#94A3B8;text-transform:uppercase;letter-spacing:.5px">Overdue</div><div style="font-size:28px;font-weight:800;margin:4px 0">2</div><div style="font-size:11px;color:#64748B">&gt;6 months</div></div>
+        <div style="border:1px solid #E2E8F0;border-radius:12px;padding:14px;border-left:3px solid #10B981"><div style="font-size:10px;color:#94A3B8;text-transform:uppercase;letter-spacing:.5px">Responding</div><div style="font-size:28px;font-weight:800;margin:4px 0">50%</div><div style="font-size:11px;color:#10B981">5/10 <0.10 mm/yr</div></div>
+        <div style="border:1px solid #E2E8F0;border-radius:12px;padding:14px;border-left:3px solid #F59E0B"><div style="font-size:10px;color:#94A3B8;text-transform:uppercase;letter-spacing:.5px">Overdue</div><div style="font-size:28px;font-weight:800;margin:4px 0">2</div><div style="font-size:11px;color:#64748B">>6 months</div></div>
         <div style="border:1px solid #E2E8F0;border-radius:12px;padding:14px;border-left:3px solid #0891B2"><div style="font-size:10px;color:#94A3B8;text-transform:uppercase;letter-spacing:.5px">Pre-Myopic</div><div style="font-size:28px;font-weight:800;margin:4px 0">3</div><div style="font-size:11px;color:#64748B">Lifestyle review due</div></div>
       </div>
       <div style="font-weight:700;margin-bottom:10px">Axial Length Progression</div>
@@ -644,7 +1658,7 @@ const previews = {
     </div>`
 };
 
-// Scroll animations
+// Scroll animations and interactions
 const observerOptions = { threshold: 0.1, rootMargin: '0px 0px -50px 0px' };
 const observer = new IntersectionObserver(entries => {
   entries.forEach(entry => {
