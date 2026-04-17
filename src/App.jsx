@@ -2046,21 +2046,28 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                 ];
                 return (
                   <div style={{ display:"grid", gridTemplateColumns:"190px repeat(3,1fr)", gap:16, marginBottom:14, alignItems:"stretch", animation:"fadeInUp .5s ease-out" }}>
-                    {/* Practice Score Ring */}
-                    <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:16, padding:"22px 16px 20px", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", boxShadow:C.cardShadow, position:"relative", overflow:"hidden" }}>
-                      <div style={{ position:"absolute", top:0, left:0, right:0, height:2, background:"linear-gradient(90deg,#0891B2,#06B6D4,#22D3EE)", opacity:.6 }} />
-                      <div style={{ fontSize:10, fontWeight:700, textTransform:"uppercase", letterSpacing:1, color:C.slateLight, marginBottom:10 }}>Practice Score</div>
-                      <div style={{ position:"relative", width:108, height:108 }}>
-                        <svg width="108" height="108" viewBox="0 0 120 120" style={{ transform:"rotate(-90deg)" }}>
-                          <circle cx="60" cy="60" r="54" fill="none" stroke="#F1F5F9" strokeWidth="9" />
-                          <circle cx="60" cy="60" r="54" fill="none" stroke={scoreColor} strokeWidth="9" strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={strokeDashoffset} style={{ transition:"stroke-dashoffset 1.2s cubic-bezier(0.34,1.56,0.64,1)", filter:`drop-shadow(0 0 8px ${scoreColor}55)` }} />
-                        </svg>
-                        <div style={{ position:"absolute", inset:0, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center" }}>
-                          <div style={{ fontSize:34, fontWeight:800, color:C.text, lineHeight:1, letterSpacing:-1 }}>{practiceScore}</div>
-                          <div style={{ fontSize:9.5, fontWeight:700, color:scoreColor, marginTop:4, letterSpacing:0.5, textTransform:"uppercase" }}>{scoreLabel}</div>
+                    {/* Practice Score Ring — structured to align with KPI cards */}
+                    <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:16, padding:"20px 22px 18px", display:"flex", flexDirection:"column", justifyContent:"space-between", alignItems:"stretch", boxShadow:C.cardShadow, position:"relative", overflow:"hidden" }}>
+                      <div style={{ position:"absolute", top:0, left:0, width:3, height:"100%", background:"linear-gradient(180deg,#0891B2,#06B6D4,#22D3EE)" }} />
+                      {/* Top row — mirrors KPI "label + sparkline" layout */}
+                      <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+                        <div style={{ fontSize:10, fontWeight:700, textTransform:"uppercase", letterSpacing:1, color:C.slateLight }}>Practice Score</div>
+                        <span style={{ fontSize:9, fontWeight:800, background:`${scoreColor}18`, color:scoreColor, padding:"3px 7px", borderRadius:6, letterSpacing:0.5 }}>{scoreLabel.toUpperCase()}</span>
+                      </div>
+                      {/* Middle — ring, centered */}
+                      <div style={{ flex:1, display:"flex", alignItems:"center", justifyContent:"center", padding:"10px 0" }}>
+                        <div style={{ position:"relative", width:100, height:100 }}>
+                          <svg width="100" height="100" viewBox="0 0 120 120" style={{ transform:"rotate(-90deg)" }}>
+                            <circle cx="60" cy="60" r="54" fill="none" stroke="#F1F5F9" strokeWidth="9" />
+                            <circle cx="60" cy="60" r="54" fill="none" stroke={scoreColor} strokeWidth="9" strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={strokeDashoffset} style={{ transition:"stroke-dashoffset 1.2s cubic-bezier(0.34,1.56,0.64,1)", filter:`drop-shadow(0 0 8px ${scoreColor}55)` }} />
+                          </svg>
+                          <div style={{ position:"absolute", inset:0, display:"flex", alignItems:"center", justifyContent:"center" }}>
+                            <div style={{ fontSize:34, fontWeight:800, color:C.text, lineHeight:1, letterSpacing:-1.5, fontVariantNumeric:"tabular-nums" }}>{practiceScore}</div>
+                          </div>
                         </div>
                       </div>
-                      <div style={{ fontSize:10.5, color:C.slate, marginTop:10, textAlign:"center", fontWeight:500, lineHeight:1.4 }}>
+                      {/* Bottom — verdict sentence, aligned with KPI "sub + View" footer */}
+                      <div style={{ fontSize:11, color:C.slate, textAlign:"center", fontWeight:500, lineHeight:1.4 }}>
                         {practiceScore>=80?"On top of retention":practiceScore>=60?"Room to recover more":"Act this week"}
                       </div>
                     </div>
