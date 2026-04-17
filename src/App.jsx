@@ -1746,162 +1746,115 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
           {/* ═══ DASHBOARD ═══ */}
           {nav==="dashboard"&&(
             <div>
-              {/* Greeting */}
-              <div style={{ marginBottom:28 }}>
-                <h1 style={{ fontSize:28, fontWeight:800, letterSpacing:-0.5, marginBottom:4, color:C.text, fontFamily:F }}>{new Date().getHours()<12?"Good morning":new Date().getHours()<18?"Good afternoon":"Good evening"}</h1>
-                <p style={{ fontSize:15, color:C.slate, fontFamily:F }}>Your daily practice briefing <span style={{ color:C.slateLight }}>· {new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</span></p>
+              {/* Greeting + action buttons */}
+              <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:24 }}>
+                <div>
+                  <h1 style={{ fontSize:24, fontWeight:800, letterSpacing:-0.5, marginBottom:2, color:C.text, fontFamily:F }}>{new Date().getHours()<12?"Good morning":new Date().getHours()<18?"Good afternoon":"Good evening"}, {practiceDetails.name?.split(' ')[0] || 'there'}</h1>
+                  <p style={{ fontSize:13, color:C.slate, fontFamily:F }}>{new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'})}</p>
+                </div>
+                <div style={{ display:"flex", gap:8 }}>
+                  <button style={{ padding:"8px 18px", borderRadius:8, fontSize:12, fontWeight:600, border:`1px solid ${C.border}`, background:C.card, color:C.slate, cursor:"pointer", fontFamily:F, transition:"all .2s" }}
+                    onMouseEnter={e=>{e.currentTarget.style.borderColor="#CBD5E1";e.currentTarget.style.background=C.bg;}}
+                    onMouseLeave={e=>{e.currentTarget.style.borderColor=C.border;e.currentTarget.style.background=C.card;}}>Export</button>
+                  <button style={{ padding:"8px 18px", borderRadius:8, fontSize:12, fontWeight:600, border:"1px solid transparent", background:`linear-gradient(135deg,${C.teal},${C.tealLt})`, color:"#fff", cursor:"pointer", fontFamily:F, boxShadow:"0 2px 8px rgba(8,145,178,.25)", transition:"all .2s" }}
+                    onMouseEnter={e=>{e.currentTarget.style.boxShadow="0 4px 16px rgba(8,145,178,.35)";e.currentTarget.style.transform="translateY(-1px)";}}
+                    onMouseLeave={e=>{e.currentTarget.style.boxShadow="0 2px 8px rgba(8,145,178,.25)";e.currentTarget.style.transform="translateY(0)";}}>+ New Campaign</button>
+                </div>
               </div>
 
               {/* Urgent alert banner */}
               {urgentMessages.length>0&&(
-                <div onClick={()=>setDrill("urgent-messages")} style={{ display:"flex", alignItems:"center", gap:14, background:"#FFFBEB", border:"1px solid #FDE68A", borderRadius:12, padding:"14px 20px", marginBottom:28, cursor:"pointer", transition:"all .2s" }}
+                <div onClick={()=>setDrill("urgent-messages")} style={{ display:"flex", alignItems:"center", gap:12, background:"#FFFBEB", border:"1px solid #FDE68A", borderRadius:12, padding:"14px 20px", marginBottom:18, cursor:"pointer", transition:"all .2s" }}
                   onMouseEnter={e=>{e.currentTarget.style.boxShadow="0 2px 12px rgba(245,158,11,0.12)";e.currentTarget.style.transform="translateY(-1px)";}}
                   onMouseLeave={e=>{e.currentTarget.style.boxShadow="none";e.currentTarget.style.transform="translateY(0)";}}>
-                  <span style={{ width:10, height:10, borderRadius:"50%", background:C.amber, flexShrink:0, animation:"pulseDot 2s ease-in-out infinite" }} />
-                  <div>
-                    <div style={{ fontSize:14, fontWeight:600, color:"#92400E", fontFamily:F }}>{urgentMessages.length} patient{urgentMessages.length>1?"s":""} replied urgently <span style={{ fontWeight:400, color:"#B45309" }}>— they need you today</span></div>
-                  </div>
-                  <div style={{ marginLeft:"auto", fontSize:13, fontWeight:600, color:"#D97706", whiteSpace:"nowrap" }}>View alerts →</div>
+                  <span style={{ width:8, height:8, borderRadius:"50%", background:C.amber, flexShrink:0, animation:"pulseDot 2s ease-in-out infinite" }} />
+                  <span style={{ fontSize:14, fontWeight:600, color:"#92400E", flex:1, fontFamily:F }}>{urgentMessages.length} patient{urgentMessages.length>1?"s":""} replied urgently — they need you today</span>
+                  <span style={{ color:C.amber, fontSize:12, fontWeight:600 }}>View →</span>
                 </div>
               )}
 
-              {/* ═══ HERO: Donut Chart + Revenue Card ═══ */}
+              {/* ═══ Practice Score + 4 Metric Cards ═══ */}
               {(()=>{
-                const totalPatients = PATIENTS.length;
                 const atRiskCount = PATIENTS.filter(p=>p.risk!=="low").length;
-                const recoveredCount = recovered.length;
-                const healthyCount = totalPatients - atRiskCount - recoveredCount;
-                const circumference = 2 * Math.PI * 80;
-                const healthyDash = Math.round((healthyCount / totalPatients) * circumference);
-                const riskDash = Math.round((atRiskCount / totalPatients) * circumference);
-                const recoveredDash = Math.round((recoveredCount / totalPatients) * circumference);
-                const healthyOff = 0;
-                const riskOff = healthyDash;
-                const recoveredOff = healthyDash + riskDash;
+                const practiceScore = Math.round((recovered.length / Math.max(atRiskCount + recovered.length, 1)) * 100);
+                const circumference = 2 * Math.PI * 54;
+                const strokeDashoffset = circumference - (practiceScore / 100) * circumference;
+                const scoreColor = practiceScore >= 80 ? C.green : practiceScore >= 60 ? C.amber : C.red;
+                const scoreLabel = practiceScore >= 90 ? "Excellent" : practiceScore >= 80 ? "Great" : practiceScore >= 60 ? "Good" : "Needs attention";
                 return (
-                  <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:24, marginBottom:28 }}>
-                    {/* LEFT: Patient Health Donut */}
-                    <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:16, padding:32, boxShadow:"0 1px 3px rgba(0,0,0,.04)", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", position:"relative", minHeight:360 }}>
-                      <div style={{ position:"absolute", top:24, left:28, fontSize:13, fontWeight:700, color:C.slateLight, textTransform:"uppercase", letterSpacing:0.8 }}>Patient Health</div>
-                      <div style={{ position:"relative", width:240, height:240, margin:"12px 0" }}>
-                        <svg width="240" height="240" viewBox="0 0 200 200" style={{ transform:"rotate(-90deg)" }}>
-                          <circle cx="100" cy="100" r="80" fill="none" stroke="#F1F5F9" strokeWidth="28" />
-                          <circle cx="100" cy="100" r="80" fill="none" stroke={C.green} strokeWidth="28" strokeLinecap="round"
-                            strokeDasharray={`${healthyDash} ${circumference - healthyDash}`} strokeDashoffset={-healthyOff}
-                            style={{ transition:"stroke-dasharray 1.2s cubic-bezier(0.4,0,0.2,1)", cursor:"pointer" }} />
-                          <circle cx="100" cy="100" r="80" fill="none" stroke={C.red} strokeWidth="28" strokeLinecap="round"
-                            strokeDasharray={`${riskDash} ${circumference - riskDash}`} strokeDashoffset={-riskOff}
-                            style={{ transition:"stroke-dasharray 1.2s cubic-bezier(0.4,0,0.2,1)", cursor:"pointer" }} />
-                          <circle cx="100" cy="100" r="80" fill="none" stroke={C.tealLt} strokeWidth="28" strokeLinecap="round"
-                            strokeDasharray={`${recoveredDash} ${circumference - recoveredDash}`} strokeDashoffset={-recoveredOff}
-                            style={{ transition:"stroke-dasharray 1.2s cubic-bezier(0.4,0,0.2,1)", cursor:"pointer" }} />
-                        </svg>
-                        <div style={{ position:"absolute", top:"50%", left:"50%", transform:"translate(-50%,-50%)", textAlign:"center" }}>
-                          <div style={{ fontSize:48, fontWeight:800, letterSpacing:-2, lineHeight:1, color:C.text }}>{totalPatients}</div>
-                          <div style={{ fontSize:13, color:C.slateLight, fontWeight:500, marginTop:4 }}>total patients</div>
-                        </div>
-                      </div>
-                      <div style={{ display:"flex", gap:20, marginTop:8 }}>
-                        <div onClick={()=>setDrill("recovered")} style={{ display:"flex", alignItems:"center", gap:8, cursor:"pointer", padding:"6px 12px", borderRadius:8, transition:"background .2s" }}
-                          onMouseEnter={e=>e.currentTarget.style.background="#F1F5F9"} onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
-                          <span style={{ width:10, height:10, borderRadius:"50%", background:C.green }} />
-                          <span style={{ fontSize:13, fontWeight:600, color:C.slate, whiteSpace:"nowrap" }}>Healthy</span>
-                          <span style={{ fontSize:13, fontWeight:700, color:C.text }}>{healthyCount}</span>
-                        </div>
-                        <div onClick={()=>setDrill("at-risk")} style={{ display:"flex", alignItems:"center", gap:8, cursor:"pointer", padding:"6px 12px", borderRadius:8, transition:"background .2s" }}
-                          onMouseEnter={e=>e.currentTarget.style.background="#F1F5F9"} onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
-                          <span style={{ width:10, height:10, borderRadius:"50%", background:C.red }} />
-                          <span style={{ fontSize:13, fontWeight:600, color:C.slate, whiteSpace:"nowrap" }}>At Risk</span>
-                          <span style={{ fontSize:13, fontWeight:700, color:C.text }}>{atRiskCount}</span>
-                        </div>
-                        <div onClick={()=>setDrill("recovered")} style={{ display:"flex", alignItems:"center", gap:8, cursor:"pointer", padding:"6px 12px", borderRadius:8, transition:"background .2s" }}
-                          onMouseEnter={e=>e.currentTarget.style.background="#F1F5F9"} onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
-                          <span style={{ width:10, height:10, borderRadius:"50%", background:C.tealLt }} />
-                          <span style={{ fontSize:13, fontWeight:600, color:C.slate, whiteSpace:"nowrap" }}>Recovered</span>
-                          <span style={{ fontSize:13, fontWeight:700, color:C.text }}>{recoveredCount}</span>
-                        </div>
+                  <div style={{ display:"grid", gridTemplateColumns:"160px repeat(4,1fr)", gap:14, marginBottom:18, alignItems:"stretch" }}>
+                    {/* Practice Score Ring */}
+                    <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:14, padding:16, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
+                      <div style={{ fontSize:9, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.6px", color:C.slateLight, marginBottom:6 }}>Practice Health</div>
+                      <svg width="80" height="80" viewBox="0 0 120 120" style={{ transform:"rotate(-90deg)" }}>
+                        <circle cx="60" cy="60" r="54" fill="none" stroke="#F1F5F9" strokeWidth="10" />
+                        <circle cx="60" cy="60" r="54" fill="none" stroke={scoreColor} strokeWidth="10" strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={strokeDashoffset} style={{ transition:"stroke-dashoffset 1.2s cubic-bezier(0.34,1.56,0.64,1)" }} />
+                      </svg>
+                      <div style={{ textAlign:"center" }}>
+                        <div style={{ fontSize:26, fontWeight:800, color:C.text, lineHeight:1 }}>{practiceScore}</div>
+                        <div style={{ fontSize:10, fontWeight:600, color:scoreColor, marginTop:2 }}>{scoreLabel}</div>
                       </div>
                     </div>
-
-                    {/* RIGHT: Revenue Impact */}
-                    <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:16, padding:32, boxShadow:"0 1px 3px rgba(0,0,0,.04)", display:"flex", flexDirection:"column", minHeight:360 }}>
-                      <div style={{ fontSize:13, fontWeight:700, color:C.slateLight, textTransform:"uppercase", letterSpacing:0.8, marginBottom:28 }}>Revenue This Month</div>
-                      <div style={{ fontSize:44, fontWeight:800, letterSpacing:-2, color:C.green, lineHeight:1, marginBottom:4 }}>£{recoveredRev.toLocaleString()}</div>
-                      <div style={{ fontSize:14, color:C.slate, marginBottom:28 }}>recovered so far this month</div>
-
-                      <div style={{ flex:1, display:"flex", flexDirection:"column", gap:16, justifyContent:"center" }}>
-                        {[
-                          { label:"Revenue at Risk", value:`£${atRiskRevenue.toLocaleString()}`, pct: Math.round((atRiskRevenue / (atRiskRevenue + recoveredRev + 500)) * 100), color:`linear-gradient(90deg,${C.red},#F87171)` },
-                          { label:"Revenue Recovered", value:`£${recoveredRev.toLocaleString()}`, pct: Math.round((recoveredRev / (atRiskRevenue + recoveredRev + 500)) * 100), color:`linear-gradient(90deg,${C.green},#34D399)` },
-                          { label:"Potential if All Recover", value:`£${(atRiskRevenue + recoveredRev).toLocaleString()}`, pct: 100, color:`linear-gradient(135deg,${C.teal},${C.tealLt})` },
-                        ].map(bar=>(
-                          <div key={bar.label}>
-                            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:6 }}>
-                              <span style={{ fontSize:13, fontWeight:600, color:C.slate }}>{bar.label}</span>
-                              <span style={{ fontSize:13, fontWeight:700, color:C.text }}>{bar.value}</span>
-                            </div>
-                            <div style={{ width:"100%", height:10, background:"#F1F5F9", borderRadius:5, overflow:"hidden" }}>
-                              <div style={{ height:"100%", width:`${bar.pct}%`, background:bar.color, borderRadius:5, transition:"width 1.5s cubic-bezier(0.4,0,0.2,1)" }} />
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-
-                      <div style={{ display:"flex", alignItems:"center", gap:8, marginTop:8, paddingTop:16, borderTop:`1px solid #F1F5F9` }}>
-                        <div style={{ width:32, height:32, borderRadius:8, background:"#ECFDF5", display:"flex", alignItems:"center", justifyContent:"center" }}>
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={C.green} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                        </div>
-                        <div style={{ fontSize:13, color:C.slate, lineHeight:1.4 }}>
-                          You've recovered <strong style={{ color:C.text }}>{recoveredRev > 0 ? Math.round((recoveredRev / (atRiskRevenue + recoveredRev)) * 100) : 0}%</strong> of at-risk revenue this month.
+                    {/* 4 Metric Cards */}
+                    {[
+                      { label:"Patients at Risk", value:atRiskCount, color:C.red, trend:`↑ ${Math.max(Math.round(atRiskCount*0.12),1)} this week`, trendBg:"#FEE2E2", trendColor:"#DC2626", onClick:()=>setDrill("at-risk") },
+                      { label:"Revenue at Risk", value:`£${atRiskRevenue.toLocaleString()}`, color:C.amber, trend:"This month", trendBg:"#FEF3C7", trendColor:"#D97706", onClick:()=>setDrill("revenue-risk") },
+                      { label:"Patients Recovered", value:recovered.length, color:C.green, trend:"This month", trendBg:"#DCFCE7", trendColor:"#059669", onClick:()=>setDrill("recovered") },
+                      { label:"Revenue Recovered", value:`£${recoveredRev.toLocaleString()}`, color:C.green, trend:"This month", trendBg:"#DCFCE7", trendColor:"#059669", onClick:()=>setDrill("revenue-recovered") },
+                    ].map(mc=>(
+                      <div key={mc.label} onClick={mc.onClick} style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:14, padding:"18px 20px 16px", position:"relative", overflow:"hidden", boxShadow:"0 1px 3px rgba(0,0,0,.04)", cursor:"pointer", transition:"all .2s" }}
+                        onMouseEnter={e=>{e.currentTarget.style.transform="translateY(-2px)";e.currentTarget.style.boxShadow="0 8px 24px rgba(8,145,178,.1)";}}
+                        onMouseLeave={e=>{e.currentTarget.style.transform="translateY(0)";e.currentTarget.style.boxShadow="0 1px 3px rgba(0,0,0,.04)";}}>
+                        <div style={{ position:"absolute", top:0, left:0, right:0, height:3, background:mc.color, borderRadius:"14px 14px 0 0" }} />
+                        <div style={{ fontSize:10, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.6px", color:C.slateLight, marginBottom:8 }}>{mc.label}</div>
+                        <div style={{ fontSize:28, fontWeight:800, color:C.text, lineHeight:1, marginBottom:8 }}>{mc.value}</div>
+                        <div style={{ display:"flex", alignItems:"center", gap:6 }}>
+                          <span style={{ display:"inline-block", background:mc.trendBg, color:mc.trendColor, fontSize:10, fontWeight:600, padding:"3px 8px", borderRadius:6 }}>{mc.trend}</span>
+                          <span style={{ color:C.slateLight, fontSize:11 }}>→</span>
                         </div>
                       </div>
-                    </div>
+                    ))}
                   </div>
                 );
               })()}
 
-              {/* AI Insight bar */}
-              <div style={{ display:"flex", alignItems:"center", gap:14, background:"linear-gradient(135deg, rgba(8,145,178,0.05), rgba(34,211,238,0.03))", border:"1px solid rgba(8,145,178,0.1)", borderRadius:12, padding:"16px 22px", marginBottom:28 }}>
-                <div style={{ width:36, height:36, borderRadius:10, background:`linear-gradient(135deg,${C.teal},${C.tealLt})`, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+              {/* Secondary stats row */}
+              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:14, marginBottom:18 }}>
+                <div onClick={()=>goNav("inbox")} style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:14, padding:"18px 20px 16px", position:"relative", overflow:"hidden", boxShadow:"0 1px 3px rgba(0,0,0,.04)", cursor:"pointer", transition:"all .2s" }}
+                  onMouseEnter={e=>{e.currentTarget.style.transform="translateY(-2px)";e.currentTarget.style.boxShadow="0 8px 24px rgba(8,145,178,.12)";}}
+                  onMouseLeave={e=>{e.currentTarget.style.transform="translateY(0)";e.currentTarget.style.boxShadow="0 1px 3px rgba(0,0,0,.04)";}}>
+                  <div style={{ position:"absolute", top:0, left:0, right:0, height:3, background:C.teal, borderRadius:"14px 14px 0 0" }} />
+                  <div style={{ fontSize:10, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.6px", color:C.slateLight, marginBottom:8 }}>WhatsApp Sent This Week</div>
+                  <div style={{ fontSize:28, fontWeight:800, color:C.text, lineHeight:1, marginBottom:8 }}>{liveInbox.length}</div>
+                  <div style={{ display:"flex", alignItems:"center", gap:6 }}>
+                    <span style={{ display:"inline-block", background:"#CFFAFE", color:C.teal, fontSize:10, fontWeight:600, padding:"3px 8px", borderRadius:6 }}>This week</span>
+                    <span style={{ color:C.slateLight, fontSize:11 }}>→</span>
+                  </div>
                 </div>
-                <div style={{ fontSize:14, color:C.slate, lineHeight:1.5, fontFamily:F }}>
-                  <strong style={{ color:C.text }}>{PATIENTS.filter(p=>p.product.toLowerCase().includes("contact")||p.product.toLowerCase().includes("cl")).length} contact lens patients</strong> are overdue. Reaching out this week could recover an estimated <strong style={{ color:C.text }}>£{Math.round(PATIENTS.filter(p=>p.risk!=="low"&&(p.product.toLowerCase().includes("contact")||p.product.toLowerCase().includes("cl"))).reduce((s,p)=>s+p.revenue,0)).toLocaleString()}</strong> in revenue.
-                </div>
-              </div>
-
-              {/* Quick actions row */}
-              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:18, marginBottom:28 }}>
-                <div onClick={()=>setDrill("urgent-messages")} style={{ display:"flex", alignItems:"center", gap:16, background:C.card, border:`1px solid ${C.border}`, borderRadius:12, padding:"18px 22px", cursor:"pointer", transition:"all .2s", boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}
-                  onMouseEnter={e=>{e.currentTarget.style.boxShadow="0 4px 16px rgba(0,0,0,.06)";e.currentTarget.style.transform="translateY(-1px)";}}
-                  onMouseLeave={e=>{e.currentTarget.style.boxShadow="0 1px 3px rgba(0,0,0,.04)";e.currentTarget.style.transform="translateY(0)";}}>
-                  <div style={{ width:44, height:44, borderRadius:12, background:"rgba(245,158,11,0.08)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:20 }}>⚠️</div>
-                  <div><div style={{ fontSize:14, fontWeight:700, color:C.text }}>{urgentMessages.length} Urgent Alerts</div><div style={{ fontSize:13, color:C.slate }}>Patient replies needing attention</div></div>
-                  <span style={{ marginLeft:"auto", color:C.slateLight, fontSize:18 }}>›</span>
-                </div>
-                <div onClick={()=>goNav("inbox")} style={{ display:"flex", alignItems:"center", gap:16, background:C.card, border:`1px solid ${C.border}`, borderRadius:12, padding:"18px 22px", cursor:"pointer", transition:"all .2s", boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}
-                  onMouseEnter={e=>{e.currentTarget.style.boxShadow="0 4px 16px rgba(0,0,0,.06)";e.currentTarget.style.transform="translateY(-1px)";}}
-                  onMouseLeave={e=>{e.currentTarget.style.boxShadow="0 1px 3px rgba(0,0,0,.04)";e.currentTarget.style.transform="translateY(0)";}}>
-                  <div style={{ width:44, height:44, borderRadius:12, background:"rgba(8,145,178,0.08)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:20 }}>💬</div>
-                  <div><div style={{ fontSize:14, fontWeight:700, color:C.text }}>{liveInbox.length} Messages</div><div style={{ fontSize:13, color:C.slate }}>WhatsApp conversations this week</div></div>
-                  <span style={{ marginLeft:"auto", color:C.slateLight, fontSize:18 }}>›</span>
+                <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:14, padding:"18px 20px 16px", position:"relative", overflow:"hidden", boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
+                  <div style={{ position:"absolute", top:0, left:0, right:0, height:3, background:C.green, borderRadius:"14px 14px 0 0" }} />
+                  <div style={{ fontSize:10, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.6px", color:C.slateLight, marginBottom:8 }}>Recalls Today</div>
+                  <div style={{ fontSize:28, fontWeight:800, color:C.text, lineHeight:1, marginBottom:8 }}>{recallPatients.length}</div>
+                  <div style={{ display:"flex", alignItems:"center", gap:6 }}>
+                    <span style={{ display:"inline-block", background:"#DCFCE7", color:"#059669", fontSize:10, fontWeight:600, padding:"3px 8px", borderRadius:6 }}>Automated</span>
+                  </div>
                 </div>
               </div>
 
               {/* Needs Your Attention table */}
-              <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:16, overflow:"hidden", boxShadow:"0 1px 3px rgba(0,0,0,.04)", marginBottom:28 }}>
-                <div style={{ padding:"22px 26px", display:"flex", alignItems:"center", justifyContent:"space-between", borderBottom:`1px solid ${C.border}` }}>
+              <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:14, overflow:"hidden", boxShadow:"0 1px 3px rgba(0,0,0,.04)", marginBottom:18 }}>
+                <div style={{ padding:"16px 22px", display:"flex", alignItems:"center", justifyContent:"space-between", borderBottom:`1px solid ${C.border}` }}>
                   <div>
-                    <div style={{ fontSize:16, fontWeight:700, letterSpacing:-0.2, color:C.text }}>Needs Your Attention</div>
-                    <div style={{ fontSize:13, color:C.slate, marginTop:2 }}>Patients at highest risk of leaving your practice</div>
+                    <span style={{ fontSize:15, fontWeight:700, letterSpacing:-0.2, color:C.text }}>Needs Your Attention</span>
+                    <span style={{ fontSize:12, color:C.slate, fontWeight:400, marginLeft:8 }}>High-risk patients — act now to retain them</span>
                   </div>
-                  <span style={{ fontSize:12, fontWeight:600, padding:"5px 12px", borderRadius:20, background:"#FEF2F2", color:C.red }}>{highRisk.length} patients</span>
+                  <span style={{ fontSize:11, fontWeight:700, padding:"4px 10px", borderRadius:10, background:"#FEE2E2", color:C.red }}>{highRisk.length} patients</span>
                 </div>
                 <table style={{ width:"100%", borderCollapse:"collapse", fontFamily:F }}>
                   <thead>
                     <tr style={{ background:C.bg }}>
                       {["Patient","Type","Days Overdue","Last Visit",""].map(h=>(
-                        <th key={h} style={{ padding:"12px 26px", textAlign:"left", fontSize:11, fontWeight:600, color:C.slateLight, textTransform:"uppercase", letterSpacing:0.8, borderBottom:`1px solid ${C.border}` }}>{h}</th>
+                        <th key={h} style={{ padding:"10px 22px", textAlign:"left", fontSize:10, fontWeight:700, color:C.slateLight, textTransform:"uppercase", letterSpacing:0.5, borderBottom:`1px solid ${C.border}` }}>{h}</th>
                       ))}
                     </tr>
                   </thead>
@@ -1912,27 +1865,29 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                       const prod = p.product.toLowerCase();
                       const isCL = prod.includes("contact")||prod.includes("cl ")||prod.includes("acuvue")||prod.includes("dailies")||prod.includes("biofinity")||prod.includes("oasys")||prod.includes("coopervision")||prod.includes("lens");
                       return (
-                        <tr key={p.id} style={{ borderBottom:i<highRisk.length-1?`1px solid #F1F5F9`:"none", transition:"background .15s" }}
+                        <tr key={p.id} style={{ borderBottom:i<4?`1px solid rgba(226,232,240,0.5)`:"none", transition:"background .15s" }}
                           onMouseEnter={e=>e.currentTarget.style.background=C.bg}
                           onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
-                          <td style={{ padding:"16px 26px" }}>
+                          <td style={{ padding:"12px 22px" }}>
                             <div style={{ display:"flex", alignItems:"center", gap:12 }}>
-                              <Avatar initials={p.initials} bg={`linear-gradient(135deg,${C.red},#F87171)`} size={38} />
-                              <span style={{ fontWeight:600, fontSize:14, color:C.text }}>{p.name}</span>
+                              <Avatar initials={p.initials} bg={`linear-gradient(135deg,${C.red},#F87171)`} size={34} />
+                              <span style={{ fontWeight:600, fontSize:13, color:C.text }}>{p.name}</span>
                             </div>
                           </td>
-                          <td style={{ padding:"16px 26px" }}>
-                            <span style={{ fontSize:11, fontWeight:600, padding:"4px 10px", borderRadius:20, background:isCL?"rgba(8,145,178,0.08)":"#F1F5F9", color:isCL?C.teal:C.slate }}>
+                          <td style={{ padding:"12px 22px" }}>
+                            <span style={{ fontSize:10, fontWeight:600, padding:"3px 10px", borderRadius:12, letterSpacing:"0.3px", background:isCL?"#CFFAFE":"#F1F5F9", color:isCL?C.teal:C.slate }}>
                               {isCL?"Contact Lens":"General"}
                             </span>
                           </td>
-                          <td style={{ padding:"16px 26px" }}>
-                            <span style={{ fontWeight:700, fontSize:14, color:daysOverdue>180?C.red:C.amber }}>{daysOverdue}d</span>
+                          <td style={{ padding:"12px 22px" }}>
+                            <span style={{ fontWeight:700, fontSize:13, color:daysOverdue>180?C.red:C.amber }}>{daysOverdue}d</span>
                           </td>
-                          <td style={{ padding:"16px 26px", color:C.slateLight, fontSize:13 }}>{p.lastVisit}</td>
-                          <td style={{ padding:"16px 26px", textAlign:"right" }}>
+                          <td style={{ padding:"12px 22px", color:C.slate, fontSize:13 }}>{p.lastVisit}</td>
+                          <td style={{ padding:"12px 22px", textAlign:"right" }}>
                             {!waSent[p.id]
-                              ? <button onClick={()=>openSendWA(p)} style={{ background:`linear-gradient(135deg,${C.teal},${C.tealLt})`, color:"#fff", border:"none", borderRadius:8, padding:"8px 18px", fontSize:13, fontWeight:600, cursor:"pointer", fontFamily:F, boxShadow:"0 2px 8px rgba(8,145,178,.25)", transition:"all .2s", whiteSpace:"nowrap" }}>Send WhatsApp</button>
+                              ? <button onClick={()=>openSendWA(p)} style={{ background:`linear-gradient(135deg,${C.teal},#0E7490)`, color:"#fff", border:"none", borderRadius:8, padding:"7px 14px", fontSize:12, fontWeight:600, cursor:"pointer", fontFamily:F, boxShadow:"0 4px 12px rgba(8,145,178,.25)", transition:"all .2s", whiteSpace:"nowrap" }}
+                                  onMouseEnter={e=>{e.currentTarget.style.transform="translateY(-2px)";e.currentTarget.style.boxShadow="0 8px 20px rgba(8,145,178,.35)";}}
+                                  onMouseLeave={e=>{e.currentTarget.style.transform="translateY(0)";e.currentTarget.style.boxShadow="0 4px 12px rgba(8,145,178,.25)";}}>Send WhatsApp</button>
                               : <span style={{ fontSize:13, color:C.green, fontWeight:600 }}>Sent ✓</span>
                             }
                           </td>
@@ -1942,128 +1897,10 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                   </tbody>
                 </table>
                 {highRisk.length>5&&(
-                  <div style={{ padding:"14px 26px", borderTop:`1px solid ${C.border}`, textAlign:"center" }}>
+                  <div style={{ padding:"12px 22px", borderTop:`1px solid ${C.border}`, textAlign:"center" }}>
                     <button onClick={()=>goNav("patients")} style={{ background:"none", border:"none", color:C.teal, fontSize:13, fontWeight:600, cursor:"pointer", fontFamily:F }}>View all {highRisk.length} at-risk patients →</button>
                   </div>
                 )}
-              </div>
-
-              {/* Today's Appointments + Google Reviews */}
-              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:18 }}>
-                <div style={{ background:C.card, borderRadius:16, padding:22, border:`1px solid ${C.border}`, boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
-                  <div style={{ fontWeight:700, fontSize:15, marginBottom:16, letterSpacing:-0.3, color:C.text }}>Today's Appointments</div>
-                  {APPOINTMENTS.map((a,i)=>(
-                    <div key={i} style={{ display:"flex", alignItems:"center", gap:12, padding:"9px 0", borderBottom:i<APPOINTMENTS.length-1?`1px solid ${C.border}`:"none" }}>
-                      <div style={{ width:44, textAlign:"center", flexShrink:0 }}>
-                        <div style={{ fontSize:12, fontWeight:700, color:C.text }}>{a.time}</div>
-                      </div>
-                      <div style={{ flex:1 }}>
-                        <div style={{ fontSize:13, fontWeight:600, color:C.text }}>{a.patient}</div>
-                        <div style={{ fontSize:11, color:C.slate }}>{a.type} · {a.optician}</div>
-                      </div>
-                      <span style={{ fontSize:10, fontWeight:700, padding:"3px 9px", borderRadius:20, background:a.confirmed?"rgba(16,185,129,.1)":"rgba(245,158,11,.1)", color:a.confirmed?C.green:C.amber }}>
-                        {a.confirmed?"Confirmed":"Pending"}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-
-                <div style={{ background:`linear-gradient(135deg,${C.teal} 0%,${C.tealLt} 100%)`, borderRadius:16, padding:22, boxShadow:"0 4px 20px rgba(8,145,178,.15)" }}>
-                  <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:18 }}>
-                    <div style={{ fontWeight:700, fontSize:15, color:"#fff", letterSpacing:-0.3 }}>Google Reviews</div>
-                    <span onClick={()=>{setReviewTab("requests");goNav("reviews");}} style={{ background:"rgba(255,255,255,.15)", color:"#fff", fontSize:11, fontWeight:700, padding:"3px 10px", borderRadius:20, cursor:"pointer" }}>
-                      3 pending
-                    </span>
-                  </div>
-                  <div style={{ display:"flex", alignItems:"center", gap:20, marginBottom:14 }}>
-                    <div>
-                      <div style={{ fontSize:42, fontWeight:800, color:"#fff", lineHeight:1, letterSpacing:-2 }}>4.9</div>
-                      <div style={{ color:"#FBBC05", fontSize:16, marginTop:4, letterSpacing:2 }}>★★★★★</div>
-                      <div style={{ fontSize:11, color:"rgba(255,255,255,.4)", marginTop:5 }}>147 total reviews</div>
-                    </div>
-                    <div style={{ marginLeft:"auto", textAlign:"right" }}>
-                      <div style={{ fontSize:30, fontWeight:800, color:"#6EE7B7", letterSpacing:-1 }}>+38</div>
-                      <div style={{ fontSize:11, color:"rgba(255,255,255,.4)", marginTop:2 }}>this month via Iryss</div>
-                    </div>
-                  </div>
-                  <button onClick={()=>goNav("reviews")} style={{ width:"100%", background:"rgba(255,255,255,.1)", border:"1px solid rgba(255,255,255,.15)", borderRadius:10, padding:"10px", color:"rgba(255,255,255,.9)", fontSize:13, fontWeight:600, cursor:"pointer", fontFamily:F }}>
-                    View all reviews →
-                  </button>
-                </div>
-              </div>
-
-              {/* GOS Claims + No-Show Predictor */}
-              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:18, marginTop:18 }}>
-                {/* GOS Claim Checker */}
-                <div style={{ background:C.card, borderRadius:16, padding:22, border:`1px solid ${C.border}`, boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
-                  <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:16 }}>
-                    <div style={{ fontWeight:700, fontSize:15, letterSpacing:-0.3, color:C.text }}>GOS Claim Validator</div>
-                    <span style={{ background:"rgba(16,185,129,.1)", color:C.green, fontSize:11, fontWeight:700, padding:"4px 10px", borderRadius:20 }}>Live</span>
-                  </div>
-                  <div style={{ fontSize:13, color:C.slate, marginBottom:16, lineHeight:1.5 }}>Real-time PCSE rules check. Every rejected GOS1 costs £22–25 in unpaid work.</div>
-                  <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:12, marginBottom:16 }}>
-                    <div style={{ background:C.bg, borderRadius:10, padding:"12px", textAlign:"center" }}>
-                      <div style={{ fontSize:24, fontWeight:800, color:C.green, letterSpacing:-1 }}>47</div>
-                      <div style={{ fontSize:10, color:C.slate, marginTop:2 }}>Claims passed</div>
-                    </div>
-                    <div style={{ background:C.bg, borderRadius:10, padding:"12px", textAlign:"center" }}>
-                      <div style={{ fontSize:24, fontWeight:800, color:C.red, letterSpacing:-1 }}>2</div>
-                      <div style={{ fontSize:10, color:C.slate, marginTop:2 }}>Flagged</div>
-                    </div>
-                    <div style={{ background:C.bg, borderRadius:10, padding:"12px", textAlign:"center" }}>
-                      <div style={{ fontSize:24, fontWeight:800, color:C.teal, letterSpacing:-1 }}>£1,175</div>
-                      <div style={{ fontSize:10, color:C.slate, marginTop:2 }}>Revenue protected</div>
-                    </div>
-                  </div>
-                  <div style={{ border:`1px solid ${C.border}`, borderRadius:10, overflow:"hidden" }}>
-                    {[
-                      { patient:"Emma Wilson", gos:"GOS1", status:"passed", issue:null },
-                      { patient:"Tom Bradley", gos:"GOS3", status:"flagged", issue:"Missing sight test date" },
-                      { patient:"Priya Sharma", gos:"GOS1", status:"passed", issue:null },
-                      { patient:"Jim Bru", gos:"GOS4", status:"flagged", issue:"Voucher code mismatch" },
-                    ].map((claim,i,arr)=>(
-                      <div key={i} style={{ display:"flex", alignItems:"center", gap:10, padding:"10px 14px", borderBottom:i<arr.length-1?`1px solid #F1F5F9`:"none", fontSize:13 }}>
-                        <span style={{ width:8, height:8, borderRadius:"50%", background:claim.status==="passed"?C.green:C.red, flexShrink:0 }} />
-                        <span style={{ fontWeight:600, color:C.text, flex:1 }}>{claim.patient}</span>
-                        <span style={{ color:C.slate, fontSize:12 }}>{claim.gos}</span>
-                        {claim.issue && <span style={{ color:C.red, fontSize:11, fontWeight:600 }}>{claim.issue}</span>}
-                        {!claim.issue && <span style={{ color:C.green, fontSize:11, fontWeight:600 }}>Validated ✓</span>}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* No-Show Predictor */}
-                <div style={{ background:C.card, borderRadius:16, padding:22, border:`1px solid ${C.border}`, boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
-                  <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:16 }}>
-                    <div style={{ fontWeight:700, fontSize:15, letterSpacing:-0.3, color:C.text }}>No-Show Predictor</div>
-                    <span style={{ background:"rgba(8,145,178,.08)", color:C.teal, fontSize:11, fontWeight:700, padding:"4px 10px", borderRadius:20 }}>AI Powered</span>
-                  </div>
-                  <div style={{ fontSize:13, color:C.slate, marginBottom:16, lineHeight:1.5 }}>AI flags patients likely to miss appointments based on history, lead time, and engagement.</div>
-                  <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12, marginBottom:16 }}>
-                    <div style={{ background:"#FEF2F2", borderRadius:10, padding:"14px", textAlign:"center" }}>
-                      <div style={{ fontSize:28, fontWeight:800, color:C.red, letterSpacing:-1 }}>3</div>
-                      <div style={{ fontSize:11, color:C.slate, marginTop:2 }}>High no-show risk today</div>
-                    </div>
-                    <div style={{ background:"#ECFDF5", borderRadius:10, padding:"14px", textAlign:"center" }}>
-                      <div style={{ fontSize:28, fontWeight:800, color:C.green, letterSpacing:-1 }}>87%</div>
-                      <div style={{ fontSize:11, color:C.slate, marginTop:2 }}>Show rate this month</div>
-                    </div>
-                  </div>
-                  {APPOINTMENTS.filter(a=>!a.confirmed).map((a,i)=>(
-                    <div key={i} style={{ display:"flex", alignItems:"center", gap:10, padding:"10px 0", borderBottom:`1px solid #F1F5F9`, fontSize:13 }}>
-                      <span style={{ width:8, height:8, borderRadius:"50%", background:C.red, flexShrink:0, animation:"pulseDot 1.5s ease-in-out infinite" }} />
-                      <div style={{ flex:1 }}>
-                        <span style={{ fontWeight:600, color:C.text }}>{a.patient}</span>
-                        <span style={{ color:C.slate }}> · {a.time} · {a.type}</span>
-                      </div>
-                      <span style={{ background:"#FEF2F2", color:C.red, fontSize:10, fontWeight:700, padding:"3px 8px", borderRadius:20 }}>72% risk</span>
-                    </div>
-                  ))}
-                  {APPOINTMENTS.filter(a=>!a.confirmed).length===0 && (
-                    <div style={{ textAlign:"center", padding:"16px", color:C.slate, fontSize:13 }}>All appointments confirmed today</div>
-                  )}
-                </div>
               </div>
             </div>
           )}
