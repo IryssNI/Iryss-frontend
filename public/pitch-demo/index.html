@@ -83,7 +83,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#0A0F1C;font-family:
 .hb.pri{background:linear-gradient(135deg,var(--accent),var(--accent-lt));border-color:transparent;color:#fff}
 
 /* Stat row — Practice Score + 4 metric cards */
-.stat-row{display:grid;grid-template-columns:160px repeat(4,1fr);gap:14px;margin-bottom:22px;flex-shrink:0;align-items:stretch}
+.stat-row{display:grid;grid-template-columns:160px repeat(4,1fr);gap:14px;margin-bottom:18px;flex-shrink:0;align-items:stretch}
 
 /* Practice Score Ring */
 .score-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 1px 3px rgba(0,0,0,.04)}
@@ -248,6 +248,12 @@ tr.hl td{color:var(--text)}
 <div class="mc amber" id="mc1"><div class="mc-label">Revenue at Risk</div><div class="mc-val">£4,218</div><div><span class="mc-trend amber">This month</span><span class="mc-arrow">→</span></div></div>
 <div class="mc green" id="mc2"><div class="mc-label">Patients Recovered</div><div class="mc-val">53</div><div><span class="mc-trend green">This month</span><span class="mc-arrow">→</span></div></div>
 <div class="mc green" id="mc3"><div class="mc-label">Revenue Recovered</div><div class="mc-val">£8,414</div><div><span class="mc-trend green">This month</span><span class="mc-arrow">→</span></div></div>
+</div>
+
+<!-- Secondary stats -->
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px">
+<div class="mc teal"><div class="mc-label">WhatsApp Sent This Week</div><div class="mc-val">24</div><div><span class="mc-trend green">This week</span><span class="mc-arrow">→</span></div></div>
+<div class="mc green"><div class="mc-label">Recalls Today</div><div class="mc-val">18</div><div><span class="mc-trend green">Automated</span></div></div>
 </div>
 
 <!-- Patient table -->

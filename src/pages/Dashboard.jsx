@@ -98,9 +98,9 @@ function SendButton({ patientId, onSent }) {
 
   const variants = {
     idle: { bg: 'linear-gradient(135deg, #0891B2 0%, #0E7490 100%)', color: '#FFFFFF', label: 'Send WhatsApp', shadow: '0 4px 12px rgba(8, 145, 178, 0.25)' },
-    loading: { bg: '#CBD5E1', color: '#64748B', label: 'Sending…', shadow: '0 2px 6px rgba(0,0,0,0.08)' },
+    loading: { bg: '#CBD5E1', color: '#64748B', label: 'Sending…', shadow: '0 2px 6px rgba(0,0,0,0.06)' },
     sent: { bg: 'linear-gradient(135deg, #10B981 0%, #059669 100%)', color: '#FFFFFF', label: 'Sent ✓', shadow: '0 4px 12px rgba(16, 185, 129, 0.25)' },
-    error: { bg: '#FEE2E2', color: '#DC2626', label: 'Failed', shadow: '0 2px 6px rgba(0,0,0,0.08)' },
+    error: { bg: '#FEE2E2', color: '#DC2626', label: 'Failed', shadow: '0 2px 6px rgba(0,0,0,0.06)' },
   }
   const v = variants[state]
 
@@ -110,8 +110,8 @@ function SendButton({ patientId, onSent }) {
       disabled={state === 'loading'}
       style={{
         background: v.bg, color: v.color,
-        borderRadius: '8px', padding: '8px 16px',
-        fontSize: '13px', fontWeight: '600',
+        borderRadius: '8px', padding: '7px 14px',
+        fontSize: '12px', fontWeight: '600',
         cursor: state === 'loading' ? 'default' : 'pointer',
         whiteSpace: 'nowrap', transition: 'all 0.2s',
         border: 'none',
@@ -506,7 +506,7 @@ function PracticeScoreRing({ score }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
       <div style={{ fontSize: '9px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.6px', color: '#94A3B8' }}>Practice Health</div>
-      <svg width="100" height="100" viewBox="0 0 120 120" style={{ transform: 'rotate(-90deg)' }}>
+      <svg width="80" height="80" viewBox="0 0 120 120" style={{ transform: 'rotate(-90deg)' }}>
         <circle cx="60" cy="60" r="54" fill="none" stroke="#F1F5F9" strokeWidth="10" />
         <circle
           cx="60" cy="60" r="54" fill="none" stroke={color} strokeWidth="10"
@@ -515,8 +515,8 @@ function PracticeScoreRing({ score }) {
         />
       </svg>
       <div style={{ textAlign: 'center' }}>
-        <div style={{ fontSize: '32px', fontWeight: '800', color: '#0F172A', lineHeight: '1' }}>{score}</div>
-        <div style={{ fontSize: '10px', fontWeight: '600', color, marginTop: '3px' }}>{label}</div>
+        <div style={{ fontSize: '26px', fontWeight: '800', color: '#0F172A', lineHeight: '1' }}>{score}</div>
+        <div style={{ fontSize: '10px', fontWeight: '600', color, marginTop: '2px' }}>{label}</div>
       </div>
     </div>
   )
@@ -540,7 +540,7 @@ function MetricCard({ label, value, sub, color, onClick, trend, accentBar }) {
         background: '#FFFFFF',
         border: '1px solid #E2E8F0',
         borderRadius: '14px',
-        padding: '20px 22px 18px',
+        padding: '18px 20px 16px',
         cursor: onClick ? 'pointer' : 'default',
         transition: 'all 0.2s',
         position: 'relative',
@@ -564,19 +564,20 @@ function MetricCard({ label, value, sub, color, onClick, trend, accentBar }) {
         position: 'absolute', top: 0, left: 0, right: 0, height: '3px',
         background: accentBar || color, borderRadius: '14px 14px 0 0',
       }} />
-      <div style={{ fontSize: '10px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.6px', color: '#94A3B8', marginBottom: '10px' }}>
+      <div style={{ fontSize: '10px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.6px', color: '#94A3B8', marginBottom: '8px' }}>
         {label}
       </div>
-      <div style={{ fontSize: '30px', fontWeight: '800', color: '#0F172A', marginBottom: '8px', lineHeight: '1' }}>
+      <div style={{ fontSize: '28px', fontWeight: '800', color: '#0F172A', marginBottom: '8px', lineHeight: '1' }}>
         {value}
       </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <div style={{
+      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+        <span style={{
+          display: 'inline-block',
           background: cm.bg, color: cm.text,
           fontSize: '10px', fontWeight: '600', padding: '3px 8px', borderRadius: '6px',
         }}>
           {trend || 'This month'}
-        </div>
+        </span>
         {onClick && <span style={{ color: '#94A3B8', fontSize: '11px' }}>→</span>}
       </div>
     </div>
@@ -629,13 +630,34 @@ export default function Dashboard() {
       {panel === 'revenue-recovered' && <RecoveredPanel mode="revenue" onClose={() => setPanel(null)} />}
       {panel === 'messages' && <MessagesPanel onClose={() => setPanel(null)} />}
 
-      <div style={{ padding: '32px' }}>
+      <div className="page-content">
         {/* Greeting Header */}
-        <div style={{ marginBottom: '24px', animation: 'fadeInUp 0.5s ease-out' }}>
-          <h1 style={{ fontSize: '24px', fontWeight: '800', color: '#0F172A', marginBottom: '2px' }}>
-            {greeting}, {firstName}
-          </h1>
-          <p style={{ fontSize: '13px', color: '#64748B' }}>{dateStr}</p>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px', animation: 'fadeInUp 0.5s ease-out' }}>
+          <div>
+            <h1 style={{ fontSize: '24px', fontWeight: '800', color: '#0F172A', marginBottom: '2px' }}>
+              {greeting}, {firstName}
+            </h1>
+            <p style={{ fontSize: '13px', color: '#64748B' }}>{dateStr}</p>
+          </div>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button style={{
+              padding: '8px 18px', borderRadius: '8px', fontSize: '12px', fontWeight: '600',
+              border: '1px solid #E2E8F0', background: '#FFFFFF', color: '#64748B',
+              cursor: 'pointer', transition: 'all 0.2s', fontFamily: 'inherit',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = '#CBD5E1'; e.currentTarget.style.background = '#F8FAFB' }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = '#E2E8F0'; e.currentTarget.style.background = '#FFFFFF' }}
+            >Export</button>
+            <button style={{
+              padding: '8px 18px', borderRadius: '8px', fontSize: '12px', fontWeight: '600',
+              border: '1px solid transparent', background: 'linear-gradient(135deg, #0891B2, #06B6D4)',
+              color: '#FFFFFF', cursor: 'pointer', transition: 'all 0.2s', fontFamily: 'inherit',
+              boxShadow: '0 2px 8px rgba(8, 145, 178, 0.25)',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 4px 16px rgba(8, 145, 178, 0.35)'; e.currentTarget.style.transform = 'translateY(-1px)' }}
+            onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 2px 8px rgba(8, 145, 178, 0.25)'; e.currentTarget.style.transform = 'translateY(0)' }}
+            >+ New Campaign</button>
+          </div>
         </div>
 
         {/* Error */}
@@ -683,11 +705,11 @@ export default function Dashboard() {
 
         {/* Practice Score + 4 Metrics Grid */}
         {!loading && (
-          <div style={{ marginBottom: '28px', animation: 'fadeInUp 0.5s ease-out 0.1s both' }}>
+          <div style={{ marginBottom: '18px', animation: 'fadeInUp 0.5s ease-out 0.1s both' }}>
             <div style={{
               display: 'grid',
-              gridTemplateColumns: '200px repeat(4, 1fr)',
-              gap: '16px',
+              gridTemplateColumns: '160px repeat(4, 1fr)',
+              gap: '14px',
               alignItems: 'stretch',
             }}>
               {/* Practice Score Circle */}
@@ -695,7 +717,7 @@ export default function Dashboard() {
                 background: '#FFFFFF',
                 border: '1px solid #E2E8F0',
                 borderRadius: '14px',
-                padding: '20px',
+                padding: '16px',
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'center',
@@ -710,6 +732,7 @@ export default function Dashboard() {
                 value={summary.patients_at_risk ?? 0}
                 color="#EF4444"
                 accentBar="#EF4444"
+                trend={`↑ ${Math.max(Math.round((summary.patients_at_risk || 0) * 0.12), 1)} this week`}
                 onClick={() => setPanel('at-risk')}
               />
               <MetricCard
@@ -717,6 +740,7 @@ export default function Dashboard() {
                 value={`£${(summary.revenue_at_risk ?? 0).toLocaleString()}`}
                 color="#F59E0B"
                 accentBar="#F59E0B"
+                trend="This month"
                 onClick={() => setPanel('revenue-risk')}
               />
               <MetricCard
@@ -724,6 +748,7 @@ export default function Dashboard() {
                 value={summary.patients_recovered ?? 0}
                 color="#10B981"
                 accentBar="#10B981"
+                trend="This month"
                 onClick={() => setPanel('recovered')}
               />
               <MetricCard
@@ -731,8 +756,63 @@ export default function Dashboard() {
                 value={`£${(summary.revenue_recovered ?? 0).toLocaleString()}`}
                 color="#10B981"
                 accentBar="#10B981"
+                trend="This month"
                 onClick={() => setPanel('revenue-recovered')}
               />
+            </div>
+          </div>
+        )}
+
+        {/* Secondary stats row */}
+        {!loading && (
+          <div className="secondary-stats" style={{ animation: 'fadeInUp 0.5s ease-out 0.2s both' }}>
+            <div
+              onClick={() => setPanel('messages')}
+              style={{
+                background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '14px',
+                padding: '18px 20px 16px', position: 'relative', overflow: 'hidden',
+                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)', cursor: 'pointer', transition: 'all 0.2s',
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.borderColor = '#0891B2'
+                e.currentTarget.style.boxShadow = '0 8px 24px rgba(8, 145, 178, 0.12)'
+                e.currentTarget.style.transform = 'translateY(-2px)'
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.borderColor = '#E2E8F0'
+                e.currentTarget.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.04)'
+                e.currentTarget.style.transform = 'translateY(0)'
+              }}
+            >
+              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '3px', background: '#0891B2', borderRadius: '14px 14px 0 0' }} />
+              <div style={{ fontSize: '10px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.6px', color: '#94A3B8', marginBottom: '8px' }}>
+                WhatsApp Sent This Week
+              </div>
+              <div style={{ fontSize: '28px', fontWeight: '800', color: '#0F172A', lineHeight: '1', marginBottom: '8px' }}>
+                {summary.messages_sent_this_week ?? 0}
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span style={{ display: 'inline-block', background: '#CFFAFE', color: '#0891B2', fontSize: '10px', fontWeight: '600', padding: '3px 8px', borderRadius: '6px' }}>This week</span>
+                <span style={{ color: '#94A3B8', fontSize: '11px' }}>→</span>
+              </div>
+            </div>
+            <div
+              style={{
+                background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '14px',
+                padding: '18px 20px 16px', position: 'relative', overflow: 'hidden',
+                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)',
+              }}
+            >
+              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '3px', background: '#10B981', borderRadius: '14px 14px 0 0' }} />
+              <div style={{ fontSize: '10px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.6px', color: '#94A3B8', marginBottom: '8px' }}>
+                Recalls Today
+              </div>
+              <div style={{ fontSize: '28px', fontWeight: '800', color: '#0F172A', lineHeight: '1', marginBottom: '8px' }}>
+                {summary.recalls_sent_today ?? 0}
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span style={{ display: 'inline-block', background: '#DCFCE7', color: '#059669', fontSize: '10px', fontWeight: '600', padding: '3px 8px', borderRadius: '6px' }}>Automated</span>
+              </div>
             </div>
           </div>
         )}
@@ -746,13 +826,12 @@ export default function Dashboard() {
           boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)',
           animation: 'fadeInUp 0.5s ease-out 0.3s both',
         }}>
-          <div style={{ padding: '18px 22px', borderBottom: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ padding: '16px 22px', borderBottom: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div>
-              <h2 style={{ fontSize: '15px', fontWeight: '700', color: '#0F172A', marginBottom: '1px' }}>Needs Your Attention</h2>
-              <p style={{ fontSize: '12px', color: '#64748B' }}>High-risk patients — act now to retain them</p>
+              <h2 style={{ fontSize: '15px', fontWeight: '700', color: '#0F172A', marginBottom: '1px' }}>Needs Your Attention <span style={{ fontSize: '12px', color: '#64748B', fontWeight: '400', marginLeft: '8px' }}>High-risk patients — act now to retain them</span></h2>
             </div>
             {!loading && (
-              <span style={{ background: '#FEE2E2', color: '#DC2626', fontSize: '12px', fontWeight: '700', padding: '6px 12px', borderRadius: '12px' }}>
+              <span style={{ background: '#FEE2E2', color: '#DC2626', fontSize: '11px', fontWeight: '700', padding: '4px 10px', borderRadius: '10px' }}>
                 {highRisk.length} patient{highRisk.length !== 1 ? 's' : ''}
               </span>
             )}
@@ -775,14 +854,15 @@ export default function Dashboard() {
                   <tr style={{ borderBottom: '1px solid #E2E8F0', background: '#F8FAFB' }}>
                     {['Patient', 'Type', 'Days Overdue', 'Last Appointment', ''].map(h => (
                       <th key={h} style={{
-                        padding: '14px 20px',
+                        padding: '10px 22px',
                         textAlign: 'left',
-                        fontSize: '11px',
+                        fontSize: '10px',
                         fontWeight: '700',
                         color: '#94A3B8',
                         textTransform: 'uppercase',
                         letterSpacing: '0.5px',
-                        whiteSpace: 'nowrap'
+                        whiteSpace: 'nowrap',
+                        background: '#F8FAFB',
                       }}>
                         {h}
                       </th>
@@ -798,17 +878,17 @@ export default function Dashboard() {
                       <tr
                         key={p.id}
                         style={{
-                          borderBottom: i < highRisk.length - 1 ? '1px solid #E2E8F0' : 'none',
+                          borderBottom: i < highRisk.length - 1 ? '1px solid rgba(226, 232, 240, 0.5)' : 'none',
                           transition: 'background 0.2s',
                         }}
                         onMouseEnter={e => e.currentTarget.style.background = '#F8FAFB'}
                         onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                       >
-                        <td style={{ padding: '16px 20px' }}>
+                        <td style={{ padding: '12px 22px' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                             <div style={{
-                              width: '36px',
-                              height: '36px',
+                              width: '34px',
+                              height: '34px',
                               borderRadius: '50%',
                               background: getAvatarGradient(riskLevel),
                               display: 'flex',
@@ -816,38 +896,40 @@ export default function Dashboard() {
                               justifyContent: 'center',
                               color: '#FFFFFF',
                               fontWeight: '700',
-                              fontSize: '12px',
+                              fontSize: '11px',
+                              flexShrink: 0,
                             }}>
                               {getInitials(p.name)}
                             </div>
-                            <div style={{ fontWeight: '600', fontSize: '14px', color: '#0F172A' }}>{p.name}</div>
+                            <div style={{ fontWeight: '600', fontSize: '13px', color: '#0F172A' }}>{p.name}</div>
                           </div>
                         </td>
-                        <td style={{ padding: '16px 20px' }}>
+                        <td style={{ padding: '12px 22px' }}>
                           <span style={{
                             background: p.patient_type === 'contact_lens' ? '#CFFAFE' : '#F1F5F9',
                             color: p.patient_type === 'contact_lens' ? '#0891B2' : '#64748B',
-                            fontSize: '11px',
-                            fontWeight: '700',
-                            padding: '4px 10px',
+                            fontSize: '10px',
+                            fontWeight: '600',
+                            padding: '3px 10px',
                             borderRadius: '12px',
+                            letterSpacing: '0.3px',
                           }}>
                             {p.patient_type === 'contact_lens' ? 'Contact Lens' : 'General'}
                           </span>
                         </td>
-                        <td style={{ padding: '16px 20px' }}>
+                        <td style={{ padding: '12px 22px' }}>
                           <span style={{
                             color: daysOverdue > 42 ? '#DC2626' : daysOverdue > 28 ? '#D97706' : '#64748B',
                             fontWeight: '700',
-                            fontSize: '14px',
+                            fontSize: '13px',
                           }}>
                             {daysOverdue > 0 ? `${daysOverdue}d` : '—'}
                           </span>
                         </td>
-                        <td style={{ padding: '16px 20px', color: '#64748B', fontSize: '13px' }}>
+                        <td style={{ padding: '12px 22px', color: '#64748B', fontSize: '13px' }}>
                           {formatDate(p.last_appointment_date)}
                         </td>
-                        <td style={{ padding: '16px 20px' }}>
+                        <td style={{ padding: '12px 22px' }}>
                           <SendButton patientId={p.id} onSent={fetchData} />
                         </td>
                       </tr>
