@@ -767,6 +767,54 @@ const avatarColors = ["#0891B2","#8B5CF6","#F59E0B","#10B981","#EF4444","#EC4899
 const getColor = i => avatarColors[i % avatarColors.length];
 const F = "'Plus Jakarta Sans', system-ui, sans-serif";
 
+// ─────────────────────────────────────────────────────────────
+// Count-up hook: animates a number from 0 → target on mount
+// Uses requestAnimationFrame with ease-out-cubic for smooth polish.
+// ─────────────────────────────────────────────────────────────
+function useCountUp(target, duration=1100, enabled=true) {
+  const [v, setV] = useState(enabled ? 0 : target);
+  useEffect(() => {
+    if (!enabled) { setV(target); return; }
+    if (typeof target !== "number" || isNaN(target)) { setV(target); return; }
+    let raf;
+    const start = performance.now();
+    const from = 0;
+    const to = target;
+    const tick = (now) => {
+      const t = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - t, 3);
+      setV(from + (to - from) * eased);
+      if (t < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [target, duration, enabled]);
+  return v;
+}
+
+// ─────────────────────────────────────────────────────────────
+// Sparkline — tiny 30-day trend line rendered inline in stat cards
+// ─────────────────────────────────────────────────────────────
+function Sparkline({ data, color="#0891B2", width=76, height=22, fill=true }) {
+  if (!data || data.length < 2) return null;
+  const min = Math.min(...data);
+  const max = Math.max(...data);
+  const range = max - min || 1;
+  const step = width / (data.length - 1);
+  const pts = data.map((v, i) => [i * step, height - ((v - min) / range) * height]);
+  const line = pts.map((p, i) => (i === 0 ? "M" : "L") + p[0].toFixed(1) + " " + p[1].toFixed(1)).join(" ");
+  const area = line + ` L${width} ${height} L0 ${height} Z`;
+  const lastX = pts[pts.length - 1][0];
+  const lastY = pts[pts.length - 1][1];
+  return (
+    <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} style={{ overflow:"visible" }}>
+      {fill && <path d={area} fill={color} opacity={0.12} />}
+      <path d={line} fill="none" stroke={color} strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx={lastX} cy={lastY} r={2.2} fill={color} />
+    </svg>
+  );
+}
+
 function Avatar({ initials, bg=C.teal, size=36 }) {
   return <div style={{ width:size, height:size, borderRadius:"50%", background:bg, display:"flex", alignItems:"center", justifyContent:"center", fontWeight:700, fontSize:size*0.33, color:"#fff", flexShrink:0, fontFamily:F, letterSpacing:-0.3 }}>{initials}</div>;
 }
@@ -932,6 +980,9 @@ function Dashboard() {
   const [reviewTab, setReviewTab]               = useState("reviews");
   const [myopiaTab, setMyopiaTab]               = useState("active");
   const [myopiaDetail, setMyopiaDetail]         = useState(null);
+  const [cmdOpen, setCmdOpen]                   = useState(false);
+  const [cmdQuery, setCmdQuery]                 = useState("");
+  const [cmdSel, setCmdSel]                     = useState(0);
   const [reviewSent, setReviewSent]             = useState({});
   const [showImport, setShowImport]             = useState(false);
   const [importStep, setImportStep]             = useState(1);
@@ -1123,6 +1174,21 @@ function Dashboard() {
     setWaMsg(`Hi ${firstName}, just a reminder that you have an appointment at Bright Eyes Opticians tomorrow. Please reply YES to confirm or call us to rearrange 😊`);
   }
   function goNav(id) { setDrill(null); setNav(id); setPatientTimeline(null); }
+
+  // ⌘K / Ctrl-K — open command palette
+  useEffect(() => {
+    const handler = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setCmdOpen(o => !o);
+        setCmdQuery("");
+        setCmdSel(0);
+      }
+      if (e.key === "Escape" && cmdOpen) setCmdOpen(false);
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [cmdOpen]);
   function completeTask(id) {
     setTaskJustCompleted(prev=>({...prev,[id]:true}));
     setTimeout(()=>{
@@ -1230,15 +1296,32 @@ function Dashboard() {
   const allTasks = [...urgentTasks, ...recallTasksList, ...apptTasks, ...highRiskTasksList, ...myopiaTasks, ...reviewTasksList, ...orderTasksList];
   const incompleteTaskCount = allTasks.filter(t=>!tasksDone[t.id]).length;
 
-  // Polished stat card
-  function SC({ label, value, sub, accent, onDrill, trend, trendUp }) {
+  // Polished stat card — supports count-up animation + sparkline
+  function SC({ label, value, sub, accent, onDrill, trend, trendUp, spark, sparkColor }) {
+    // Parse numeric part of value like "£4,200" or "85%" or 42 so we can count-up
+    const parsed = (() => {
+      if (typeof value === "number") return { prefix:"", num:value, suffix:"" };
+      if (typeof value !== "string") return null;
+      const m = value.match(/^(\D*)([\d,]+(?:\.\d+)?)(.*)$/);
+      if (!m) return null;
+      const num = parseFloat(m[2].replace(/,/g, ""));
+      if (isNaN(num)) return null;
+      return { prefix:m[1], num, suffix:m[3], hasComma:m[2].includes(",") };
+    })();
+    const animated = useCountUp(parsed ? parsed.num : 0, 900, !!parsed);
+    const display = parsed
+      ? `${parsed.prefix}${parsed.hasComma ? Math.round(animated).toLocaleString() : (animated % 1 === 0 ? Math.round(animated) : animated.toFixed(1))}${parsed.suffix}`
+      : value;
     return (
       <div onClick={onDrill} style={{ background:"#FFFFFF", border:"1px solid #E2E8F0", borderRadius:16, padding:"22px 24px", cursor:onDrill?"pointer":"default", transition:"all .25s ease", boxShadow:C.cardShadow, position:"relative", overflow:"hidden" }}
         onMouseEnter={e=>{ if(onDrill){ e.currentTarget.style.boxShadow=C.cardHoverShadow; e.currentTarget.style.transform="translateY(-3px)"; e.currentTarget.style.borderColor="rgba(8,145,178,.15)"; }}}
         onMouseLeave={e=>{ e.currentTarget.style.boxShadow=C.cardShadow; e.currentTarget.style.transform="translateY(0)"; e.currentTarget.style.borderColor="#E2E8F0"; }}>
         <div style={{ position:"absolute", top:0, left:0, width:3, height:"100%", background:accent, borderRadius:"16px 0 0 16px" }} />
-        <div style={{ fontSize:10, fontWeight:700, color:"#94A3B8", textTransform:"uppercase", letterSpacing:1, marginBottom:12 }}>{label}</div>
-        <div style={{ fontSize:36, fontFamily:F, fontWeight:800, color:"#0F172A", lineHeight:1, marginBottom:14, letterSpacing:-0.5 }}>{value}</div>
+        <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", marginBottom:12 }}>
+          <div style={{ fontSize:10, fontWeight:700, color:"#94A3B8", textTransform:"uppercase", letterSpacing:1 }}>{label}</div>
+          {spark && <Sparkline data={spark} color={sparkColor || accent || C.teal} />}
+        </div>
+        <div style={{ fontSize:36, fontFamily:F, fontWeight:800, color:"#0F172A", lineHeight:1, marginBottom:14, letterSpacing:-0.5, fontVariantNumeric:"tabular-nums" }}>{display}</div>
         <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
           <div>
             {trend && <span style={{ fontSize:10, fontWeight:600, color:trendUp?C.green:C.red, background:trendUp?"rgba(5,150,105,.08)":"rgba(225,29,72,.08)", padding:"4px 10px", borderRadius:20 }}>{trendUp?"↑":"↓"} {trend}</span>}
@@ -1456,6 +1539,14 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
         </nav>
 
         <div style={{ borderTop:"1px solid rgba(255,255,255,.05)", marginTop:8, padding:"14px 22px 0" }}>
+          <button onClick={()=>{ setCmdOpen(true); setCmdQuery(""); setCmdSel(0); }}
+            style={{ width:"100%", display:"flex", alignItems:"center", gap:8, background:"rgba(255,255,255,.04)", border:"1px solid rgba(255,255,255,.08)", borderRadius:8, padding:"8px 10px", color:"rgba(255,255,255,.55)", fontFamily:F, fontSize:11.5, fontWeight:500, cursor:"pointer", marginBottom:10, transition:"all .15s" }}
+            onMouseEnter={e=>{ e.currentTarget.style.background="rgba(255,255,255,.07)"; e.currentTarget.style.color="rgba(255,255,255,.8)"; }}
+            onMouseLeave={e=>{ e.currentTarget.style.background="rgba(255,255,255,.04)"; e.currentTarget.style.color="rgba(255,255,255,.55)"; }}>
+            <span style={{ fontSize:12 }}>⌕</span>
+            <span style={{ flex:1, textAlign:"left" }}>Quick jump</span>
+            <span style={{ fontSize:9.5, fontWeight:700, background:"rgba(255,255,255,.08)", padding:"2px 6px", borderRadius:4, letterSpacing:0.5 }}>⌘K</span>
+          </button>
           <div style={{ fontSize:10, color:"rgba(255,255,255,.2)", padding:"2px 0", fontWeight:600, letterSpacing:0.5 }}>Bright Eyes Opticians</div>
         </div>
       </div>
@@ -4369,6 +4460,89 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
               <div style={{ fontSize:22, fontWeight:900, color:C.green, letterSpacing:-0.5 }}>£{total.toLocaleString()}</div>
             </div>
           </DrillPanel>
+        );
+      })()}
+
+      {/* ── ⌘K Command Palette ── */}
+      {cmdOpen&&(()=>{
+        const q = cmdQuery.toLowerCase().trim();
+        const navOpts = [
+          { t:"Dashboard",       hint:"View Practice Score & KPIs",     icon:"◈", run:()=>goNav("dashboard") },
+          { t:"Today's Tasks",   hint:"Every action queued for today",  icon:"✓", run:()=>goNav("tasks") },
+          { t:"Patients",        hint:"All 125 records",                icon:"◎", run:()=>goNav("patients") },
+          { t:"Inbox",           hint:"WhatsApp threads",               icon:"◻", run:()=>goNav("inbox") },
+          { t:"Recalls",         hint:"Due & overdue patients",         icon:"◷", run:()=>goNav("recalls") },
+          { t:"Myopia Clinic",   hint:"Paediatric myopia patients",     icon:"◉", run:()=>goNav("myopia") },
+          { t:"Reviews",         hint:"Google review requests",         icon:"◆", run:()=>goNav("reviews") },
+          { t:"Revenue",         hint:"Revenue recovered & at risk",    icon:"£", run:()=>goNav("revenue") },
+          { t:"Intelligence",    hint:"Competitor mentions & win-backs",icon:"🎯", run:()=>goNav("intelligence") },
+          { t:"Settings",        hint:"Practice details & integrations",icon:"⚙", run:()=>goNav("settings") },
+        ].map(o=>({...o, group:"Navigate"}));
+        const actOpts = [
+          { t:"Generate compliance report", hint:"Print-ready GOC-style PDF", icon:"🖨", run:()=>{ goNav("recalls"); setTimeout(()=>generateComplianceReport(complianceRate, recallPatients, recallPatients.filter(p=>waSent[p.id])), 100); } },
+          { t:"Send all win-back messages", hint:"Competitor-mention recovery", icon:"💬", run:()=>goNav("intelligence") },
+          { t:"Toggle auto-recall",         hint:autoSend?"Currently ON":"Currently OFF", icon:"⚡", run:()=>setAutoSend(v=>!v) },
+          { t:"Import patient CSV",         hint:"Add / migrate patients",     icon:"↑", run:()=>setShowImport(true) },
+        ].map(o=>({...o, group:"Actions"}));
+        const patOpts = PATIENTS.map(p=>({ t:p.name, hint:`${p.age?`Age ${p.age} · `:""}${p.lastVisit} · ${p.product||"patient"}`, icon:p.initials, run:()=>{ openTimeline(p); }, group:"Patients" }));
+        const myopiaOpts = MYOPIA_PATIENTS.map(p=>({ t:p.name, hint:`Myopia · Age ${p.age} · ${p.treatment}`, icon:p.initials, run:()=>{ goNav("myopia"); setMyopiaDetail(p); }, group:"Myopia patients" }));
+        const all = [...navOpts, ...actOpts, ...patOpts, ...myopiaOpts];
+        const filtered = q ? all.filter(o=>o.t.toLowerCase().includes(q) || (o.hint||"").toLowerCase().includes(q) || o.group.toLowerCase().includes(q)).slice(0,14) : all.slice(0,14);
+        const safeSel = Math.min(cmdSel, Math.max(0, filtered.length-1));
+        const runOpt = (opt) => { if (!opt) return; setCmdOpen(false); opt.run(); };
+        // group the filtered list
+        const grouped = filtered.reduce((m,o)=>{ (m[o.group] = m[o.group] || []).push(o); return m; }, {});
+        return (
+          <div onClick={()=>setCmdOpen(false)} style={{ position:"fixed", inset:0, background:"rgba(4,10,24,.55)", zIndex:1000, display:"flex", alignItems:"flex-start", justifyContent:"center", paddingTop:"14vh", backdropFilter:"blur(6px)", fontFamily:F }}>
+            <div onClick={e=>e.stopPropagation()} style={{ background:"#fff", borderRadius:16, width:580, maxWidth:"92vw", boxShadow:"0 30px 80px rgba(0,0,0,.35), 0 0 0 1px rgba(8,145,178,.2)", overflow:"hidden", animation:"fadeInUp .15s ease-out" }}>
+              <div style={{ display:"flex", alignItems:"center", gap:10, padding:"14px 18px", borderBottom:`1px solid ${C.border}` }}>
+                <span style={{ fontSize:16, color:C.slateLight }}>⌕</span>
+                <input autoFocus value={cmdQuery}
+                  onChange={e=>{ setCmdQuery(e.target.value); setCmdSel(0); }}
+                  onKeyDown={e=>{
+                    if (e.key==="ArrowDown") { e.preventDefault(); setCmdSel(s=>Math.min(filtered.length-1, s+1)); }
+                    else if (e.key==="ArrowUp") { e.preventDefault(); setCmdSel(s=>Math.max(0, s-1)); }
+                    else if (e.key==="Enter")  { e.preventDefault(); runOpt(filtered[safeSel]); }
+                  }}
+                  placeholder="Jump to a page, patient, or action…"
+                  style={{ flex:1, border:"none", outline:"none", fontSize:15, fontFamily:F, color:C.navy, background:"transparent" }}
+                />
+                <span style={{ fontSize:10, fontWeight:700, color:C.slateLight, background:C.bg, padding:"4px 8px", borderRadius:6, border:`1px solid ${C.border}`, letterSpacing:0.3 }}>ESC</span>
+              </div>
+              <div style={{ maxHeight:380, overflowY:"auto", padding:"8px 0" }}>
+                {filtered.length===0 ? (
+                  <div style={{ padding:"40px 20px", textAlign:"center", color:C.slate, fontSize:13 }}>
+                    No matches for <b>"{cmdQuery}"</b>. Try a page name or a patient name.
+                  </div>
+                ) : Object.entries(grouped).map(([group, items])=>(
+                  <div key={group}>
+                    <div style={{ fontSize:10, fontWeight:700, color:C.slateLight, textTransform:"uppercase", letterSpacing:1, padding:"10px 18px 4px" }}>{group}</div>
+                    {items.map(opt=>{
+                      const i = filtered.indexOf(opt);
+                      const active = i===safeSel;
+                      return (
+                        <div key={group+"-"+opt.t} onMouseEnter={()=>setCmdSel(i)} onClick={()=>runOpt(opt)}
+                          style={{ display:"flex", alignItems:"center", gap:12, padding:"10px 18px", cursor:"pointer", background:active?"rgba(8,145,178,.08)":"transparent", borderLeft:active?`3px solid ${C.teal}`:"3px solid transparent" }}>
+                          <div style={{ width:26, height:26, borderRadius:7, background:active?"rgba(8,145,178,.15)":C.bg, display:"flex", alignItems:"center", justifyContent:"center", fontSize:12, fontWeight:700, color:active?C.teal:C.slate, fontFamily:F, flexShrink:0 }}>{opt.icon}</div>
+                          <div style={{ flex:1, minWidth:0 }}>
+                            <div style={{ fontSize:13.5, fontWeight:600, color:C.navy, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{opt.t}</div>
+                            {opt.hint && <div style={{ fontSize:11, color:C.slateLight, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{opt.hint}</div>}
+                          </div>
+                          {active && <span style={{ fontSize:10, color:C.slateLight, fontWeight:600 }}>↵</span>}
+                        </div>
+                      );
+                    })}
+                  </div>
+                ))}
+              </div>
+              <div style={{ display:"flex", alignItems:"center", gap:14, padding:"10px 18px", borderTop:`1px solid ${C.border}`, fontSize:11, color:C.slateLight, background:C.bg }}>
+                <span><b style={{ color:C.slate }}>↑↓</b> navigate</span>
+                <span><b style={{ color:C.slate }}>↵</b> select</span>
+                <span><b style={{ color:C.slate }}>esc</b> close</span>
+                <span style={{ marginLeft:"auto" }}>IRYSS · ⌘K</span>
+              </div>
+            </div>
+          </div>
         );
       })()}
 
