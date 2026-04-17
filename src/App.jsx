@@ -15,6 +15,9 @@ pulseStyle.textContent = `
   @keyframes slideInRight { from{opacity:0;transform:translateX(20px)} to{opacity:1;transform:translateX(0)} }
   @keyframes scaleIn { from{opacity:0;transform:scale(.95)} to{opacity:1;transform:scale(1)} }
   @keyframes gradientShift { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+  .page-enter { animation: fadeInUp .42s cubic-bezier(.2,.8,.2,1) both; }
+  .stagger-1 { animation: fadeInUp .4s cubic-bezier(.2,.8,.2,1) both; animation-delay: .05s; }
+  .stagger-2 { animation: fadeInUp .4s cubic-bezier(.2,.8,.2,1) both; animation-delay: .12s; }
   .inbox-thread::-webkit-scrollbar { width:8px; }
   .inbox-thread::-webkit-scrollbar-track { background:#E8EEF4; border-radius:8px; }
   .inbox-thread::-webkit-scrollbar-thumb { background:#0891B2; border-radius:8px; }
@@ -1609,7 +1612,7 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
         </div>
 
         {/* Content */}
-        <div style={{ flex:1, overflow:"auto", padding:"28px 36px 36px", background:C.bg }}>
+        <div key={`page-${nav}`} className="page-enter" style={{ flex:1, overflow:"auto", padding:"28px 36px 36px", background:C.bg }}>
 
           {patientTimeline ? (()=>{
             const pt = patientTimeline;
@@ -2043,10 +2046,10 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                 <p style={{ fontSize:14, color:C.slate, margin:0, fontWeight:500 }}>Manage patient records and monitor health risk</p>
               </div>
               <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:16, marginBottom:26 }}>
-                <SC label="High risk"             value={highRisk.length}    accent={`linear-gradient(90deg,${C.red},#F97316)`}    onDrill={()=>setDrill("high-risk")} trend="1 new" trendUp={false} />
-                <SC label="Medium risk"           value={medRisk.length}     accent={`linear-gradient(90deg,${C.amber},#EAB308)`}  onDrill={()=>setDrill("med-risk")} />
-                <SC label="Low risk"              value={lowRisk.length}     accent={`linear-gradient(90deg,${C.green},#34D399)`} />
-                <SC label="Total patients"        value={PATIENTS.length}    accent={`linear-gradient(90deg,${C.teal},${C.tealLt})`} />
+                <SC label="At risk · walking out"  value={highRisk.length}    accent={C.red}    sparkColor={C.red}    spark={[8,9,11,10,13,14,12,15,14,16,17,15,18,19,17,20,19,21,20,22,21,19,20,22,21,23,22,highRisk.length-1,highRisk.length,highRisk.length]}  onDrill={()=>setDrill("high-risk")} trend="1 new" trendUp={false} />
+                <SC label="Medium risk · watchlist" value={medRisk.length}    accent={C.amber}  sparkColor={C.amber}  spark={[18,20,19,21,22,20,23,22,24,23,25,24,26,25,27,26,28,27,29,28,30,29,28,29,30,31,30,medRisk.length-1,medRisk.length,medRisk.length]} onDrill={()=>setDrill("med-risk")} />
+                <SC label="Low risk · healthy"     value={lowRisk.length}     accent={C.green}  sparkColor={C.green}  spark={[45,48,46,50,52,49,53,51,55,54,57,55,58,60,58,62,60,63,61,64,63,65,64,66,65,67,66,lowRisk.length-1,lowRisk.length,lowRisk.length]} />
+                <SC label="Total patients"         value={PATIENTS.length}    accent={C.teal}   sparkColor={C.teal}   spark={[100,102,103,105,106,108,109,110,112,113,115,116,117,118,119,120,121,122,122,123,123,124,124,124,125,125,125,PATIENTS.length,PATIENTS.length,PATIENTS.length]} />
               </div>
               <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:18 }}>
                 <div style={{ position:"relative", flex:1, maxWidth:340 }}>
@@ -2153,10 +2156,10 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
               {recallTab==="eye-test"&&(
                 <div>
                   <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:16, marginBottom:24 }}>
-                    <SC label="Due for recall" value={recallPatients.length} accent={`linear-gradient(90deg,${C.teal},${C.tealLt})`} sub="8+ months since visit" onDrill={()=>setDrill("recall-due")} />
-                    <SC label="Overdue" value={overdueRecall.length} accent={`linear-gradient(90deg,${C.red},#F97316)`} sub="24+ months" trend={overdueRecall.length>0?"Action needed":null} trendUp={false} onDrill={()=>setDrill("recall-overdue")} />
-                    <SC label="Sending this week" value={Math.min(recallPatients.length,3)} accent={`linear-gradient(90deg,${C.amber},#EAB308)`} sub="Scheduled" onDrill={()=>setDrill("recall-this-week")} />
-                    <SC label="Est. revenue if all return" value={`£${recallRevenue.toLocaleString()}`} accent={`linear-gradient(90deg,${C.green},#34D399)`} sub={`${recallPatients.length} patients`} onDrill={()=>setDrill("recall-revenue")} />
+                    <SC label="Due for recall"               value={recallPatients.length}                 accent={C.teal}  sparkColor={C.teal}  spark={[12,13,14,14,15,16,17,18,19,19,20,21,22,22,23,24,25,26,27,27,28,29,30,31,32,33,34,35,recallPatients.length-1,recallPatients.length]} sub="8+ months since visit" onDrill={()=>setDrill("recall-due")} />
+                    <SC label="Overdue · losing money"       value={overdueRecall.length}                  accent={C.red}   sparkColor={C.red}   spark={[3,4,4,5,5,6,6,7,7,8,8,9,9,10,10,11,11,12,12,13,13,14,14,15,15,16,16,17,overdueRecall.length-1,overdueRecall.length]}                   sub="24+ months · patients likely gone" trend={overdueRecall.length>0?"Act now":null} trendUp={false} onDrill={()=>setDrill("recall-overdue")} />
+                    <SC label="Sending this week"            value={Math.min(recallPatients.length,3)}     accent={C.amber} sparkColor={C.amber} spark={[0,1,0,1,2,1,2,1,2,3,2,3,2,3,1,2,3,2,3,2,3,3,2,3,2,3,3,3,3,3]} sub="Auto-scheduled" onDrill={()=>setDrill("recall-this-week")} />
+                    <SC label="Revenue if all return"        value={`£${recallRevenue.toLocaleString()}`}  accent={C.green} sparkColor={C.green} spark={[1200,1500,1700,2000,2300,2500,2700,3000,3200,3500,3800,4000,4300,4500,4800,5100,5300,5600,5900,6200,6400,6700,7000,7200,7500,7800,8000,recallRevenue*0.97,recallRevenue*0.99,recallRevenue]} sub={`${recallPatients.length} patients in pipeline`} onDrill={()=>setDrill("recall-revenue")} />
                   </div>
                   <div style={{ background:C.card, borderRadius:16, border:`1px solid ${C.border}`, overflow:"hidden", boxShadow:C.cardShadow }}>
                     <div style={{ display:"grid", gridTemplateColumns:"1fr 120px 130px 130px 100px 160px", gap:12, padding:"14px 22px", borderBottom:`1px solid ${C.border}`, background:"#F8FAFB" }}>
@@ -2431,10 +2434,10 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
 
               {/* KPI cards */}
               <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:16, marginBottom:22 }}>
-                <SC label="Active on treatment"  value={active.length}         accent={C.teal}  sub={`${trial.length} in fitting phase`} />
-                <SC label="Responding well"      value={`${pctResponding}%`}   accent={C.green} sub="AL growth <0.10 mm/yr" trend={`${responding.length}/${active.length}`} trendUp={true} />
-                <SC label="Overdue for review"   value={lapsed.length}         accent={C.red}   sub=">6 months since last visit" />
-                <SC label="Pipeline revenue"     value={`£${pipelineRev.toLocaleString()}`} accent={C.amber} sub="Next 6 months · est." />
+                <SC label="Active on treatment"       value={active.length}         accent={C.teal}  sparkColor={C.teal}  spark={[3,3,4,4,5,5,6,6,6,7,7,7,7,7,7,7,7,7,8,8,8,8,8,8,8,8,8,8,active.length,active.length]} sub={`${trial.length} in fitting phase`} />
+                <SC label="Responding well"           value={`${pctResponding}%`}   accent={C.green} sparkColor={C.green} spark={[30,35,40,42,45,48,50,52,55,58,60,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,pctResponding-1,pctResponding]} sub="AL growth <0.10 mm/yr" trend={`${responding.length}/${active.length}`} trendUp={true} />
+                <SC label="Overdue · growing unseen"  value={lapsed.length}         accent={C.red}   sparkColor={C.red}   spark={[0,0,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,lapsed.length,lapsed.length]} sub="Progression happens fastest when you can't see it" />
+                <SC label="Pipeline revenue"          value={`£${pipelineRev.toLocaleString()}`} accent={C.amber} sparkColor={C.amber} spark={[1200,1400,1600,1800,2000,2200,2400,2600,2800,3000,3200,3400,3600,3800,4000,4200,4400,4600,4800,5000,5200,5400,5600,5800,6000,6200,6400,6600,pipelineRev*0.99,pipelineRev]} sub="Locked in for next 6 months" />
               </div>
 
               {/* Progression + Treatment mix row */}
@@ -2533,7 +2536,11 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                   ))}
                 </div>
                 {filtered.length===0 && (
-                  <div style={{ padding:"48px 20px", textAlign:"center", color:C.slate, fontSize:13 }}>No patients in this category yet.</div>
+                  <div style={{ padding:"48px 20px", textAlign:"center", color:C.slate, fontSize:13 }}>
+                    <div style={{ fontSize:32, marginBottom:8, opacity:.3 }}>◉</div>
+                    <div style={{ fontWeight:600, color:C.navy, marginBottom:4 }}>Nothing here — yet</div>
+                    <div style={{ fontSize:12.5, color:C.slate, maxWidth:360, margin:"0 auto" }}>As soon as Iryss spots a patient matching this category, they'll appear here. Usually within 6 hours of a new exam.</div>
+                  </div>
                 )}
                 {filtered.map((p,i)=>{
                   const s = MYOPIA_STATUS[p.status] || MYOPIA_STATUS.stable;
@@ -2891,10 +2898,10 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
 
               {revenueTab==="overview"&&<div>
               <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:16, marginBottom:26 }}>
-                <SC label="Revenue at risk"       value={`£${atRiskRevenue.toLocaleString()}`}                        accent={`linear-gradient(90deg,${C.red},#F97316)`}    onDrill={()=>setDrill("rev-risk")}      trend="8%" trendUp={false} />
-                <SC label="Recovered this month"  value={`£${recoveredRev.toLocaleString()}`} sub={`${recovered.length} patients`} accent={`linear-gradient(90deg,${C.green},#34D399)`}  onDrill={()=>setDrill("rev-recovered")} trend="12%" trendUp={true} />
-                <SC label="Recovered YTD"         value="£8,400"                              sub="Since April 2025"  accent={`linear-gradient(90deg,${C.teal},${C.tealLt})`} />
-                <SC label="ROI on Iryss"          value="7.5×"                                sub="£220 plan"         accent={`linear-gradient(90deg,#8B5CF6,#A78BFA)`} />
+                <SC label="Revenue walking out the door" value={`£${atRiskRevenue.toLocaleString()}`}             accent={C.red}   sparkColor={C.red}   spark={[1800,2100,2300,2500,2400,2700,2900,2800,3100,3300,3200,3500,3700,3600,3900,4100,4000,4200,4400,4300,4500,4700,4600,4800,5000,4900,5100,5000,atRiskRevenue*0.99,atRiskRevenue]}  onDrill={()=>setDrill("rev-risk")}      trend="8%" trendUp={false} />
+                <SC label="Recovered this month"        value={`£${recoveredRev.toLocaleString()}`} sub={`${recovered.length} patients rescued`} accent={C.green} sparkColor={C.green} spark={[200,400,600,900,1100,1400,1700,2000,2300,2500,2800,3100,3400,3700,4000,4300,4600,4900,5200,5400,5700,6000,6300,6600,6800,7100,7300,7500,recoveredRev*0.99,recoveredRev]} onDrill={()=>setDrill("rev-recovered")} trend="12%" trendUp={true} />
+                <SC label="Recovered YTD"               value="£8,400"                              sub="Since April 2025"  accent={C.teal}  sparkColor={C.teal}  spark={[500,900,1400,1800,2200,2700,3100,3500,3900,4300,4700,5100,5500,5800,6100,6400,6700,6900,7100,7300,7500,7700,7900,8000,8100,8200,8300,8350,8380,8400]} />
+                <SC label="ROI on Iryss"                value="7.5×"                                sub="You pay £220, save £1,650"  accent={C.purple} sparkColor={C.purple} spark={[2.1,2.4,2.7,3.0,3.3,3.6,3.9,4.2,4.5,4.8,5.0,5.2,5.4,5.6,5.8,6.0,6.2,6.4,6.6,6.8,6.9,7.0,7.1,7.2,7.3,7.35,7.4,7.45,7.48,7.5]} />
               </div>
               {(()=>{
                 const totalRev   = PATIENTS.reduce((a,p)=>a+p.revenue, 0);
@@ -3574,10 +3581,10 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                 </div>
                 {/* KPI row */}
                 <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:16, marginBottom:24 }}>
-                  <SC label="Competitor mentions"  value={competitorMentions.length}                    accent={`linear-gradient(90deg,${C.red},#F97316)`}    sub="Live from inbox" trend={competitorMentions.length>0?"Action needed":null} trendUp={false} />
-                  <SC label="Patients at risk"     value={new Set(competitorMentions.map(m=>m.patient)).size} accent={`linear-gradient(90deg,${C.amber},#EAB308)`} sub="Mentioned a competitor" />
-                  <SC label="Est. revenue at risk" value={`£${lostRevEst.toLocaleString()}`}            accent={`linear-gradient(90deg,${C.red},#F97316)`}    sub="Based on avg £320/patient" />
-                  <SC label="Competitors tracked"  value={COMPETITOR_KW.length}                         accent={`linear-gradient(90deg,${C.navy},#1E3A5F)`}   sub="Keywords monitored" />
+                  <SC label="Patients naming competitors"  value={competitorMentions.length}                    accent={C.red}   sparkColor={C.red}   spark={[1,2,2,3,3,4,3,4,5,4,5,6,5,6,7,6,7,8,7,8,9,8,9,10,9,10,11,competitorMentions.length-1,competitorMentions.length,competitorMentions.length]}                    sub="Live from inbox" trend={competitorMentions.length>0?"Win back fast":null} trendUp={false} />
+                  <SC label="Patients about to leave"      value={new Set(competitorMentions.map(m=>m.patient)).size} accent={C.amber} sparkColor={C.amber} spark={[1,2,2,3,3,3,4,4,4,5,5,5,6,6,6,7,7,7,8,8,8,8,9,9,9,9,9,9,10,10]} sub="Each worth ~£800 over lifetime" />
+                  <SC label="Revenue at risk of defection" value={`£${lostRevEst.toLocaleString()}`}            accent={C.red}   sparkColor={C.red}   spark={[300,500,700,900,1100,1300,1500,1700,1900,2100,2300,2500,2700,2900,3100,3300,3500,3700,3900,4100,4300,4500,4700,4900,5100,5300,5500,lostRevEst*0.96,lostRevEst*0.98,lostRevEst]} sub="Don't let them walk" />
+                  <SC label="Competitors monitored"        value={COMPETITOR_KW.length}                         accent={C.navy}  sparkColor={C.navy}  spark={Array.from({length:30},(_,i)=>Math.max(1, COMPETITOR_KW.length*(i+1)/30))} sub="Keywords watched 24/7" />
                 </div>
 
                 <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:18, marginBottom:22 }}>
