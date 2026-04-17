@@ -2040,7 +2040,7 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                 const recallCompliance = complianceRate;
                 const recallColor = recallCompliance >= 80 ? C.green : recallCompliance >= 60 ? C.amber : C.red;
                 const kpiCards = [
-                  { label:"Patients at Risk",  value:highRisk.length,             sub:"score 70-100",             color:C.red,    tintBg:"#FEE2E2",   tintFg:"#DC2626",  spark:[8,9,11,10,13,14,12,15,14,16,17,15,18,19,17,20,19,21,20,22,21,19,20,22,21,23,22, Math.max(0,highRisk.length-1), highRisk.length, highRisk.length], onClick:()=>setDrill("at-risk") },
+                  { label:"Patients at Risk",  value:highRisk.length,             sub:`£${atRiskRevenue.toLocaleString()} walking out`, color:C.red,    tintBg:"#FEE2E2",   tintFg:"#DC2626",  spark:[8,9,11,10,13,14,12,15,14,16,17,15,18,19,17,20,19,21,20,22,21,19,20,22,21,23,22, Math.max(0,highRisk.length-1), highRisk.length, highRisk.length], onClick:()=>setDrill("at-risk") },
                   { label:"Patients Recovered", value:recovered.length,           sub:"this month · WhatsApp",   color:C.green,  tintBg:"#DCFCE7",   tintFg:"#059669",  spark:[1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,10,10,11,11,12,12,13,14,14,15,15, Math.max(0,recovered.length-1), recovered.length, recovered.length], onClick:()=>setDrill("recovered") },
                   { label:"Recall Compliance", value:`${recallCompliance}%`,      sub:"GOC target 80%",           color:recallColor, tintBg:recallCompliance>=80?"#DCFCE7":recallCompliance>=60?"#FEF3C7":"#FEE2E2", tintFg:recallCompliance>=80?"#059669":recallCompliance>=60?"#D97706":"#DC2626", spark:[55,58,60,62,64,65,67,68,70,71,72,73,74,75,76,77,78,79,80,80,81,81,82,82,83,83,84,84, recallCompliance-1, recallCompliance], onClick:()=>goNav("recalls") },
                 ];
@@ -2191,83 +2191,103 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                 )}
               </div>
 
-              {/* ═══ OPPORTUNITY ROW — CL Defence + AI Scribe teaser ═══ */}
+              {/* ═══ WHERE YOU'RE LOSING MONEY — leakage breakdown ═══ */}
               {(()=>{
-                const avgMonths = reorderPatients.length>0 ? Math.round(reorderPatients.reduce((a,p)=>a+parseMonthsAgo(p.lastVisit),0)/reorderPatients.length) : 0;
-                const leakRev = reorderPatients.reduce((a,p)=>a+Math.round((p.revenue||200)*0.4), 0);
+                const clLeak        = reorderPatients.reduce((a,p)=>a+Math.round((p.revenue||200)*0.4), 0);
+                const atRiskUnchased= highRisk.filter(p=>!waSent[p.id]);
+                const atRiskLeak    = atRiskUnchased.reduce((a,p)=>a+p.revenue,0);
+                const myopiaLapsed  = MYOPIA_PATIENTS.filter(p=>p.category==="lapsed");
+                const myopiaLeak    = myopiaLapsed.length * 160;
+                const competitorLeak= competitorMentions.length * 320;
+                const noShowList    = APPOINTMENTS.filter(a=>!a.confirmed);
+                const noShowLeak    = noShowList.reduce((a,ap)=>a+(ap.revenue||140), 0);
+                const rows = [
+                  { key:"cl",   label:"Contact lens patients defecting", count:reorderPatients.length,   amt:clLeak,       color:C.red,    action:()=>{ setCampaignSegment("cl-lapsed");  setCampaignTemplate("reorder"); setCampaignSchedule("now"); setCampaignOpen(true); }, cta:`Send to all ${reorderPatients.length} →` },
+                  { key:"risk", label:"At-risk patients not yet chased", count:atRiskUnchased.length,    amt:atRiskLeak,   color:"#F59E0B",action:()=>{ setCampaignSegment("high-risk");  setCampaignTemplate("winback"); setCampaignSchedule("now"); setCampaignOpen(true); }, cta:`Send to all ${atRiskUnchased.length} →` },
+                  { key:"show", label:"No-shows not followed up",        count:noShowList.length,        amt:noShowLeak,   color:"#F97316",action:()=>goNav("appointments"), cta:"Confirm all →" },
+                  { key:"myo",  label:"Myopia reviews overdue",          count:myopiaLapsed.length,      amt:myopiaLeak,   color:"#EC4899",action:()=>{ setCampaignSegment("myopia-due"); setCampaignTemplate("myopia");  setCampaignSchedule("now"); setCampaignOpen(true); }, cta:`WhatsApp parents →` },
+                  { key:"comp", label:"Competitor-mention patients",     count:competitorMentions.length,amt:competitorLeak,color:"#8B5CF6",action:()=>{ setCampaignSegment("competitor"); setCampaignTemplate("winback"); setCampaignSchedule("now"); setCampaignOpen(true); }, cta:"Win-back offer →" },
+                ].filter(r=>r.count>0 && r.amt>0);
+                const totalLeak = rows.reduce((a,r)=>a+r.amt,0);
+                if (rows.length===0) {
+                  return (
+                    <div style={{ marginTop:22, background:C.card, border:`1px solid ${C.border}`, borderRadius:16, padding:"28px 26px", boxShadow:C.cardShadow, display:"flex", alignItems:"center", gap:14 }}>
+                      <div style={{ width:40, height:40, borderRadius:10, background:"rgba(16,185,129,.1)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={C.green} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                      </div>
+                      <div>
+                        <div style={{ fontSize:14, fontWeight:700, color:C.navy, marginBottom:3 }}>No active revenue leaks right now</div>
+                        <div style={{ fontSize:12.5, color:C.slate }}>All patient lists are up to date. Keep the momentum going.</div>
+                      </div>
+                    </div>
+                  );
+                }
                 return (
-                  <div style={{ marginTop:22, display:"grid", gridTemplateColumns:"1fr 1fr", gap:16, animation:"fadeInUp .75s ease-out" }}>
-                    {/* CL Defection Defence */}
-                    {reorderPatients.length>0 ? (
-                      <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:16, padding:"20px 22px", boxShadow:C.cardShadow, position:"relative", overflow:"hidden", display:"flex", flexDirection:"column" }}>
-                        <div style={{ position:"absolute", top:0, left:0, width:3, height:"100%", background:C.red }} />
-                        <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:12 }}>
-                          <div style={{ width:34, height:34, borderRadius:9, background:"linear-gradient(135deg,#FEE2E2,#FECACA)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
-                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke={C.red} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
-                          </div>
-                          <div>
-                            <div style={{ fontSize:13.5, fontWeight:800, color:C.navy, letterSpacing:-0.2 }}>CL Defection Defence</div>
-                            <div style={{ fontSize:10, fontWeight:700, color:C.red, letterSpacing:0.5, textTransform:"uppercase" }}>Revenue leak</div>
-                          </div>
+                  <div style={{ marginTop:22, background:"linear-gradient(135deg,#FFFFFF 0%,#FEF9F8 100%)", border:"1px solid #FECACA", borderRadius:16, padding:"20px 24px", boxShadow:"0 2px 12px rgba(239,68,68,.06)", animation:"fadeInUp .75s ease-out" }}>
+                    {/* Header */}
+                    <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:14 }}>
+                      <div>
+                        <div style={{ fontSize:10, fontWeight:700, color:C.red, textTransform:"uppercase", letterSpacing:1, marginBottom:4, display:"flex", alignItems:"center", gap:8 }}>
+                          <span style={{ width:7, height:7, borderRadius:"50%", background:C.red, boxShadow:`0 0 6px ${C.red}80`, animation:"pulseDot 2.2s ease-in-out infinite" }} />
+                          Where you're losing money
                         </div>
-                        <div style={{ fontSize:13, color:C.navy, fontWeight:600, marginBottom:4, lineHeight:1.5 }}>
-                          {reorderPatients.length} CL patients haven't reordered in {avgMonths}+ months
-                        </div>
-                        <div style={{ fontSize:12, color:C.slate, marginBottom:14, lineHeight:1.55, flex:1 }}>
-                          That's <b style={{ color:C.red }}>£{leakRev.toLocaleString()}</b> of CL revenue probably going to Vision Direct. One WhatsApp can bring them back.
-                        </div>
-                        <div style={{ display:"flex", gap:8 }}>
-                          <button onClick={()=>{ goNav("recalls"); setRecallTab("lens-reorder"); }}
-                            style={{ background:"transparent", color:C.slate, border:`1px solid ${C.border}`, borderRadius:9, padding:"8px 14px", fontSize:12, fontWeight:600, cursor:"pointer", fontFamily:F, whiteSpace:"nowrap" }}>
-                            View all
-                          </button>
-                          <button onClick={()=>{
-                              setCampaignSegment("cl-lapsed");
-                              setCampaignTemplate("reorder");
-                              setCampaignSchedule("now");
-                              setCampaignOpen(true);
-                            }}
-                            style={{ flex:1, background:`linear-gradient(135deg,${C.teal},${C.tealLt})`, color:"#fff", border:"none", borderRadius:9, padding:"8px 14px", fontSize:12, fontWeight:700, cursor:"pointer", fontFamily:F, boxShadow:"0 4px 14px rgba(8,145,178,.25)", whiteSpace:"nowrap" }}>
-                            Send to all {reorderPatients.length} →
-                          </button>
+                        <div style={{ fontSize:15.5, fontWeight:800, color:C.navy, letterSpacing:-0.3 }}>
+                          <span style={{ color:C.red }}>£{totalLeak.toLocaleString()}</span> <span style={{ fontWeight:500, color:C.slate, fontSize:13 }}>at risk this month · across {rows.length} categories</span>
                         </div>
                       </div>
-                    ) : (
-                      <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:16, padding:"24px 26px", boxShadow:C.cardShadow, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", textAlign:"center" }}>
-                        <div style={{ width:34, height:34, borderRadius:9, background:"rgba(16,185,129,.1)", display:"flex", alignItems:"center", justifyContent:"center", marginBottom:10 }}>
-                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={C.green} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                        </div>
-                        <div style={{ fontSize:13, fontWeight:700, color:C.navy, marginBottom:3 }}>No CL revenue leaking</div>
-                        <div style={{ fontSize:12, color:C.slate }}>All contact lens patients are up to date with reorders.</div>
-                      </div>
-                    )}
+                      <button onClick={()=>{
+                          // Action the biggest leak first
+                          if (rows[0]) rows[0].action();
+                        }}
+                        style={{ background:`linear-gradient(135deg,${C.teal},${C.tealLt})`, color:"#fff", border:"none", borderRadius:10, padding:"9px 18px", fontSize:12.5, fontWeight:700, cursor:"pointer", fontFamily:F, boxShadow:"0 4px 14px rgba(8,145,178,.25)", whiteSpace:"nowrap" }}>
+                        Action biggest leak →
+                      </button>
+                    </div>
 
-                    {/* AI scribe teaser */}
-                    <div onClick={()=>goNav("scribe")} style={{ background:"linear-gradient(135deg, rgba(139,92,246,.06), rgba(167,139,250,.03))", border:"1px solid rgba(139,92,246,.2)", borderRadius:16, padding:"20px 22px", cursor:"pointer", transition:"all .2s", display:"flex", flexDirection:"column" }}
-                      onMouseEnter={e=>{ e.currentTarget.style.transform="translateY(-2px)"; e.currentTarget.style.boxShadow="0 10px 30px rgba(139,92,246,.15)"; }}
-                      onMouseLeave={e=>{ e.currentTarget.style.transform="translateY(0)"; e.currentTarget.style.boxShadow="none"; }}>
-                      <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:12 }}>
-                        <div style={{ width:34, height:34, borderRadius:9, background:"linear-gradient(135deg,#8B5CF6,#A78BFA)", display:"flex", alignItems:"center", justifyContent:"center", color:"#fff", flexShrink:0 }}>
-                          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
+                    {/* Stacked bar showing proportional split */}
+                    <div style={{ display:"flex", height:8, borderRadius:4, overflow:"hidden", marginBottom:16, background:"#F1F5F9" }}>
+                      {rows.map(r=>(
+                        <div key={r.key} style={{ width:`${(r.amt/totalLeak)*100}%`, background:r.color, transition:"width .4s" }} title={`${r.label}: £${r.amt}`} />
+                      ))}
+                    </div>
+
+                    {/* Rows */}
+                    <div>
+                      {rows.map((r,i)=>(
+                        <div key={r.key} style={{ display:"grid", gridTemplateColumns:"auto 110px 1fr auto", gap:14, alignItems:"center", padding:"10px 0", borderTop:i>0?`1px solid rgba(226,232,240,.6)`:"none" }}>
+                          <span style={{ width:9, height:9, borderRadius:"50%", background:r.color, flexShrink:0 }} />
+                          <div style={{ fontSize:15, fontWeight:800, color:C.red, letterSpacing:-0.3, fontVariantNumeric:"tabular-nums" }}>£{r.amt.toLocaleString()}</div>
+                          <div>
+                            <div style={{ fontSize:13, fontWeight:600, color:C.navy }}>{r.label}</div>
+                            <div style={{ fontSize:11.5, color:C.slate, marginTop:1 }}>{r.count} patient{r.count!==1?"s":""}</div>
+                          </div>
+                          <button onClick={r.action}
+                            style={{ background:"transparent", color:r.color, border:`1px solid ${r.color}40`, borderRadius:9, padding:"7px 14px", fontSize:12, fontWeight:700, cursor:"pointer", fontFamily:F, whiteSpace:"nowrap", transition:"all .15s" }}
+                            onMouseEnter={e=>{ e.currentTarget.style.background=r.color; e.currentTarget.style.color="#fff"; }}
+                            onMouseLeave={e=>{ e.currentTarget.style.background="transparent"; e.currentTarget.style.color=r.color; }}>
+                            {r.cta}
+                          </button>
                         </div>
-                        <div style={{ display:"flex", alignItems:"center", gap:6 }}>
-                          <div style={{ fontSize:13.5, fontWeight:800, color:C.navy, letterSpacing:-0.2 }}>AI Scribe</div>
-                          <span style={{ fontSize:9, fontWeight:800, color:"#8B5CF6", background:"rgba(139,92,246,.12)", padding:"2px 7px", borderRadius:6, letterSpacing:0.5 }}>BETA</span>
-                        </div>
-                      </div>
-                      <div style={{ fontSize:13, color:C.navy, fontWeight:600, marginBottom:4, lineHeight:1.5 }}>
-                        Dictate the exam. Iryss writes the record.
-                      </div>
-                      <div style={{ fontSize:12, color:C.slate, marginBottom:14, lineHeight:1.55, flex:1 }}>
-                        Saves 11 min per patient · pushes clinical notes + GOS claim + referral letter straight to your CRM.
-                      </div>
-                      <div style={{ display:"flex", alignItems:"center", gap:8, color:"#8B5CF6", fontSize:12, fontWeight:700 }}>
-                        Try it now →
-                      </div>
+                      ))}
                     </div>
                   </div>
                 );
               })()}
+
+              {/* ═══ AI Scribe teaser (full width, compact) ═══ */}
+              <div onClick={()=>goNav("scribe")} style={{ marginTop:16, background:"linear-gradient(135deg, rgba(139,92,246,.06), rgba(167,139,250,.03))", border:"1px solid rgba(139,92,246,.2)", borderRadius:16, padding:"16px 22px", cursor:"pointer", transition:"all .2s", display:"flex", alignItems:"center", gap:16, animation:"fadeInUp .8s ease-out" }}
+                onMouseEnter={e=>{ e.currentTarget.style.transform="translateY(-2px)"; e.currentTarget.style.boxShadow="0 10px 30px rgba(139,92,246,.15)"; }}
+                onMouseLeave={e=>{ e.currentTarget.style.transform="translateY(0)"; e.currentTarget.style.boxShadow="none"; }}>
+                <div style={{ width:38, height:38, borderRadius:10, background:"linear-gradient(135deg,#8B5CF6,#A78BFA)", display:"flex", alignItems:"center", justifyContent:"center", color:"#fff", flexShrink:0 }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
+                </div>
+                <div style={{ flex:1, display:"flex", alignItems:"center", gap:10, flexWrap:"wrap" }}>
+                  <div style={{ fontSize:13.5, fontWeight:800, color:C.navy, letterSpacing:-0.2 }}>AI Scribe</div>
+                  <span style={{ fontSize:9, fontWeight:800, color:"#8B5CF6", background:"rgba(139,92,246,.12)", padding:"2px 7px", borderRadius:6, letterSpacing:0.5 }}>BETA</span>
+                  <span style={{ fontSize:12.5, color:C.slate, fontWeight:500 }}>· Dictate the exam, Iryss writes the record, letter &amp; GOS claim. <b style={{ color:C.navy }}>Saves 11 min per patient.</b></span>
+                </div>
+                <span style={{ fontSize:12, fontWeight:700, color:"#8B5CF6", whiteSpace:"nowrap" }}>Try it now →</span>
+              </div>
 
               {/* ═══ Compact Revenue Pulse — stand-alone row ═══ */}
               <div onClick={()=>goNav("revenue")} style={{ marginTop:16, background:C.card, border:`1px solid ${C.border}`, borderRadius:16, padding:"18px 24px", boxShadow:C.cardShadow, cursor:"pointer", transition:"all .2s", display:"flex", alignItems:"center", gap:24, animation:"fadeInUp .8s ease-out" }}
