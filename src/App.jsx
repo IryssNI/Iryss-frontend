@@ -997,6 +997,9 @@ function Dashboard() {
   const [campaignSegment, setCampaignSegment]   = useState("cl-lapsed");
   const [campaignTemplate, setCampaignTemplate] = useState("reorder");
   const [campaignSchedule, setCampaignSchedule] = useState("now");
+  const [campaignSending, setCampaignSending]   = useState(false);
+  const [campaignQueue, setCampaignQueue]       = useState([]); // [{name, first, child, phone, avatar, colorIdx, message, status}]
+  const campaignFeedRef = useRef(null);
   const [scribeRecent, setScribeRecent]         = useState([
     { id:"SC-041", patient:"Louise Everton", date:"Today · 10:42",     mins:12, status:"pushed"    },
     { id:"SC-040", patient:"Ethan Kumar",    date:"Today · 09:15",     mins:9,  status:"reviewed"  },
@@ -5209,27 +5212,163 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
         ];
         const seg = SEGMENTS.find(s=>s.id===campaignSegment) || SEGMENTS[0];
         const tpl = TEMPLATES.find(t=>t.id===campaignTemplate) || TEMPLATES[0];
-        const sendCampaign = () => {
-          const label = campaignSchedule==="now" ? "launched now" : campaignSchedule==="morning" ? "scheduled for tomorrow 9am" : "scheduled for Monday 9am";
-          showToast(`Campaign ${label} · ${seg.count} recipients · est. ~${Math.round(seg.count*0.98)} delivered on WhatsApp`);
-          setCampaignOpen(false);
+
+        // Build the recipient list for the chosen segment
+        const buildRecipients = () => {
+          let src = [];
+          if      (campaignSegment==="cl-lapsed")  src = reorderPatients.map(p=>({ name:p.name, first:p.name.split(' ')[0], child:null, phone:p.phone, avatar:p.initials||p.name.split(' ').map(w=>w[0]).join('').slice(0,2), colorIdx:parseInt(p.id.slice(2))||0 }));
+          else if (campaignSegment==="high-risk")  src = highRisk.map(p=>({ name:p.name, first:p.name.split(' ')[0], child:null, phone:p.phone, avatar:p.initials||p.name.split(' ').map(w=>w[0]).join('').slice(0,2), colorIdx:parseInt(p.id.slice(2))||0 }));
+          else if (campaignSegment==="recall-due") src = recallPatients.map(p=>({ name:p.name, first:p.name.split(' ')[0], child:null, phone:p.phone, avatar:p.initials||p.name.split(' ').map(w=>w[0]).join('').slice(0,2), colorIdx:parseInt(p.id.slice(2))||0 }));
+          else if (campaignSegment==="competitor") src = competitorMentions.map((m,i)=>({ name:m.patient, first:(m.patient||"Patient").split(' ')[0], child:null, phone:m.phone, avatar:(m.patient||"P").split(' ').map(w=>w[0]).join('').slice(0,2), colorIdx:i }));
+          else if (campaignSegment==="myopia-due") src = MYOPIA_PATIENTS.filter(p=>p.category==="active"||p.category==="lapsed").map(p=>({ name:p.parent, first:p.parent.split(' ')[0], child:p.name.split(' ')[0], phone:p.phone, avatar:p.initials, colorIdx:parseInt(p.id.slice(2))||0 }));
+          else                                     src = PATIENTS.map(p=>({ name:p.name, first:p.name.split(' ')[0], child:null, phone:p.phone, avatar:p.initials, colorIdx:parseInt(p.id.slice(2))||0 }));
+          return src.map(r=>({
+            ...r,
+            message: tpl.body
+              .replace(/\{first\}/g, r.first)
+              .replace(/\{child\}/g, r.child || r.first)
+              .replace(/\{google_link\}/g, "g.page/bright-eyes"),
+            status: "queued",
+          }));
         };
+
+        const launchCampaign = () => {
+          if (campaignSchedule!=="now") {
+            const label = campaignSchedule==="morning" ? "scheduled for tomorrow 9am" : "scheduled for Monday 9am";
+            showToast(`Campaign ${label} · ${seg.count} recipients queued`);
+            setCampaignOpen(false);
+            return;
+          }
+          const list = buildRecipients();
+          setCampaignQueue(list);
+          setCampaignSending(true);
+          // Stagger: total run targets ~3-4s regardless of segment size
+          const stagger = Math.max(80, Math.min(240, 3500 / Math.max(1,list.length)));
+          list.forEach((_, i) => {
+            setTimeout(() => {
+              setCampaignQueue(prev => prev.map((r,idx)=> idx===i ? {...r, status:"sending"} : r));
+              setTimeout(() => {
+                setCampaignQueue(prev => prev.map((r,idx)=> idx===i ? {...r, status:"sent"} : r));
+                // Also push into the live Inbox so the practice can see the message
+                const r = list[i];
+                const now = new Date().toISOString();
+                const timeStr = new Date().toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"});
+                const msg = { from:"practice", text:r.message, time:timeStr, sent_at:now, campaign:true };
+                setLiveInbox(prev => {
+                  const existing = prev.find(conv => conv.patient === r.name);
+                  if (existing) {
+                    return prev.map(conv => conv.patient === r.name
+                      ? { ...conv, thread:[...(conv.thread||[]), msg], preview:r.message.slice(0,80), time:timeStr, unread:false }
+                      : conv
+                    );
+                  }
+                  // New conversation — prepend so it appears at the top
+                  return [{
+                    id: `camp-${Date.now()}-${i}`,
+                    patient: r.name,
+                    phone: r.phone || "",
+                    preview: r.message.slice(0,80),
+                    time: timeStr,
+                    sent_at: now,
+                    unread: false,
+                    sentiment: "neutral",
+                    campaign: true,
+                    thread: [msg],
+                  }, ...prev];
+                });
+              }, Math.min(350, stagger*1.5));
+              // Auto-scroll the feed to the current item
+              if (campaignFeedRef.current) {
+                const el = campaignFeedRef.current.querySelector(`[data-row="${i}"]`);
+                if (el) el.scrollIntoView({ behavior:"smooth", block:"center" });
+              }
+            }, i * stagger);
+          });
+        };
+
+        const closeCampaign = () => {
+          if (campaignSending && campaignQueue.some(r=>r.status!=="sent")) return; // block close mid-send
+          setCampaignOpen(false);
+          setCampaignSending(false);
+          setCampaignQueue([]);
+        };
+
+        const sentCount = campaignQueue.filter(r=>r.status==="sent").length;
+        const allDone = campaignSending && campaignQueue.length>0 && sentCount === campaignQueue.length;
         return (
-          <div onClick={()=>setCampaignOpen(false)} style={{ position:"fixed", inset:0, background:"rgba(4,10,24,.55)", zIndex:1000, display:"flex", alignItems:"center", justifyContent:"center", backdropFilter:"blur(6px)", fontFamily:F }}>
+          <div onClick={closeCampaign} style={{ position:"fixed", inset:0, background:"rgba(4,10,24,.55)", zIndex:1000, display:"flex", alignItems:"center", justifyContent:"center", backdropFilter:"blur(6px)", fontFamily:F }}>
             <div onClick={e=>e.stopPropagation()} style={{ background:"#fff", borderRadius:18, width:780, maxWidth:"94vw", maxHeight:"88vh", overflow:"hidden", display:"flex", flexDirection:"column", boxShadow:"0 40px 120px rgba(0,0,0,.4)", animation:"fadeInUp .18s ease-out" }}>
               {/* Header */}
               <div style={{ padding:"20px 26px", borderBottom:`1px solid ${C.border}`, display:"flex", alignItems:"center", justifyContent:"space-between" }}>
                 <div>
-                  <div style={{ fontSize:17, fontWeight:800, color:C.navy, letterSpacing:-0.4 }}>New Campaign</div>
-                  <div style={{ fontSize:12, color:C.slate, fontWeight:500 }}>Pick a segment, a message, and when to send. Iryss handles the rest via WhatsApp.</div>
+                  <div style={{ fontSize:17, fontWeight:800, color:C.navy, letterSpacing:-0.4 }}>
+                    {campaignSending ? (allDone ? "Campaign complete" : "Launching campaign…") : "New Campaign"}
+                  </div>
+                  <div style={{ fontSize:12, color:C.slate, fontWeight:500 }}>
+                    {campaignSending
+                      ? (allDone ? `Sent ${sentCount} personalised WhatsApps · delivery receipts will appear in the Inbox`
+                                 : `Personalising and sending to ${campaignQueue.length} patients. Each gets their own name auto-filled.`)
+                      : "Pick a segment, a message, and when to send. Iryss handles the rest via WhatsApp."}
+                  </div>
                 </div>
-                <button onClick={()=>setCampaignOpen(false)} style={{ background:"none", border:"none", color:C.slateLight, cursor:"pointer", fontSize:20, width:32, height:32, borderRadius:8 }}
-                  onMouseEnter={e=>e.currentTarget.style.background=C.bg}
+                <button onClick={closeCampaign} disabled={campaignSending && !allDone}
+                  style={{ background:"none", border:"none", color:C.slateLight, cursor:(campaignSending && !allDone)?"not-allowed":"pointer", fontSize:20, width:32, height:32, borderRadius:8, opacity:(campaignSending && !allDone)?0.3:1 }}
+                  onMouseEnter={e=>{ if (!campaignSending || allDone) e.currentTarget.style.background=C.bg; }}
                   onMouseLeave={e=>e.currentTarget.style.background="transparent"}>×</button>
               </div>
 
-              {/* Body */}
-              <div style={{ padding:"22px 26px", overflowY:"auto", flex:1 }}>
+              {/* SENDING VIEW */}
+              {campaignSending && (
+                <div style={{ display:"flex", flexDirection:"column", flex:1, minHeight:0 }}>
+                  {/* Progress bar */}
+                  <div style={{ padding:"16px 26px", borderBottom:`1px solid ${C.border}`, background:C.bg }}>
+                    <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:8 }}>
+                      <div style={{ fontSize:12, fontWeight:600, color:C.navy }}>
+                        {allDone ? `All ${campaignQueue.length} messages sent` : `${sentCount} / ${campaignQueue.length} sent`}
+                      </div>
+                      <div style={{ fontSize:11, color:C.slate, fontWeight:500 }}>
+                        {allDone ? "est. ~98% delivered on WhatsApp" : "personalising each message…"}
+                      </div>
+                    </div>
+                    <div style={{ height:6, background:"#E2E8F0", borderRadius:3, overflow:"hidden" }}>
+                      <div style={{ height:"100%", width:`${campaignQueue.length>0 ? (sentCount/campaignQueue.length)*100 : 0}%`, background:`linear-gradient(90deg,${C.teal},${C.tealLt})`, borderRadius:3, transition:"width .3s ease" }} />
+                    </div>
+                  </div>
+                  {/* Live feed */}
+                  <div ref={campaignFeedRef} style={{ flex:1, overflowY:"auto", padding:"16px 26px" }}>
+                    {campaignQueue.map((r, i) => {
+                      const statusMap = {
+                        queued:  { label:"Queued",      color:C.slateLight, bg:"transparent" },
+                        sending: { label:"Sending…",    color:C.amber,      bg:"rgba(245,158,11,.1)" },
+                        sent:    { label:"Delivered ✓", color:C.green,      bg:"rgba(16,185,129,.1)" },
+                      };
+                      const st = statusMap[r.status];
+                      const opacity = r.status==="queued" ? 0.45 : 1;
+                      return (
+                        <div key={i} data-row={i}
+                          style={{ display:"flex", alignItems:"flex-start", gap:12, padding:"12px 0", borderBottom:i<campaignQueue.length-1?`1px solid #F1F5F9`:"none", opacity, transition:"opacity .25s" }}>
+                          <Avatar initials={r.avatar} bg={getColor(r.colorIdx)} size={32} />
+                          <div style={{ flex:1, minWidth:0 }}>
+                            <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:4 }}>
+                              <span style={{ fontSize:13, fontWeight:700, color:C.navy }}>{r.name}</span>
+                              {r.child && <span style={{ fontSize:11, color:C.slate }}>· parent of <b style={{ color:C.navy }}>{r.child}</b></span>}
+                              <span style={{ fontSize:11, color:C.slateLight, fontFamily:"ui-monospace, monospace" }}>{r.phone||"—"}</span>
+                            </div>
+                            <div style={{ fontSize:12, color:C.slate, lineHeight:1.55, background:r.status==="sent"?"#EDFDF6":C.bg, border:`1px solid ${r.status==="sent"?"rgba(16,185,129,.2)":C.border}`, borderRadius:10, padding:"8px 11px", whiteSpace:"pre-wrap" }}>{r.message}</div>
+                          </div>
+                          <span style={{ fontSize:10.5, fontWeight:700, padding:"4px 10px", borderRadius:20, background:st.bg, color:st.color, letterSpacing:0.3, flexShrink:0 }}>
+                            {r.status==="sending" && <span style={{ display:"inline-block", width:8, height:8, marginRight:6, borderRadius:"50%", background:C.amber, animation:"pulseDot 1s ease-in-out infinite" }} />}
+                            {st.label}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* BUILDER VIEW */}
+              {!campaignSending && <div style={{ padding:"22px 26px", overflowY:"auto", flex:1 }}>
                 {/* 1. Segment */}
                 <div style={{ marginBottom:22 }}>
                   <div style={{ fontSize:10.5, fontWeight:700, color:C.slateLight, textTransform:"uppercase", letterSpacing:1, marginBottom:10 }}>1 · Who to send to</div>
@@ -5295,23 +5434,54 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                     })}
                   </div>
                 </div>
-              </div>
+              </div>}
 
               {/* Footer */}
               <div style={{ padding:"16px 26px", borderTop:`1px solid ${C.border}`, background:C.bg, display:"flex", alignItems:"center", justifyContent:"space-between" }}>
-                <div style={{ fontSize:12, color:C.slate }}>
-                  Ready to reach <b style={{ color:C.navy }}>{seg.count} patients</b> · est. ~{Math.round(seg.count*0.98)} delivered on WhatsApp
-                </div>
-                <div style={{ display:"flex", gap:8 }}>
-                  <button onClick={()=>setCampaignOpen(false)}
-                    style={{ background:"transparent", color:C.slate, border:`1px solid ${C.border}`, borderRadius:10, padding:"10px 16px", fontSize:13, fontWeight:600, cursor:"pointer", fontFamily:F }}>
-                    Cancel
-                  </button>
-                  <button onClick={sendCampaign} disabled={seg.count===0}
-                    style={{ background:seg.count===0?"#CBD5E1":`linear-gradient(135deg,${C.teal},${C.tealLt})`, color:"#fff", border:"none", borderRadius:10, padding:"10px 20px", fontSize:13, fontWeight:700, cursor:seg.count===0?"not-allowed":"pointer", fontFamily:F, boxShadow:seg.count===0?"none":"0 4px 14px rgba(8,145,178,.3)" }}>
-                    Launch campaign →
-                  </button>
-                </div>
+                {!campaignSending && (
+                  <>
+                    <div style={{ fontSize:12, color:C.slate }}>
+                      Ready to reach <b style={{ color:C.navy }}>{seg.count} patients</b> · est. ~{Math.round(seg.count*0.98)} delivered on WhatsApp
+                    </div>
+                    <div style={{ display:"flex", gap:8 }}>
+                      <button onClick={closeCampaign}
+                        style={{ background:"transparent", color:C.slate, border:`1px solid ${C.border}`, borderRadius:10, padding:"10px 16px", fontSize:13, fontWeight:600, cursor:"pointer", fontFamily:F }}>
+                        Cancel
+                      </button>
+                      <button onClick={launchCampaign} disabled={seg.count===0}
+                        style={{ background:seg.count===0?"#CBD5E1":`linear-gradient(135deg,${C.teal},${C.tealLt})`, color:"#fff", border:"none", borderRadius:10, padding:"10px 20px", fontSize:13, fontWeight:700, cursor:seg.count===0?"not-allowed":"pointer", fontFamily:F, boxShadow:seg.count===0?"none":"0 4px 14px rgba(8,145,178,.3)" }}>
+                        Launch campaign →
+                      </button>
+                    </div>
+                  </>
+                )}
+                {campaignSending && (
+                  <>
+                    <div style={{ fontSize:12, color:C.slate }}>
+                      {allDone
+                        ? <><b style={{ color:C.green }}>✓ {sentCount} sent</b> · replies will land in your Inbox</>
+                        : <>Each message is personalised with the recipient's own name before sending</>
+                      }
+                    </div>
+                    <div style={{ display:"flex", gap:8 }}>
+                      {allDone
+                        ? <>
+                            <button onClick={()=>{ closeCampaign(); goNav("inbox"); }}
+                              style={{ background:"transparent", color:C.slate, border:`1px solid ${C.border}`, borderRadius:10, padding:"10px 16px", fontSize:13, fontWeight:600, cursor:"pointer", fontFamily:F }}>
+                              View in Inbox →
+                            </button>
+                            <button onClick={closeCampaign}
+                              style={{ background:`linear-gradient(135deg,${C.teal},${C.tealLt})`, color:"#fff", border:"none", borderRadius:10, padding:"10px 20px", fontSize:13, fontWeight:700, cursor:"pointer", fontFamily:F, boxShadow:"0 4px 14px rgba(8,145,178,.3)" }}>
+                              Done
+                            </button>
+                          </>
+                        : <button disabled style={{ background:"#CBD5E1", color:"#fff", border:"none", borderRadius:10, padding:"10px 20px", fontSize:13, fontWeight:700, cursor:"not-allowed", fontFamily:F }}>
+                            Sending… {sentCount}/{campaignQueue.length}
+                          </button>
+                      }
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           </div>
