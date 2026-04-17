@@ -2048,6 +2048,42 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                   </div>
                 )}
               </div>
+
+              {/* ═══ CONTACT LENS RETENTION — defection defence ═══ */}
+              {reorderPatients.length>0&&(()=>{
+                const avgMonths = Math.round(reorderPatients.reduce((a,p)=>a+parseMonthsAgo(p.lastVisit),0)/reorderPatients.length);
+                const leakRev = reorderPatients.reduce((a,p)=>a+Math.round((p.revenue||200)*0.4), 0);
+                return (
+                  <div style={{ marginTop:22, background:"linear-gradient(135deg,#FFFFFF 0%,#F8FBFD 100%)", border:`1px solid ${C.border}`, borderRadius:16, padding:"20px 24px", boxShadow:"0 2px 12px rgba(0,0,0,.04)", display:"grid", gridTemplateColumns:"auto 1fr auto", gap:20, alignItems:"center" }}>
+                    <div style={{ width:44, height:44, borderRadius:12, background:"linear-gradient(135deg,#FEE2E2,#FECACA)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={C.red} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
+                    </div>
+                    <div style={{ minWidth:0 }}>
+                      <div style={{ fontSize:10, fontWeight:700, color:C.red, textTransform:"uppercase", letterSpacing:1, marginBottom:4 }}>Contact Lens Defection Defence</div>
+                      <div style={{ fontSize:15.5, fontWeight:700, color:C.navy, letterSpacing:-0.3, marginBottom:3 }}>
+                        {reorderPatients.length} CL patients haven't reordered in {avgMonths}+ months
+                      </div>
+                      <div style={{ fontSize:13, color:C.slate, fontWeight:500 }}>
+                        That's <b style={{ color:C.red }}>£{leakRev.toLocaleString()}</b> of CL revenue probably going to Vision Direct. One WhatsApp can bring them back.
+                      </div>
+                    </div>
+                    <div style={{ display:"flex", gap:8, flexShrink:0 }}>
+                      <button onClick={()=>{ goNav("recalls"); setRecallTab("lens-reorder"); }}
+                        style={{ background:"transparent", color:C.slate, border:`1px solid ${C.border}`, borderRadius:10, padding:"10px 16px", fontSize:13, fontWeight:600, cursor:"pointer", fontFamily:F, whiteSpace:"nowrap" }}>
+                        View all
+                      </button>
+                      <button onClick={()=>{
+                          const first = reorderPatients[0];
+                          if (first) openReorderWA(first);
+                        }}
+                        style={{ background:`linear-gradient(135deg,${C.teal},${C.tealLt})`, color:"#fff", border:"none", borderRadius:10, padding:"10px 18px", fontSize:13, fontWeight:700, cursor:"pointer", fontFamily:F, boxShadow:"0 4px 14px rgba(8,145,178,.25)", whiteSpace:"nowrap" }}>
+                        Send reorder WhatsApp →
+                      </button>
+                    </div>
+                  </div>
+                );
+              })()}
+
             </div>
           )}
 
