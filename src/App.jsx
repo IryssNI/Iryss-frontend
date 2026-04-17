@@ -739,6 +739,25 @@ const MYOPIA_PATIENTS = [
   { id:"M-020", name:"Poppy Cooper",      initials:"PC", age:11, sphereOD:-2.75, sphereOS:-2.50, axialOD:24.7, axialOS:24.6, alChange:null, treatment:"Stellest",          treatmentStart:"Aug 2024", lastReview:"Sep 2025", nextReview:"Mar 2026", parentalMyopia:"Mother", outdoorHrs:2.5, compliance:"unknown",   category:"lapsed",   status:"lapsed",      parent:"Jane Cooper",    phone:"+447700900120" },
 ];
 
+// ═══════════════════════════════════════════════════════════════════════════
+// REFERRALS — word-of-mouth tracking, UK independents' #1 acquisition channel
+// ═══════════════════════════════════════════════════════════════════════════
+const REFERRALS = [
+  // Active referrers (top of leaderboard)
+  { id:"R-012", referrer:"Louise Everton",  referred:"Sarah Wilson",     referredPhone:"+447700801001", date:"2 days ago",   status:"booked",    revenue:0,   channel:"WhatsApp",  note:"Mentioned us to Sarah at yoga class" },
+  { id:"R-011", referrer:"Louise Everton",  referred:"James Mitchell",   referredPhone:"+447700801002", date:"5 days ago",   status:"converted", revenue:240, channel:"Card",      note:"Gave out referral card at school gate" },
+  { id:"R-010", referrer:"Louise Everton",  referred:"Amy Collins",      referredPhone:"+447700801003", date:"1 week ago",   status:"converted", revenue:180, channel:"WhatsApp",  note:"" },
+  { id:"R-009", referrer:"Tom Bradley",     referred:"Nathan Price",     referredPhone:"+447700801004", date:"3 days ago",   status:"booked",    revenue:0,   channel:"WhatsApp",  note:"" },
+  { id:"R-008", referrer:"Tom Bradley",     referred:"Lucy Fraser",      referredPhone:"+447700801005", date:"6 days ago",   status:"converted", revenue:195, channel:"Card",      note:"Gym buddy — needed new varifocals" },
+  { id:"R-007", referrer:"Sophia Patel",    referred:"Priya Shah",       referredPhone:"+447700801006", date:"4 days ago",   status:"contacted", revenue:0,   channel:"WhatsApp",  note:"Cousin visiting from London" },
+  { id:"R-006", referrer:"Sophia Patel",    referred:"Ravi Mehta",       referredPhone:"+447700801007", date:"1 week ago",   status:"converted", revenue:320, channel:"Card",      note:"" },
+  { id:"R-005", referrer:"Mia Davies",      referred:"Ollie Watson",     referredPhone:"+447700801008", date:"5 days ago",   status:"booked",    revenue:0,   channel:"WhatsApp",  note:"Colleague at her new job" },
+  { id:"R-004", referrer:"Ethan Kumar",     referred:"Raj Chopra",       referredPhone:"+447700801009", date:"2 weeks ago",  status:"converted", revenue:280, channel:"Card",      note:"Family member" },
+  { id:"R-003", referrer:"Ruby Fisher",     referred:"Beth Anderson",    referredPhone:"+447700801010", date:"3 weeks ago",  status:"converted", revenue:145, channel:"WhatsApp",  note:"" },
+  { id:"R-002", referrer:"Alfie Bennett",   referred:"Dan McKenzie",     referredPhone:"+447700801011", date:"3 weeks ago",  status:"converted", revenue:210, channel:"Card",      note:"" },
+  { id:"R-001", referrer:"Noah Williams",   referred:"Charlie Jenkins",  referredPhone:"+447700801012", date:"4 weeks ago",  status:"converted", revenue:175, channel:"WhatsApp",  note:"" },
+];
+
 const MYOPIA_TREATMENT_COLORS = {
   "MiSight 1 Day":     "#0891B2",
   "Stellest":          "#8B5CF6",
@@ -1369,6 +1388,7 @@ function Dashboard() {
     recalls:"Recalls",
     scribe:"AI Scribe",
     claims:"GOS Claims",
+    referrals:"Referrals",
     myopia:"Myopia Clinic",
     inbox:"Inbox",
     revenue:"Revenue",
@@ -1597,6 +1617,7 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
             ];
             const modules = [
               { id:"claims",       label:"GOS Claims",       icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 15l2 2 4-4"/></svg> },
+              { id:"referrals",    label:"Referrals",        icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6"/><path d="M22 11h-6"/></svg>, badge:REFERRALS.filter(r=>r.status==="contacted"||r.status==="booked").length },
               { id:"myopia",       label:"Myopia Clinic",    icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/></svg>, badge:MYOPIA_PATIENTS.filter(p=>p.category==="active").length },
               { id:"reviews",      label:"Reviews",          icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> },
               { id:"intelligence", label:"Intelligence",     icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>, badge:competitorMentions.length>0?competitorMentions.length:null },
@@ -3106,6 +3127,138 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                   ].map((r,i)=>(
                     <div key={i} style={{ color: i<9 ? C.green : "rgba(255,255,255,.3)" }}>{r}</div>
                   ))}
+                </div>
+              </div>
+            </div>
+            );
+          })()}
+
+          {/* ═══ REFERRALS — word-of-mouth tracking ═══ */}
+          {nav==="referrals"&&(()=>{
+            // Group by referrer
+            const byReferrer = {};
+            REFERRALS.forEach(r => {
+              if (!byReferrer[r.referrer]) byReferrer[r.referrer] = { name:r.referrer, total:0, converted:0, revenue:0, items:[] };
+              byReferrer[r.referrer].total++;
+              if (r.status==="converted") byReferrer[r.referrer].converted++;
+              byReferrer[r.referrer].revenue += r.revenue;
+              byReferrer[r.referrer].items.push(r);
+            });
+            const leaderboard = Object.values(byReferrer).sort((a,b)=>b.revenue-a.revenue || b.converted-a.converted);
+            const total = REFERRALS.length;
+            const converted = REFERRALS.filter(r=>r.status==="converted").length;
+            const pending   = REFERRALS.filter(r=>r.status==="contacted"||r.status==="booked").length;
+            const totalRev  = REFERRALS.reduce((a,r)=>a+r.revenue, 0);
+            const avgLTV    = converted>0 ? Math.round(totalRev/converted) : 0;
+            const conversionRate = total>0 ? Math.round((converted/total)*100) : 0;
+
+            const statusMap = {
+              contacted: { label:"Contacted",  color:"#8B5CF6", bg:"rgba(139,92,246,.1)" },
+              booked:    { label:"Booked",     color:C.amber,   bg:"rgba(245,158,11,.1)" },
+              converted: { label:"Converted",  color:C.green,   bg:"rgba(16,185,129,.1)" },
+            };
+
+            return (
+            <div>
+              <div style={{ marginBottom:22 }}>
+                <h1 style={{ fontSize:26, fontWeight:800, color:C.text, letterSpacing:-0.7, margin:0, marginBottom:6 }}>Referrals</h1>
+                <p style={{ fontSize:14, color:C.slate, margin:0, fontWeight:500 }}>Word-of-mouth is the <b style={{ color:C.navy }}>#1 acquisition channel</b> for UK independents. Track it, reward it, scale it.</p>
+              </div>
+
+              {/* KPI row */}
+              <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:16, marginBottom:22 }}>
+                <SC label="Referrals this month"  value={total}                        accent={C.teal}   sparkColor={C.teal}   spark={[1,2,2,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10,11,11,12,12,12,12,12,12,12,total-1,total,total]} sub={`${pending} awaiting booking`} />
+                <SC label="Conversion rate"       value={`${conversionRate}%`}         accent={C.green}  sparkColor={C.green}  spark={[30,35,40,42,45,48,52,55,57,58,60,61,62,63,64,64,65,65,66,66,66,66,66,66,66,67,67,conversionRate-1,conversionRate,conversionRate]} sub={`${converted}/${total} referrals`} trend={conversionRate>60?"Above average":""} trendUp={conversionRate>60} />
+                <SC label="Revenue attributed"    value={`£${totalRev.toLocaleString()}`} accent={C.amber} sparkColor={C.amber} spark={[150,280,420,560,700,820,960,1080,1200,1320,1440,1560,1680,1800,1900,1950,1950,1950,1950,1950,1950,1950,1950,1950,1950,1950,1950,totalRev-1,totalRev,totalRev]} sub="from converted referrals" />
+                <SC label="Avg lifetime value"    value={`£${avgLTV}`}                 accent={C.purple} sparkColor={C.purple} spark={Array.from({length:30},()=>avgLTV)} sub="per converted patient" />
+              </div>
+
+              {/* CTA banner */}
+              <div style={{ background:"linear-gradient(135deg, rgba(16,185,129,.06), rgba(8,145,178,.03))", border:"1px solid rgba(16,185,129,.2)", borderRadius:16, padding:"18px 22px", marginBottom:22, display:"flex", alignItems:"center", gap:14 }}>
+                <div style={{ width:40, height:40, borderRadius:10, background:"linear-gradient(135deg,#10B981,#34D399)", display:"flex", alignItems:"center", justifyContent:"center", color:"#fff", flexShrink:0, boxShadow:"0 4px 14px rgba(16,185,129,.3)" }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6"/><path d="M22 11h-6"/></svg>
+                </div>
+                <div style={{ flex:1 }}>
+                  <div style={{ fontSize:13.5, fontWeight:800, color:C.navy, letterSpacing:-0.2, marginBottom:3 }}>Turn your happiest patients into your sales team</div>
+                  <div style={{ fontSize:12.5, color:C.slate, fontWeight:500 }}>Send your 20 most recent recovered patients a personalised WhatsApp asking for a friend or family referral — with a loyalty reward if they convert.</div>
+                </div>
+                <button onClick={()=>{
+                    setCampaignSegment("all");
+                    setCampaignTemplate("review");
+                    setCampaignSchedule("now");
+                    setCampaignOpen(true);
+                    showToast("Tip: customise the template to ask for referrals in the Campaign builder");
+                  }}
+                  style={{ background:`linear-gradient(135deg,${C.teal},${C.tealLt})`, color:"#fff", border:"none", borderRadius:10, padding:"10px 20px", fontSize:13, fontWeight:700, cursor:"pointer", fontFamily:F, boxShadow:"0 4px 14px rgba(8,145,178,.25)", whiteSpace:"nowrap" }}>
+                  Send referral campaign →
+                </button>
+              </div>
+
+              {/* 2-column: leaderboard + recent timeline */}
+              <div style={{ display:"grid", gridTemplateColumns:"1.1fr 1fr", gap:16 }}>
+                {/* Leaderboard */}
+                <div style={{ background:C.card, borderRadius:16, border:`1px solid ${C.border}`, overflow:"hidden", boxShadow:C.cardShadow }}>
+                  <div style={{ padding:"14px 20px", borderBottom:`1px solid ${C.border}`, display:"flex", alignItems:"center", justifyContent:"space-between", background:C.bg }}>
+                    <h3 style={{ fontSize:13, fontWeight:700, color:C.text, margin:0 }}>Top referrers · leaderboard</h3>
+                    <span style={{ fontSize:11, color:C.slate }}>{leaderboard.length} patients referring</span>
+                  </div>
+                  {leaderboard.map((r,i)=>{
+                    const convRate = r.total>0 ? Math.round((r.converted/r.total)*100) : 0;
+                    const medal = i===0 ? "🥇" : i===1 ? "🥈" : i===2 ? "🥉" : null;
+                    return (
+                      <div key={r.name} style={{ display:"grid", gridTemplateColumns:"auto 1fr 80px 90px auto", gap:14, padding:"12px 20px", alignItems:"center", borderBottom:i<leaderboard.length-1?`1px solid #F1F5F9`:"none" }}>
+                        <div style={{ width:28, textAlign:"center", fontSize:14, fontWeight:700, color:C.slateLight }}>
+                          {medal || `#${i+1}`}
+                        </div>
+                        <div style={{ display:"flex", alignItems:"center", gap:10, minWidth:0 }}>
+                          <Avatar initials={r.name.split(' ').map(w=>w[0]).join('').slice(0,2)} bg={getColor(i)} size={30} />
+                          <div style={{ minWidth:0 }}>
+                            <div style={{ fontSize:13, fontWeight:700, color:C.navy, whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>{r.name}</div>
+                            <div style={{ fontSize:11, color:C.slate }}>{r.total} referral{r.total>1?"s":""} · {convRate}% converted</div>
+                          </div>
+                        </div>
+                        <div style={{ fontSize:13, fontWeight:700, color:C.green, textAlign:"right", fontVariantNumeric:"tabular-nums" }}>£{r.revenue}</div>
+                        <div style={{ fontSize:11, color:C.slateLight, textAlign:"right" }}>generated</div>
+                        <button onClick={()=>showToast(`Thank-you WhatsApp sent to ${r.name} + £20 credit applied`)}
+                          style={{ background:"transparent", color:C.teal, border:`1px solid rgba(8,145,178,.3)`, borderRadius:8, padding:"6px 12px", fontSize:11.5, fontWeight:700, cursor:"pointer", fontFamily:F, whiteSpace:"nowrap" }}>
+                          Thank + reward
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Recent timeline */}
+                <div style={{ background:C.card, borderRadius:16, border:`1px solid ${C.border}`, overflow:"hidden", boxShadow:C.cardShadow }}>
+                  <div style={{ padding:"14px 20px", borderBottom:`1px solid ${C.border}`, background:C.bg }}>
+                    <h3 style={{ fontSize:13, fontWeight:700, color:C.text, margin:0 }}>Recent referrals</h3>
+                  </div>
+                  <div style={{ padding:"8px 0" }}>
+                    {REFERRALS.slice(0,10).map((r,i)=>{
+                      const st = statusMap[r.status] || statusMap.contacted;
+                      return (
+                        <div key={r.id} style={{ display:"grid", gridTemplateColumns:"auto 1fr auto", gap:12, padding:"10px 20px", alignItems:"flex-start", borderBottom:i<9?`1px solid #F1F5F9`:"none" }}>
+                          <Avatar initials={r.referred.split(' ').map(w=>w[0]).join('').slice(0,2)} bg={getColor(i+6)} size={28} />
+                          <div style={{ minWidth:0 }}>
+                            <div style={{ fontSize:12.5, fontWeight:700, color:C.navy, marginBottom:2 }}>{r.referred}</div>
+                            <div style={{ fontSize:11, color:C.slate, marginBottom:2 }}>
+                              referred by <b style={{ color:C.navy }}>{r.referrer}</b> via {r.channel}
+                            </div>
+                            <div style={{ fontSize:10.5, color:C.slateLight }}>{r.date}{r.note?` · ${r.note}`:""}</div>
+                          </div>
+                          <span style={{ fontSize:10, fontWeight:700, padding:"3px 9px", borderRadius:20, background:st.bg, color:st.color, letterSpacing:0.3, flexShrink:0, whiteSpace:"nowrap" }}>{st.label}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              {/* Why this matters footer */}
+              <div style={{ marginTop:18, padding:"14px 18px", background:C.card, border:`1px solid ${C.border}`, borderRadius:12, display:"flex", alignItems:"center", gap:12 }}>
+                <div style={{ width:30, height:30, borderRadius:8, background:"rgba(139,92,246,.1)", display:"flex", alignItems:"center", justifyContent:"center", color:"#8B5CF6", fontSize:14, fontWeight:700, flexShrink:0 }}>◈</div>
+                <div style={{ fontSize:12.5, color:C.slate, flex:1 }}>
+                  <b style={{ color:C.navy }}>Referral acquisition cost: £0 · CAC via Facebook ads: ~£35 per booked appointment.</b> Every referred patient you win is pure margin. Chain opticians can't beat a personal recommendation — you can.
                 </div>
               </div>
             </div>
@@ -5224,6 +5377,7 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
         ].map(o=>({...o, group:"Main"}));
         const moduleNav = [
           { t:"GOS Claims",      hint:"Zero-reject claim engine",       icon:"◨", run:()=>goNav("claims") },
+          { t:"Referrals",       hint:"Word-of-mouth tracking",         icon:"↪", run:()=>goNav("referrals") },
           { t:"Myopia Clinic",   hint:"Paediatric myopia patients",     icon:"◉", run:()=>goNav("myopia") },
           { t:"Reviews",         hint:"Google review requests",         icon:"◆", run:()=>goNav("reviews") },
           { t:"Intelligence",    hint:"Competitor mentions & win-backs",icon:"🎯", run:()=>goNav("intelligence") },
