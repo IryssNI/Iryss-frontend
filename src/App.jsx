@@ -993,6 +993,10 @@ function Dashboard() {
   const [scribeState, setScribeState]           = useState("idle"); // idle | listening | processing | complete
   const [scribePatientId, setScribePatientId]   = useState("P-001");
   const [claimsTab, setClaimsTab]               = useState("pending");
+  const [campaignOpen, setCampaignOpen]         = useState(false);
+  const [campaignSegment, setCampaignSegment]   = useState("cl-lapsed");
+  const [campaignTemplate, setCampaignTemplate] = useState("reorder");
+  const [campaignSchedule, setCampaignSchedule] = useState("now");
   const [scribeRecent, setScribeRecent]         = useState([
     { id:"SC-041", patient:"Louise Everton", date:"Today · 10:42",     mins:12, status:"pushed"    },
     { id:"SC-040", patient:"Ethan Kumar",    date:"Today · 09:15",     mins:9,  status:"reviewed"  },
@@ -1373,6 +1377,86 @@ function Dashboard() {
   };
 
   function showToast(msg) { setToastMsg(msg); setTimeout(()=>setToastMsg(null), 3500); }
+
+  function generateDashboardReport() {
+    const today  = new Date().toLocaleDateString("en-GB",{day:"numeric",month:"long",year:"numeric"});
+    const practiceName = practiceDetails?.name || "Bright Eyes Opticians";
+    const practiceScore = Math.round(70 + (lowRisk.length / Math.max(1,PATIENTS.length)) * 30 - (highRisk.length / Math.max(1,PATIENTS.length)) * 20);
+    const roi = recoveredRev > 0 ? (recoveredRev / 199).toFixed(1) : "—";
+    const topAtRisk = highRisk.slice(0, 8);
+
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Dashboard Snapshot — ${practiceName}</title>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Helvetica Neue',Arial,sans-serif;color:#080F1E;background:#fff;padding:48px}
+.header{display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid #0891B2;padding-bottom:20px;margin-bottom:36px}
+.logo{font-size:28px;font-weight:800;color:#0891B2;letter-spacing:-1px}.practice{font-size:14px;color:#64748B;margin-top:4px}
+.date{font-size:13px;color:#94A3B8;text-align:right}
+.section{margin-bottom:32px}.section h2{font-size:13px;font-weight:700;color:#94A3B8;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid #E8EEF4}
+.score-hero{background:linear-gradient(135deg,#0C1220,#1A2541);border-radius:16px;padding:32px;color:#fff;display:grid;grid-template-columns:180px 1fr;gap:32px;align-items:center;margin-bottom:28px}
+.score-num{font-size:86px;font-weight:800;letter-spacing:-3px;line-height:1;background:linear-gradient(135deg,#22D3EE,#06B6D4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.score-label{font-size:11px;font-weight:700;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:8px}
+.score-title{font-size:20px;font-weight:700;margin-bottom:6px}.score-sub{font-size:13px;color:rgba(255,255,255,.6);line-height:1.6}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+.kpi{background:#F8FBFD;border:1px solid #E8EEF4;border-radius:12px;padding:16px}
+.kpi-label{font-size:10px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px}
+.kpi-val{font-size:26px;font-weight:800;color:#080F1E;letter-spacing:-.8px}.kpi-sub{font-size:11px;color:#64748B;margin-top:4px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
+.panel{background:#F8FBFD;border:1px solid #E8EEF4;border-radius:12px;padding:20px}
+.panel h3{font-size:14px;font-weight:700;color:#080F1E;margin-bottom:12px}
+.risk-bar{display:flex;align-items:center;gap:10px;margin-bottom:10px;font-size:12.5px}
+.risk-bar .dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.risk-bar .label{flex:1;font-weight:600;color:#475569}.risk-bar .num{font-weight:800;color:#080F1E}
+table{width:100%;border-collapse:collapse}th{font-size:10px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.8px;padding:8px 10px;background:#F8FBFD;text-align:left;border-bottom:1px solid #E8EEF4}
+td{font-size:12.5px;padding:9px 10px;border-bottom:1px solid #F1F5F9;color:#080F1E}
+.revenue-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.rev-card{padding:16px;border-radius:10px;background:linear-gradient(135deg,#0C1220,#1A2541);color:#fff}
+.rev-num{font-size:24px;font-weight:800;letter-spacing:-.6px;margin-top:4px;font-variant-numeric:tabular-nums}
+.footer{margin-top:48px;padding-top:16px;border-top:1px solid #E8EEF4;font-size:11px;color:#94A3B8;display:flex;justify-content:space-between}
+@media print{body{padding:24px}.no-print{display:none}}</style></head>
+<body>
+<div class="header"><div><div class="logo">iryss</div><div class="practice">${practiceName}</div></div><div class="date"><div style="font-weight:700">Dashboard Snapshot</div><div>${today}</div></div></div>
+
+<div class="score-hero">
+  <div style="text-align:center"><div class="score-label">Practice Score</div><div class="score-num">${practiceScore}</div><div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:4px">out of 100</div></div>
+  <div>
+    <div class="score-title">${practiceScore>=75?"Strong month — keep the momentum.":practiceScore>=55?"Solid, with room to recover more patients.":"Meaningful risk — act on the lists below this week."}</div>
+    <div class="score-sub">${PATIENTS.length} patients tracked · ${recovered.length} rescued this month · £${recoveredRev.toLocaleString()} recovered · ROI ${roi}×</div>
+  </div>
+</div>
+
+<div class="section"><h2>Key metrics</h2>
+  <div class="kpi-grid">
+    <div class="kpi"><div class="kpi-label">Total patients</div><div class="kpi-val">${PATIENTS.length}</div><div class="kpi-sub">On file</div></div>
+    <div class="kpi"><div class="kpi-label">At risk</div><div class="kpi-val">${highRisk.length}</div><div class="kpi-sub">Score ≥70</div></div>
+    <div class="kpi"><div class="kpi-label">Recovered MTD</div><div class="kpi-val">${recovered.length}</div><div class="kpi-sub">Via WhatsApp</div></div>
+    <div class="kpi"><div class="kpi-label">Recall compliance</div><div class="kpi-val">${complianceRate}%</div><div class="kpi-sub">GOC target 80%</div></div>
+  </div>
+</div>
+
+<div class="row2">
+  <div class="panel"><h3>Patient risk breakdown</h3>
+    ${[{l:"High risk · walking out",n:highRisk.length,c:"#EF4444"},{l:"Medium risk · watchlist",n:medRisk.length,c:"#F59E0B"},{l:"Low risk · healthy",n:lowRisk.length,c:"#10B981"}].map(r=>`<div class="risk-bar"><span class="dot" style="background:${r.c}"></span><span class="label">${r.l}</span><span class="num">${r.n}</span></div>`).join("")}
+  </div>
+  <div class="panel"><h3>Revenue pulse</h3>
+    <div class="revenue-row">
+      <div class="rev-card"><div class="kpi-label" style="color:rgba(255,255,255,.5)">Recovered</div><div class="rev-num">£${recoveredRev.toLocaleString()}</div></div>
+      <div class="rev-card"><div class="kpi-label" style="color:rgba(255,255,255,.5)">At risk</div><div class="rev-num">£${atRiskRevenue.toLocaleString()}</div></div>
+      <div class="rev-card"><div class="kpi-label" style="color:rgba(255,255,255,.5)">ROI</div><div class="rev-num" style="color:#22D3EE">${roi}×</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="section"><h2>Top at-risk patients — action this week</h2>
+  <table><tr><th>Patient</th><th>Last visit</th><th>Product</th><th>Revenue</th><th>Risk score</th></tr>
+  ${topAtRisk.length===0 ? `<tr><td colspan="5" style="text-align:center;color:#94A3B8;padding:20px">No high-risk patients — keep it up.</td></tr>` :
+    topAtRisk.map(p=>`<tr><td style="font-weight:700">${p.name}</td><td>${p.lastVisit}</td><td>${p.product||"—"}</td><td>£${p.revenue}</td><td><b style="color:#EF4444">${p.riskScore||"—"}/100</b></td></tr>`).join("")}
+  </table>
+</div>
+
+<div class="footer"><span>Generated by Iryss · ${practiceName}</span><span>${today}</span></div>
+<script>window.onload=()=>window.print();</script></body></html>`;
+    const w = window.open('','_blank','width=980,height=760');
+    w.document.write(html); w.document.close();
+  }
 
   function generateComplianceReport(compRate, recallPts, contactedPts) {
     const status = compRate>=80?"Compliant":compRate>=60?"Review Required":"Action Required";
@@ -1915,12 +1999,19 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                   <p style={{ fontSize:13, color:C.slate, fontFamily:F, fontWeight:500 }}>{new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'})}</p>
                 </div>
                 <div style={{ display:"flex", gap:10 }}>
-                  <button style={{ padding:"9px 20px", borderRadius:10, fontSize:12, fontWeight:600, border:`1px solid ${C.border}`, background:C.card, color:C.slate, cursor:"pointer", fontFamily:F, transition:"all .2s", boxShadow:"0 1px 2px rgba(0,0,0,.04)" }}
+                  <button onClick={generateDashboardReport}
+                    style={{ padding:"9px 20px", borderRadius:10, fontSize:12, fontWeight:600, border:`1px solid ${C.border}`, background:C.card, color:C.slate, cursor:"pointer", fontFamily:F, transition:"all .2s", boxShadow:"0 1px 2px rgba(0,0,0,.04)", display:"flex", alignItems:"center", gap:6 }}
                     onMouseEnter={e=>{e.currentTarget.style.borderColor="#CBD5E1";e.currentTarget.style.background="#F8FAFB";e.currentTarget.style.boxShadow="0 2px 8px rgba(0,0,0,.06)";}}
-                    onMouseLeave={e=>{e.currentTarget.style.borderColor=C.border;e.currentTarget.style.background=C.card;e.currentTarget.style.boxShadow="0 1px 2px rgba(0,0,0,.04)";}}>Export</button>
-                  <button style={{ padding:"9px 20px", borderRadius:10, fontSize:12, fontWeight:600, border:"none", background:C.tealGrad, color:"#fff", cursor:"pointer", fontFamily:F, boxShadow:"0 4px 14px rgba(8,145,178,.3)", transition:"all .25s" }}
+                    onMouseLeave={e=>{e.currentTarget.style.borderColor=C.border;e.currentTarget.style.background=C.card;e.currentTarget.style.boxShadow="0 1px 2px rgba(0,0,0,.04)";}}>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    Export
+                  </button>
+                  <button onClick={()=>setCampaignOpen(true)}
+                    style={{ padding:"9px 20px", borderRadius:10, fontSize:12, fontWeight:600, border:"none", background:C.tealGrad, color:"#fff", cursor:"pointer", fontFamily:F, boxShadow:"0 4px 14px rgba(8,145,178,.3)", transition:"all .25s", display:"flex", alignItems:"center", gap:6 }}
                     onMouseEnter={e=>{e.currentTarget.style.boxShadow="0 6px 24px rgba(8,145,178,.4)";e.currentTarget.style.transform="translateY(-1px)";}}
-                    onMouseLeave={e=>{e.currentTarget.style.boxShadow="0 4px 14px rgba(8,145,178,.3)";e.currentTarget.style.transform="translateY(0)";}}>+ New Campaign</button>
+                    onMouseLeave={e=>{e.currentTarget.style.boxShadow="0 4px 14px rgba(8,145,178,.3)";e.currentTarget.style.transform="translateY(0)";}}>
+                    <span style={{ fontSize:14, fontWeight:700, marginTop:-1 }}>+</span> New Campaign
+                  </button>
                 </div>
               </div>
 
@@ -5029,6 +5120,8 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
         ].map(o=>({...o, group:"Modules & Settings"}));
         const navOpts = [...mainNav, ...moduleNav];
         const actOpts = [
+          { t:"New campaign",               hint:"WhatsApp blast to a patient segment", icon:"➕", run:()=>setCampaignOpen(true) },
+          { t:"Export dashboard snapshot",  hint:"Print-ready PDF report",               icon:"⬇", run:()=>generateDashboardReport() },
           { t:"Generate compliance report", hint:"Print-ready GOC-style PDF", icon:"🖨", run:()=>{ goNav("recalls"); setTimeout(()=>generateComplianceReport(complianceRate, recallPatients, recallPatients.filter(p=>waSent[p.id])), 100); } },
           { t:"Send all win-back messages", hint:"Competitor-mention recovery", icon:"💬", run:()=>goNav("intelligence") },
           { t:"Toggle auto-recall",         hint:autoSend?"Currently ON":"Currently OFF", icon:"⚡", run:()=>setAutoSend(v=>!v) },
@@ -5090,6 +5183,135 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                 <span><b style={{ color:C.slate }}>↵</b> select</span>
                 <span><b style={{ color:C.slate }}>esc</b> close</span>
                 <span style={{ marginLeft:"auto" }}>IRYSS · ⌘K</span>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* ── Campaign Builder modal ── */}
+      {campaignOpen&&(()=>{
+        const SEGMENTS = [
+          { id:"cl-lapsed",     label:"CL patients overdue reorder (90+ days)",   count:reorderPatients.length,                                                sample:"Louise Everton, Tom Bradley, Mia Davies…" },
+          { id:"high-risk",     label:"High-risk patients · walking out",          count:highRisk.length,                                                       sample:"Sarah Hamilton, James Wallace, Fiona McBride…" },
+          { id:"recall-due",    label:"Eye test recalls due / overdue",            count:recallPatients.length,                                                 sample:"Patricia Ross, David Kelly, Elaine Foster…" },
+          { id:"competitor",    label:"Patients who mentioned competitors",        count:competitorMentions.length,                                             sample:"Named Specsavers, Vision Express, Boots…" },
+          { id:"myopia-due",    label:"Myopia Clinic · 6-month review due",        count:MYOPIA_PATIENTS.filter(p=>p.category==="active"||p.category==="lapsed").length,  sample:"Oliver Chen, Archie Price, Poppy Cooper…" },
+          { id:"all",           label:"All patients (broadcast)",                  count:PATIENTS.length,                                                       sample:"Full patient database" },
+        ];
+        const TEMPLATES = [
+          { id:"reorder",       label:"CL reorder nudge",      tone:"Friendly reorder",        body:"Hi {first}, looks like you might be running low on contact lenses — want us to sort a reorder for you? Just reply YES and we'll get them out to you 😊\n\nBright Eyes Opticians" },
+          { id:"recall",        label:"Eye test recall",       tone:"Warm + personal",         body:"Hi {first}, it's been a while since your last eye test at Bright Eyes — we'd love to see you again. Would you like to book in? 😊\n\nBright Eyes Opticians" },
+          { id:"winback",       label:"Win-back offer",        tone:"Loyalty thank-you",       body:"Hi {first}, we noticed it's been a while — as a loyalty thank-you, here's a complimentary frame styling session and 10% off your next purchase. Reply YES to claim 🎁\n\nBright Eyes Opticians" },
+          { id:"myopia",        label:"Myopia review reminder",tone:"Caring · parent-addressed",body:"Hi {first}, just a reminder that {child}'s next myopia review is due. Regular monitoring is important for their eye growth. Would you like to book? 👓\n\nBright Eyes Opticians" },
+          { id:"review",        label:"Google review request", tone:"Appreciative",            body:"Hi {first}, thank you for visiting Bright Eyes — we hope you had a great experience! If you have a moment, we'd really appreciate a Google review 🙌\n\n{google_link}" },
+          { id:"offer",         label:"Custom offer",          tone:"Custom message",          body:"Hi {first}, " },
+        ];
+        const seg = SEGMENTS.find(s=>s.id===campaignSegment) || SEGMENTS[0];
+        const tpl = TEMPLATES.find(t=>t.id===campaignTemplate) || TEMPLATES[0];
+        const sendCampaign = () => {
+          const label = campaignSchedule==="now" ? "launched now" : campaignSchedule==="morning" ? "scheduled for tomorrow 9am" : "scheduled for Monday 9am";
+          showToast(`Campaign ${label} · ${seg.count} recipients · est. ~${Math.round(seg.count*0.98)} delivered on WhatsApp`);
+          setCampaignOpen(false);
+        };
+        return (
+          <div onClick={()=>setCampaignOpen(false)} style={{ position:"fixed", inset:0, background:"rgba(4,10,24,.55)", zIndex:1000, display:"flex", alignItems:"center", justifyContent:"center", backdropFilter:"blur(6px)", fontFamily:F }}>
+            <div onClick={e=>e.stopPropagation()} style={{ background:"#fff", borderRadius:18, width:780, maxWidth:"94vw", maxHeight:"88vh", overflow:"hidden", display:"flex", flexDirection:"column", boxShadow:"0 40px 120px rgba(0,0,0,.4)", animation:"fadeInUp .18s ease-out" }}>
+              {/* Header */}
+              <div style={{ padding:"20px 26px", borderBottom:`1px solid ${C.border}`, display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+                <div>
+                  <div style={{ fontSize:17, fontWeight:800, color:C.navy, letterSpacing:-0.4 }}>New Campaign</div>
+                  <div style={{ fontSize:12, color:C.slate, fontWeight:500 }}>Pick a segment, a message, and when to send. Iryss handles the rest via WhatsApp.</div>
+                </div>
+                <button onClick={()=>setCampaignOpen(false)} style={{ background:"none", border:"none", color:C.slateLight, cursor:"pointer", fontSize:20, width:32, height:32, borderRadius:8 }}
+                  onMouseEnter={e=>e.currentTarget.style.background=C.bg}
+                  onMouseLeave={e=>e.currentTarget.style.background="transparent"}>×</button>
+              </div>
+
+              {/* Body */}
+              <div style={{ padding:"22px 26px", overflowY:"auto", flex:1 }}>
+                {/* 1. Segment */}
+                <div style={{ marginBottom:22 }}>
+                  <div style={{ fontSize:10.5, fontWeight:700, color:C.slateLight, textTransform:"uppercase", letterSpacing:1, marginBottom:10 }}>1 · Who to send to</div>
+                  <div style={{ display:"grid", gridTemplateColumns:"repeat(2,1fr)", gap:8 }}>
+                    {SEGMENTS.map(s=>{
+                      const active = campaignSegment===s.id;
+                      return (
+                        <button key={s.id} onClick={()=>setCampaignSegment(s.id)}
+                          style={{ display:"flex", alignItems:"center", gap:12, textAlign:"left", padding:"12px 14px", background:active?"rgba(8,145,178,.06)":C.card, border:`1px solid ${active?"rgba(8,145,178,.3)":C.border}`, borderRadius:10, cursor:"pointer", fontFamily:F, transition:"all .15s" }}>
+                          <div style={{ width:18, height:18, borderRadius:"50%", border:`2px solid ${active?C.teal:C.border}`, flexShrink:0, display:"flex", alignItems:"center", justifyContent:"center" }}>
+                            {active && <div style={{ width:10, height:10, borderRadius:"50%", background:C.teal }} />}
+                          </div>
+                          <div style={{ flex:1, minWidth:0 }}>
+                            <div style={{ fontSize:12.5, fontWeight:600, color:C.navy, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{s.label}</div>
+                            <div style={{ fontSize:11, color:C.slate, marginTop:2 }}>{s.count} recipients · {s.sample.slice(0,40)}{s.sample.length>40?"…":""}</div>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* 2. Template */}
+                <div style={{ marginBottom:22 }}>
+                  <div style={{ fontSize:10.5, fontWeight:700, color:C.slateLight, textTransform:"uppercase", letterSpacing:1, marginBottom:10 }}>2 · What to say</div>
+                  <div style={{ display:"flex", gap:6, flexWrap:"wrap", marginBottom:12 }}>
+                    {TEMPLATES.map(t=>(
+                      <button key={t.id} onClick={()=>setCampaignTemplate(t.id)}
+                        style={{ padding:"7px 13px", borderRadius:18, fontSize:12, fontWeight:600,
+                          background:campaignTemplate===t.id?C.teal:C.card,
+                          color:campaignTemplate===t.id?"#fff":C.slate,
+                          border:`1px solid ${campaignTemplate===t.id?C.teal:C.border}`,
+                          cursor:"pointer", fontFamily:F, transition:"all .15s" }}>
+                        {t.label}
+                      </button>
+                    ))}
+                  </div>
+                  {/* Preview */}
+                  <div style={{ background:"#EDF6FC", border:`1px solid #BAE6FD`, borderRadius:12, padding:"14px 16px", position:"relative" }}>
+                    <div style={{ fontSize:10, fontWeight:700, color:C.teal, textTransform:"uppercase", letterSpacing:0.8, marginBottom:6 }}>Preview · via WhatsApp · {tpl.tone}</div>
+                    <div style={{ fontSize:13, color:C.navy, lineHeight:1.6, whiteSpace:"pre-wrap", fontFamily:F }}>{tpl.body}</div>
+                    <div style={{ fontSize:10.5, color:C.slate, marginTop:10, fontStyle:"italic" }}>Placeholders {"{first}"} / {"{child}"} / {"{google_link}"} are replaced per-patient automatically.</div>
+                  </div>
+                </div>
+
+                {/* 3. Schedule */}
+                <div>
+                  <div style={{ fontSize:10.5, fontWeight:700, color:C.slateLight, textTransform:"uppercase", letterSpacing:1, marginBottom:10 }}>3 · When to send</div>
+                  <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:8 }}>
+                    {[
+                      { id:"now",     label:"Send now",            sub:"Delivered in <2 min" },
+                      { id:"morning", label:"Tomorrow at 9am",     sub:"Higher open rates" },
+                      { id:"monday",  label:"Next Monday at 9am",  sub:"Best for recalls" },
+                    ].map(o=>{
+                      const active = campaignSchedule===o.id;
+                      return (
+                        <button key={o.id} onClick={()=>setCampaignSchedule(o.id)}
+                          style={{ padding:"12px 14px", background:active?"rgba(8,145,178,.06)":C.card, border:`1px solid ${active?"rgba(8,145,178,.3)":C.border}`, borderRadius:10, cursor:"pointer", fontFamily:F, textAlign:"left", transition:"all .15s" }}>
+                          <div style={{ fontSize:12.5, fontWeight:700, color:active?C.teal:C.navy }}>{o.label}</div>
+                          <div style={{ fontSize:11, color:C.slate, marginTop:2 }}>{o.sub}</div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              {/* Footer */}
+              <div style={{ padding:"16px 26px", borderTop:`1px solid ${C.border}`, background:C.bg, display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+                <div style={{ fontSize:12, color:C.slate }}>
+                  Ready to reach <b style={{ color:C.navy }}>{seg.count} patients</b> · est. ~{Math.round(seg.count*0.98)} delivered on WhatsApp
+                </div>
+                <div style={{ display:"flex", gap:8 }}>
+                  <button onClick={()=>setCampaignOpen(false)}
+                    style={{ background:"transparent", color:C.slate, border:`1px solid ${C.border}`, borderRadius:10, padding:"10px 16px", fontSize:13, fontWeight:600, cursor:"pointer", fontFamily:F }}>
+                    Cancel
+                  </button>
+                  <button onClick={sendCampaign} disabled={seg.count===0}
+                    style={{ background:seg.count===0?"#CBD5E1":`linear-gradient(135deg,${C.teal},${C.tealLt})`, color:"#fff", border:"none", borderRadius:10, padding:"10px 20px", fontSize:13, fontWeight:700, cursor:seg.count===0?"not-allowed":"pointer", fontFamily:F, boxShadow:seg.count===0?"none":"0 4px 14px rgba(8,145,178,.3)" }}>
+                    Launch campaign →
+                  </button>
+                </div>
               </div>
             </div>
           </div>
