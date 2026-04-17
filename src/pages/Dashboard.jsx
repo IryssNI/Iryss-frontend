@@ -504,12 +504,10 @@ function PracticeScoreRing({ score }) {
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-      <div style={{ fontSize: '11px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px', color: '#94A3B8' }}>Practice Health</div>
-      <svg width="120" height="120" viewBox="0 0 120 120" style={{ transform: 'rotate(-90deg)' }}>
-        {/* Background ring */}
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+      <div style={{ fontSize: '9px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.6px', color: '#94A3B8' }}>Practice Health</div>
+      <svg width="100" height="100" viewBox="0 0 120 120" style={{ transform: 'rotate(-90deg)' }}>
         <circle cx="60" cy="60" r="54" fill="none" stroke="#F1F5F9" strokeWidth="10" />
-        {/* Active ring with animation */}
         <circle
           cx="60" cy="60" r="54" fill="none" stroke={color} strokeWidth="10"
           strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={strokeDashoffset}
@@ -517,8 +515,8 @@ function PracticeScoreRing({ score }) {
         />
       </svg>
       <div style={{ textAlign: 'center' }}>
-        <div style={{ fontSize: '40px', fontWeight: '800', color: '#0F172A', lineHeight: '1' }}>{score}</div>
-        <div style={{ fontSize: '11px', fontWeight: '600', color, marginTop: '4px' }}>{label}</div>
+        <div style={{ fontSize: '32px', fontWeight: '800', color: '#0F172A', lineHeight: '1' }}>{score}</div>
+        <div style={{ fontSize: '10px', fontWeight: '600', color, marginTop: '3px' }}>{label}</div>
       </div>
     </div>
   )
@@ -526,23 +524,33 @@ function PracticeScoreRing({ score }) {
 
 // ─ Stat Card Component ──────────────────────────────────────────────────────
 
-function MetricCard({ label, value, sub, color, onClick, trend }) {
+function MetricCard({ label, value, sub, color, onClick, trend, accentBar }) {
+  const colorMap = {
+    '#EF4444': { rgb: '239, 68, 68', bg: '#FEE2E2', text: '#DC2626' },
+    '#F59E0B': { rgb: '245, 158, 11', bg: '#FEF3C7', text: '#D97706' },
+    '#10B981': { rgb: '16, 185, 129', bg: '#DCFCE7', text: '#059669' },
+    '#0891B2': { rgb: '8, 145, 178', bg: '#CFFAFE', text: '#0891B2' },
+  }
+  const cm = colorMap[color] || colorMap['#0891B2']
+
   return (
     <div
       onClick={onClick}
       style={{
         background: '#FFFFFF',
         border: '1px solid #E2E8F0',
-        borderRadius: '16px',
-        padding: '20px',
-        cursor: 'pointer',
+        borderRadius: '14px',
+        padding: '20px 22px 18px',
+        cursor: onClick ? 'pointer' : 'default',
         transition: 'all 0.2s',
         position: 'relative',
         overflow: 'hidden',
+        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)',
       }}
       onMouseEnter={e => {
+        if (!onClick) return
         e.currentTarget.style.borderColor = color
-        e.currentTarget.style.boxShadow = `0 8px 24px rgba(${color === '#0891B2' ? '8, 145, 178' : '239, 68, 68'}, 0.12)`
+        e.currentTarget.style.boxShadow = `0 8px 24px rgba(${cm.rgb}, 0.12)`
         e.currentTarget.style.transform = 'translateY(-2px)'
       }}
       onMouseLeave={e => {
@@ -551,41 +559,26 @@ function MetricCard({ label, value, sub, color, onClick, trend }) {
         e.currentTarget.style.transform = 'translateY(0)'
       }}
     >
-      <div style={{ fontSize: '11px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px', color: '#94A3B8', marginBottom: '12px' }}>
+      {/* Top accent bar */}
+      <div style={{
+        position: 'absolute', top: 0, left: 0, right: 0, height: '3px',
+        background: accentBar || color, borderRadius: '14px 14px 0 0',
+      }} />
+      <div style={{ fontSize: '10px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.6px', color: '#94A3B8', marginBottom: '10px' }}>
         {label}
       </div>
-      <div style={{ fontSize: '32px', fontWeight: '800', color: '#0F172A', marginBottom: '8px', lineHeight: '1' }}>
+      <div style={{ fontSize: '30px', fontWeight: '800', color: '#0F172A', marginBottom: '8px', lineHeight: '1' }}>
         {value}
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
         <div style={{
-          background: color === '#EF4444' ? '#FEE2E2' : color === '#F59E0B' ? '#FEF3C7' : '#DCFCE7',
-          color: color === '#EF4444' ? '#DC2626' : color === '#F59E0B' ? '#D97706' : '#059669',
-          fontSize: '11px', fontWeight: '600', padding: '4px 8px', borderRadius: '6px'
+          background: cm.bg, color: cm.text,
+          fontSize: '10px', fontWeight: '600', padding: '3px 8px', borderRadius: '6px',
         }}>
           {trend || 'This month'}
         </div>
-        <span style={{ color: '#94A3B8', fontSize: '12px' }}>→</span>
+        {onClick && <span style={{ color: '#94A3B8', fontSize: '11px' }}>→</span>}
       </div>
-    </div>
-  )
-}
-
-// ─ Placeholder Card Component ──────────────────────────────────────────────
-
-function PlaceholderCard({ icon, title, subtitle }) {
-  return (
-    <div style={{
-      background: '#FFFFFF',
-      border: '1px solid #E2E8F0',
-      borderRadius: '16px',
-      padding: '24px',
-      textAlign: 'center',
-      opacity: 0.6,
-    }}>
-      <div style={{ fontSize: '32px', marginBottom: '12px' }}>{icon}</div>
-      <div style={{ fontSize: '14px', fontWeight: '600', color: '#475569', marginBottom: '4px' }}>{title}</div>
-      <div style={{ fontSize: '13px', color: '#94A3B8' }}>{subtitle}</div>
     </div>
   )
 }
@@ -638,11 +631,11 @@ export default function Dashboard() {
 
       <div style={{ padding: '32px' }}>
         {/* Greeting Header */}
-        <div style={{ marginBottom: '32px', animation: 'fadeInUp 0.5s ease-out' }}>
-          <h1 style={{ fontSize: '28px', fontWeight: '800', color: '#0F172A', marginBottom: '4px' }}>
+        <div style={{ marginBottom: '24px', animation: 'fadeInUp 0.5s ease-out' }}>
+          <h1 style={{ fontSize: '24px', fontWeight: '800', color: '#0F172A', marginBottom: '2px' }}>
             {greeting}, {firstName}
           </h1>
-          <p style={{ fontSize: '14px', color: '#64748B' }}>{dateStr}</p>
+          <p style={{ fontSize: '13px', color: '#64748B' }}>{dateStr}</p>
         </div>
 
         {/* Error */}
@@ -690,99 +683,73 @@ export default function Dashboard() {
 
         {/* Practice Score + 4 Metrics Grid */}
         {!loading && (
-          <div style={{ marginBottom: '32px', animation: 'fadeInUp 0.5s ease-out 0.1s both' }}>
+          <div style={{ marginBottom: '28px', animation: 'fadeInUp 0.5s ease-out 0.1s both' }}>
             <div style={{
               display: 'grid',
-              gridTemplateColumns: 'auto 1fr 1fr',
-              gap: '20px',
-              alignItems: 'start',
+              gridTemplateColumns: '200px repeat(4, 1fr)',
+              gap: '16px',
+              alignItems: 'stretch',
             }}>
               {/* Practice Score Circle */}
               <div style={{
                 background: '#FFFFFF',
                 border: '1px solid #E2E8F0',
-                borderRadius: '16px',
-                padding: '24px',
+                borderRadius: '14px',
+                padding: '20px',
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'center',
-                minHeight: '300px',
                 boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)',
               }}>
                 <PracticeScoreRing score={practiceScore} />
               </div>
 
-              {/* Metrics Grid 2x2 */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                <MetricCard
-                  label="Patients at Risk"
-                  value={summary.patients_at_risk ?? 0}
-                  color="#EF4444"
-                  onClick={() => setPanel('at-risk')}
-                />
-                <MetricCard
-                  label="Revenue at Risk"
-                  value={`£${(summary.revenue_at_risk ?? 0).toLocaleString()}`}
-                  color="#F59E0B"
-                  onClick={() => setPanel('revenue-risk')}
-                />
-                <MetricCard
-                  label="Patients Recovered"
-                  value={summary.patients_recovered ?? 0}
-                  color="#10B981"
-                  onClick={() => setPanel('recovered')}
-                />
-                <MetricCard
-                  label="Revenue Recovered"
-                  value={`£${(summary.revenue_recovered ?? 0).toLocaleString()}`}
-                  color="#10B981"
-                  onClick={() => setPanel('revenue-recovered')}
-                />
-              </div>
+              {/* 4 Metrics in a row */}
+              <MetricCard
+                label="Patients at Risk"
+                value={summary.patients_at_risk ?? 0}
+                color="#EF4444"
+                accentBar="#EF4444"
+                onClick={() => setPanel('at-risk')}
+              />
+              <MetricCard
+                label="Revenue at Risk"
+                value={`£${(summary.revenue_at_risk ?? 0).toLocaleString()}`}
+                color="#F59E0B"
+                accentBar="#F59E0B"
+                onClick={() => setPanel('revenue-risk')}
+              />
+              <MetricCard
+                label="Patients Recovered"
+                value={summary.patients_recovered ?? 0}
+                color="#10B981"
+                accentBar="#10B981"
+                onClick={() => setPanel('recovered')}
+              />
+              <MetricCard
+                label="Revenue Recovered"
+                value={`£${(summary.revenue_recovered ?? 0).toLocaleString()}`}
+                color="#10B981"
+                accentBar="#10B981"
+                onClick={() => setPanel('revenue-recovered')}
+              />
             </div>
           </div>
         )}
-
-        {/* AI Insight Bar */}
-        <div style={{
-          background: 'linear-gradient(135deg, #CFFAFE 0%, #A5F3FC 100%)',
-          border: '1px solid #22D3EE',
-          borderRadius: '12px',
-          padding: '20px',
-          marginBottom: '32px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '16px',
-          animation: 'fadeInUp 0.5s ease-out 0.2s both',
-        }}>
-          <div style={{ fontSize: '24px' }}>✨</div>
-          <div>
-            <div style={{ fontSize: '13px', color: '#155E75', fontWeight: '600', marginBottom: '2px' }}>AI Insight</div>
-            <div style={{ fontSize: '13px', color: '#0E7490' }}>
-              12 contact lens patients are overdue by 30+ days. Reaching out could recover an estimated £1,800 in revenue.
-            </div>
-          </div>
-        </div>
-
-        {/* Today's Schedule & Contact Lens Retention Placeholders */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '32px', animation: 'fadeInUp 0.5s ease-out 0.3s both' }}>
-          <PlaceholderCard icon="📅" title="Today's Schedule" subtitle="Coming soon — track appointments, fill rates, and no-shows" />
-          <PlaceholderCard icon="👁" title="Contact Lens Retention" subtitle="Coming soon — prevent dropouts with automated milestone check-ins" />
-        </div>
 
         {/* Needs Your Attention Table */}
         <div style={{
           background: '#FFFFFF',
           border: '1px solid #E2E8F0',
-          borderRadius: '16px',
+          borderRadius: '14px',
           overflow: 'hidden',
           boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)',
-          animation: 'fadeInUp 0.5s ease-out 0.4s both',
+          animation: 'fadeInUp 0.5s ease-out 0.3s both',
         }}>
-          <div style={{ padding: '24px', borderBottom: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ padding: '18px 22px', borderBottom: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div>
-              <h2 style={{ fontSize: '16px', fontWeight: '700', color: '#0F172A', marginBottom: '2px' }}>Needs Your Attention</h2>
-              <p style={{ fontSize: '13px', color: '#64748B' }}>High-risk patients — act now to retain them</p>
+              <h2 style={{ fontSize: '15px', fontWeight: '700', color: '#0F172A', marginBottom: '1px' }}>Needs Your Attention</h2>
+              <p style={{ fontSize: '12px', color: '#64748B' }}>High-risk patients — act now to retain them</p>
             </div>
             {!loading && (
               <span style={{ background: '#FEE2E2', color: '#DC2626', fontSize: '12px', fontWeight: '700', padding: '6px 12px', borderRadius: '12px' }}>

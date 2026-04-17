@@ -1,0 +1,155 @@
+IRYSS PITCH DEMO — VOICEOVER SCRIPT
+=====================================
+
+Total runtime: ~2 minutes
+Open index.html in your browser, go fullscreen (Cmd+Shift+F or F11),
+then screen-record with Cmd+Shift+5. Read along with the captions.
+Press R to restart the demo at any point.
+
+
+[0:00–0:06] INTRO — Logo reveal
+---------------------------------
+"This is IRYSS — the patient retention platform
+built specifically for independent opticians."
+
+[Pause — let the tagline land]
+
+
+[0:06–0:11] DASHBOARD — First look
+------------------------------------
+"Here's your dashboard. At a glance you can see
+your active patients, who's at risk, and exactly
+what needs your attention today."
+
+
+[0:11–0:22] STATS — The problem
+---------------------------------
+"Right now, 67 patients are flagged as at risk —
+that's over four thousand pounds in revenue your
+practice could lose this month alone.
+IRYSS makes sure they come back."
+
+
+[0:22–0:27] PATIENT TABLE
+---------------------------
+"This attention list shows you exactly who needs
+a nudge — sorted by risk level, with the next
+action already queued up and ready to go."
+
+
+[0:27–0:37] MESSAGING — WhatsApp
+----------------------------------
+"Let's message Margaret O'Brien. She's over two
+years overdue for her sight test. One tap opens
+her WhatsApp conversation — right inside IRYSS."
+
+[Message panel slides open]
+
+"IRYSS already sent her an automated reminder
+this morning."
+
+
+[0:37–0:47] THE REPLY
+-----------------------
+"And look — she's replied. She wants to book in."
+
+[Patient reply appears]
+
+"Your team replies right here — no switching
+between apps. The booking is confirmed in seconds."
+
+[Booking toast appears]
+
+
+[0:47–0:53] TRANSITION TO RECALLS
+-----------------------------------
+"Now let me show you the Recalls screen. This is
+where the real magic happens."
+
+
+[0:53–1:03] RECALL STATS
+--------------------------
+"156 recalls sent this month — completely
+automatically. 53 appointments booked from those
+recalls. Without your staff lifting a finger."
+
+
+[1:03–1:13] WHATSAPP PERFORMANCE
+----------------------------------
+"WhatsApp gets a 42 percent response rate. That
+means patients are booking themselves back in,
+24/7, while your team focuses on the people
+sitting in front of them."
+
+
+[1:13–1:23] TRACKING
+----------------------
+"Every recall is tracked: sent, opened, booked.
+You always know exactly where each patient is
+in the journey. Nothing slips through the cracks."
+
+
+[1:23–1:33] REVENUE RECOVERED
+-------------------------------
+"This month — eight thousand four hundred pounds
+in revenue recovered. That's over a hundred
+thousand a year your practice keeps."
+
+
+[1:33–1:45] OUTRO
+-------------------
+"Stop losing patients. Start recovering revenue."
+
+[Pause for effect — 2 seconds]
+
+"Book your free demo at theiryss.com."
+
+
+=====================================
+RECORDING TIPS
+=====================================
+
+1. Voice: Confident but warm, like you're showing
+   a friend something brilliant.
+2. Pace: Match the captions on screen.
+3. Power numbers: "67 patients", "four thousand
+   pounds", "42 percent", "hundred thousand a year"
+   — lean into these.
+4. Screen record: Cmd+Shift+5 on Mac.
+5. Audio: AirPods work, but a decent mic is better.
+6. Post: Trim start/end, add subtle background
+   music (artlist.io), export as MP4.
+
+
+=====================================
+FIGURES RATIONALE (for your reference)
+=====================================
+
+These numbers reflect a typical single-site
+independent optician in the UK/NI/ROI:
+
+- 3,842 patients on the books
+  (typical indie has 3,000-5,000)
+- 67 at-risk patients
+  (~10-15% lapse rate is industry norm, shown
+   as monthly overdue cohort)
+- 18 recalls per day
+  (practice doing 8-10 sight tests/day)
+- £4.2k revenue at risk per month
+  (67 patients x avg ~£160 per visit value
+   including dispensing)
+- 156 recalls per month
+  (~7-8 per working day across SMS/email/WhatsApp)
+- 53 appointments booked from recalls
+  (34% response rate)
+- £8.4k recovered per month
+  (53 patients x avg £160 per visit)
+- £100k+ per year
+  (£8.4k x 12 = £100.8k annually)
+
+Sources:
+- GOC Mapping of Optical Businesses (2023)
+- AOP Practice Owner surveys
+- NHS England Digital sight test data
+- Average UK independent turnover: £300k-500k
+  (most independents in £100k-£500k band per GOC)
