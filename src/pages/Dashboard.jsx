@@ -145,13 +145,13 @@ function Panel({ title, subtitle, onClose, children }) {
     <>
       <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(0, 0, 0, 0.4)', zIndex: 100 }} />
       <div className="responsive-panel" style={{
-        position: 'fixed', top: 0, right: 0, bottom: 0, width: '560px',
+        position: 'fixed', top: 0, right: 0, bottom: 0, width: '420px',
         background: '#FFFFFF', borderLeft: '1px solid #E2E8F0',
         zIndex: 101, display: 'flex', flexDirection: 'column',
         boxShadow: '-8px 0 32px rgba(0, 0, 0, 0.12)',
       }}>
         <div style={{
-          padding: '24px', borderBottom: '1px solid #E2E8F0',
+          padding: '16px 20px', borderBottom: '1px solid #E2E8F0',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0,
         }}>
           <div>
@@ -168,7 +168,7 @@ function Panel({ title, subtitle, onClose, children }) {
           onMouseLeave={e => { e.currentTarget.style.background = '#F1F5F9'; e.currentTarget.style.color = '#64748B' }}
           >×</button>
         </div>
-        <div style={{ overflowY: 'auto', flex: 1, padding: '20px 24px' }}>
+        <div style={{ overflowY: 'auto', flex: 1, padding: '18px' }}>
           {children}
         </div>
       </div>
@@ -370,7 +370,7 @@ function ChatThread({ messages }) {
               maxWidth: '78%',
               background: isOutbound ? '#0891B2' : '#E2E8F0',
               color: isOutbound ? '#FFFFFF' : '#0F172A',
-              borderRadius: isOutbound ? '16px 16px 4px 16px' : '16px 16px 16px 4px',
+              borderRadius: isOutbound ? '14px 14px 4px 14px' : '14px 14px 14px 4px',
               padding: '12px 14px', fontSize: '13px', lineHeight: '1.5', whiteSpace: 'pre-wrap',
             }}>
               {msg.message_body}
