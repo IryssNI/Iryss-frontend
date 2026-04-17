@@ -989,6 +989,7 @@ function Dashboard() {
   const [cmdSel, setCmdSel]                     = useState(0);
   const [scribeState, setScribeState]           = useState("idle"); // idle | listening | processing | complete
   const [scribePatientId, setScribePatientId]   = useState("P-001");
+  const [claimsTab, setClaimsTab]               = useState("pending");
   const [scribeRecent, setScribeRecent]         = useState([
     { id:"SC-041", patient:"Louise Everton", date:"Today · 10:42",     mins:12, status:"pushed"    },
     { id:"SC-040", patient:"Ethan Kumar",    date:"Today · 09:15",     mins:9,  status:"reviewed"  },
@@ -1357,6 +1358,7 @@ function Dashboard() {
     patients:"Patients",
     recalls:"Recalls",
     scribe:"AI Scribe",
+    claims:"GOS Claims",
     myopia:"Myopia Clinic",
     inbox:"Inbox",
     revenue:"Revenue",
@@ -1504,6 +1506,7 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
               { id:"scribe",       label:"AI Scribe",        icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>, beta:true },
             ];
             const modules = [
+              { id:"claims",       label:"GOS Claims",       icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 15l2 2 4-4"/></svg> },
               { id:"myopia",       label:"Myopia Clinic",    icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/></svg>, badge:MYOPIA_PATIENTS.filter(p=>p.category==="active").length },
               { id:"reviews",      label:"Reviews",          icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> },
               { id:"intelligence", label:"Intelligence",     icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>, badge:competitorMentions.length>0?competitorMentions.length:null },
@@ -2097,6 +2100,64 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                 );
               })()}
 
+              {/* ═══ REVENUE PULSE — the headline money view on Dashboard ═══ */}
+              <div style={{ marginTop:22, display:"grid", gridTemplateColumns:"1.4fr 1fr", gap:16 }}>
+                {/* Revenue recovered / at risk */}
+                <div style={{ background:`linear-gradient(135deg,${C.navy} 0%,#1A2541 100%)`, borderRadius:18, padding:"24px 26px", boxShadow:"0 12px 40px rgba(12,18,32,.18)", position:"relative", overflow:"hidden", color:"#fff" }}>
+                  <div style={{ position:"absolute", top:-50, right:-50, width:200, height:200, borderRadius:"50%", background:"radial-gradient(circle,rgba(16,185,129,.25),transparent 60%)", filter:"blur(40px)" }} />
+                  <div style={{ position:"relative", display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:18 }}>
+                    <div>
+                      <div style={{ fontSize:10, fontWeight:700, color:"rgba(255,255,255,.45)", textTransform:"uppercase", letterSpacing:1, marginBottom:6 }}>Revenue recovered · MTD</div>
+                      <div style={{ fontSize:30, fontWeight:800, color:"#fff", letterSpacing:-0.8, marginBottom:4, fontVariantNumeric:"tabular-nums" }}>£{recoveredRev.toLocaleString()}</div>
+                      <div style={{ fontSize:11.5, color:C.green, fontWeight:600 }}>↑ {recovered.length} patients rescued</div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize:10, fontWeight:700, color:"rgba(255,255,255,.45)", textTransform:"uppercase", letterSpacing:1, marginBottom:6 }}>At risk · walking out</div>
+                      <div style={{ fontSize:30, fontWeight:800, color:"#fff", letterSpacing:-0.8, marginBottom:4, fontVariantNumeric:"tabular-nums" }}>£{atRiskRevenue.toLocaleString()}</div>
+                      <div style={{ fontSize:11.5, color:C.red, fontWeight:600 }}>↓ act before they leave</div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize:10, fontWeight:700, color:"rgba(255,255,255,.45)", textTransform:"uppercase", letterSpacing:1, marginBottom:6 }}>ROI on Iryss</div>
+                      <div style={{ fontSize:30, fontWeight:800, color:"#22D3EE", letterSpacing:-0.8, marginBottom:4, fontVariantNumeric:"tabular-nums" }}>7.5×</div>
+                      <div style={{ fontSize:11.5, color:"rgba(255,255,255,.5)", fontWeight:600 }}>£199 plan · £1,490 back</div>
+                    </div>
+                  </div>
+                  <div style={{ position:"relative", marginTop:18, paddingTop:16, borderTop:"1px solid rgba(255,255,255,.08)", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+                    <div style={{ fontSize:12, color:"rgba(255,255,255,.55)" }}>
+                      You're on pace for <b style={{ color:"#fff" }}>£{Math.round(recoveredRev*1.8).toLocaleString()}</b> recovered this month · last month: £{Math.round(recoveredRev*0.85).toLocaleString()}
+                    </div>
+                    <button onClick={()=>goNav("revenue")}
+                      style={{ background:"rgba(255,255,255,.08)", color:"#fff", border:"1px solid rgba(255,255,255,.15)", borderRadius:10, padding:"8px 14px", fontSize:12, fontWeight:600, cursor:"pointer", fontFamily:F }}>
+                      Full revenue breakdown →
+                    </button>
+                  </div>
+                </div>
+
+                {/* AI scribe teaser */}
+                <div onClick={()=>goNav("scribe")} style={{ background:"linear-gradient(135deg, rgba(139,92,246,.08), rgba(167,139,250,.04))", border:"1px solid rgba(139,92,246,.2)", borderRadius:18, padding:"24px 26px", cursor:"pointer", transition:"all .2s" }}
+                  onMouseEnter={e=>{ e.currentTarget.style.transform="translateY(-2px)"; e.currentTarget.style.boxShadow="0 10px 30px rgba(139,92,246,.15)"; }}
+                  onMouseLeave={e=>{ e.currentTarget.style.transform="translateY(0)"; e.currentTarget.style.boxShadow="none"; }}>
+                  <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:14 }}>
+                    <div style={{ width:36, height:36, borderRadius:10, background:"linear-gradient(135deg,#8B5CF6,#A78BFA)", display:"flex", alignItems:"center", justifyContent:"center", color:"#fff" }}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
+                    </div>
+                    <div>
+                      <div style={{ fontSize:13.5, fontWeight:800, color:C.navy, letterSpacing:-0.2 }}>AI Scribe</div>
+                      <span style={{ fontSize:9, fontWeight:800, color:"#8B5CF6", background:"rgba(139,92,246,.1)", padding:"2px 7px", borderRadius:6, letterSpacing:0.5 }}>BETA</span>
+                    </div>
+                  </div>
+                  <div style={{ fontSize:13, color:C.navy, fontWeight:600, marginBottom:6, lineHeight:1.5 }}>
+                    Dictate the exam. Iryss writes the record.
+                  </div>
+                  <div style={{ fontSize:12, color:C.slate, marginBottom:14, lineHeight:1.5 }}>
+                    Saves 11 min per patient. 96.4% accurate. Push straight to your CRM.
+                  </div>
+                  <div style={{ display:"flex", alignItems:"center", gap:8, color:"#8B5CF6", fontSize:12, fontWeight:700 }}>
+                    Try it now →
+                  </div>
+                </div>
+              </div>
+
             </div>
           )}
 
@@ -2657,6 +2718,188 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                 <div style={{ width:30, height:30, borderRadius:8, background:"linear-gradient(135deg,#8B5CF6,#A78BFA)", display:"flex", alignItems:"center", justifyContent:"center", color:"#fff", fontSize:14, fontWeight:700, flexShrink:0 }}>◈</div>
                 <div style={{ fontSize:12.5, color:C.slate, flex:1 }}>
                   <b style={{ color:C.navy }}>Beta access.</b> Iryss AI Scribe is in closed beta. It writes the clinical record, referral letter, and GOS claim — you review before anything's pushed to your CRM. <a href="mailto:IryssNI@outlook.com?subject=AI Scribe beta access" style={{ color:"#8B5CF6", fontWeight:700, textDecoration:"none" }}>Request full access →</a>
+                </div>
+              </div>
+            </div>
+            );
+          })()}
+
+          {/* ═══ GOS CLAIMS — zero-reject claim engine ═══ */}
+          {nav==="claims"&&(()=>{
+            // Sample claims data
+            const CLAIMS = [
+              // Pending validation (drafted, have issues to fix)
+              { id:"GOS-2026-0412", patient:"Louise Everton",  type:"GOS 1", date:"Today",         amount:22.25, status:"pending",  issues:["Missing signature date"] },
+              { id:"GOS-2026-0411", patient:"Ethan Kumar",     type:"GOS 1", date:"Today",         amount:22.25, status:"pending",  issues:["CL flag set but no CL product"] },
+              { id:"GOS-2026-0410", patient:"Sophia Patel",    type:"GOS 3", date:"Today",         amount:52.30, status:"pending",  issues:["Prism values missing on voucher"] },
+              // Ready — validated, just awaiting submission
+              { id:"GOS-2026-0409", patient:"Tom Bradley",     type:"GOS 1", date:"Today",         amount:22.25, status:"ready",    issues:[] },
+              { id:"GOS-2026-0408", patient:"Mia Davies",      type:"GOS 1", date:"Today",         amount:22.25, status:"ready",    issues:[] },
+              { id:"GOS-2026-0407", patient:"Noah Williams",   type:"GOS 3", date:"Today",         amount:52.30, status:"ready",    issues:[] },
+              { id:"GOS-2026-0406", patient:"Jack Morgan",     type:"GOS 1", date:"Yesterday",     amount:22.25, status:"ready",    issues:[] },
+              // Submitted
+              { id:"GOS-2026-0405", patient:"Amelia Brown",    type:"GOS 3", date:"Yesterday",     amount:52.30, status:"submitted", issues:[] },
+              { id:"GOS-2026-0404", patient:"Liam Thompson",   type:"GOS 1", date:"Yesterday",     amount:22.25, status:"submitted", issues:[] },
+              { id:"GOS-2026-0403", patient:"Isla Roberts",    type:"GOS 1", date:"Yesterday",     amount:22.25, status:"submitted", issues:[] },
+              { id:"GOS-2026-0402", patient:"Harry Singh",     type:"GOS 1", date:"2 days ago",    amount:22.25, status:"submitted", issues:[] },
+              { id:"GOS-2026-0401", patient:"Grace Evans",     type:"GOS 1", date:"2 days ago",    amount:22.25, status:"submitted", issues:[] },
+              { id:"GOS-2026-0400", patient:"Ruby Fisher",     type:"GOS 3", date:"3 days ago",    amount:52.30, status:"submitted", issues:[] },
+            ];
+            const pending   = CLAIMS.filter(c=>c.status==="pending");
+            const ready     = CLAIMS.filter(c=>c.status==="ready");
+            const submitted = CLAIMS.filter(c=>c.status==="submitted");
+            const totalThisMonth = 47;
+            const approved = 44;
+            const rejected = 0; // thanks to Iryss
+            const recoveredRevenue = totalThisMonth * 22.25; // avg
+            const totalValue = ready.reduce((a,c)=>a+c.amount,0);
+            const tabMap = { pending, ready, submitted };
+            const shown = tabMap[claimsTab] || pending;
+
+            return (
+            <div>
+              <div style={{ marginBottom:22 }}>
+                <h1 style={{ fontSize:26, fontWeight:800, color:C.text, letterSpacing:-0.7, margin:0, marginBottom:6 }}>GOS Claims</h1>
+                <p style={{ fontSize:14, color:C.slate, margin:0, fontWeight:500 }}>Zero-reject claim engine. Every field validated against PCSE rules before submission — <b style={{ color:C.green }}>no claim leaves your practice with errors.</b></p>
+              </div>
+
+              {/* KPI row */}
+              <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:16, marginBottom:22 }}>
+                <SC label="Submitted this month" value={totalThisMonth} accent={C.teal}  sparkColor={C.teal}  spark={[12,15,18,20,22,25,27,29,31,33,35,37,38,40,41,42,43,44,45,45,46,46,47,47,47,47,47,47,47,47]} sub={`${approved} approved · ${rejected} rejected`} />
+                <SC label="Rejection rate"       value={`${Math.round((rejected/totalThisMonth)*100)}%`} accent={C.green} sparkColor={C.green} spark={[12,11,10,9,9,8,7,7,6,5,4,4,3,3,2,2,1,1,1,1,0,0,0,0,0,0,0,0,0,0]}  sub="UK average: 8%" trend="100% clean" trendUp={true} />
+                <SC label="Revenue recovered"    value={`£${recoveredRevenue.toFixed(0)}`} accent={C.amber} sparkColor={C.amber} spark={[150,280,440,600,780,950,1130,1310,1490,1670,1840,2010,2180,2350,2510,2670,2820,2970,3120,3260,3400,3540,3680,3820,3960,4080,4200,4320,4440,recoveredRevenue]} sub="vs typical rejection losses" />
+                <SC label="Avg review time"      value="0s"           accent={C.purple} sparkColor={C.purple} spark={Array.from({length:30},()=>0)} sub="Live validation — no manual review" />
+              </div>
+
+              {/* Live checker banner */}
+              <div style={{ background:"linear-gradient(135deg, rgba(16,185,129,.08), rgba(8,145,178,.05))", border:"1px solid rgba(16,185,129,.2)", borderRadius:16, padding:"16px 22px", marginBottom:22, display:"flex", alignItems:"center", gap:14 }}>
+                <div style={{ width:40, height:40, borderRadius:10, background:"linear-gradient(135deg,#10B981,#059669)", display:"flex", alignItems:"center", justifyContent:"center", color:"#fff", fontSize:18, flexShrink:0, boxShadow:"0 4px 14px rgba(16,185,129,.3)" }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <div style={{ flex:1 }}>
+                  <div style={{ fontSize:11, fontWeight:700, color:C.green, textTransform:"uppercase", letterSpacing:0.8, marginBottom:3 }}>LIVE · PCSE rules engine</div>
+                  <div style={{ fontSize:14, fontWeight:600, color:C.navy }}>
+                    Every claim is checked against {247} PCSE rules in real time. <b style={{ color:C.green }}>You've saved £{(totalThisMonth*22.25).toFixed(0)} this month</b> in would-be rejections.
+                  </div>
+                </div>
+              </div>
+
+              {/* Tabs */}
+              <div style={{ display:"flex", gap:8, marginBottom:16 }}>
+                {[
+                  { id:"pending",   label:"Needs attention", count:pending.length,   color:C.amber },
+                  { id:"ready",     label:"Ready to submit", count:ready.length,     color:C.green },
+                  { id:"submitted", label:"Submitted",       count:submitted.length, color:C.slate },
+                ].map(t=>(
+                  <button key={t.id} onClick={()=>setClaimsTab(t.id)}
+                    style={{ padding:"9px 16px", borderRadius:10, cursor:"pointer", fontFamily:F, fontSize:13, fontWeight:claimsTab===t.id?700:500,
+                      background:claimsTab===t.id?"rgba(8,145,178,.08)":C.card,
+                      color:claimsTab===t.id?C.teal:C.slate,
+                      border:`1px solid ${claimsTab===t.id?"rgba(8,145,178,.2)":C.border}`,
+                      transition:"all .15s", display:"flex", alignItems:"center", gap:8 }}>
+                    {t.label}
+                    <span style={{ background:claimsTab===t.id?"rgba(8,145,178,.15)":"#F1F5F9", color:claimsTab===t.id?C.teal:t.color, fontSize:11, fontWeight:700, padding:"1px 8px", borderRadius:10 }}>{t.count}</span>
+                  </button>
+                ))}
+                {claimsTab==="ready" && ready.length>0 && (
+                  <button onClick={()=>showToast(`${ready.length} claims submitted to PCSE · £${totalValue.toFixed(0)} pending payment`)}
+                    style={{ marginLeft:"auto", padding:"9px 18px", background:`linear-gradient(135deg,${C.teal},${C.tealLt})`, color:"#fff", border:"none", borderRadius:10, fontSize:13, fontWeight:700, cursor:"pointer", fontFamily:F, boxShadow:"0 4px 14px rgba(8,145,178,.25)" }}>
+                    Submit all {ready.length} to PCSE →
+                  </button>
+                )}
+              </div>
+
+              {/* Claims table */}
+              <div style={{ background:C.card, borderRadius:16, border:`1px solid ${C.border}`, overflow:"hidden", boxShadow:"0 2px 12px rgba(0,0,0,.06)" }}>
+                <div style={{ display:"grid", gridTemplateColumns:"140px 1fr 80px 90px 90px 1.4fr 140px", gap:12, padding:"12px 20px", borderBottom:`1px solid ${C.border}`, background:C.bg }}>
+                  {["Claim ID","Patient","Type","Amount","Date","Validation","Action"].map(h=>(
+                    <div key={h} style={{ fontSize:11, fontWeight:600, color:C.slateLight, textTransform:"uppercase", letterSpacing:0.8 }}>{h}</div>
+                  ))}
+                </div>
+
+                {shown.length===0 && (
+                  <div style={{ padding:"60px 20px", textAlign:"center" }}>
+                    <div style={{ fontSize:36, marginBottom:10, opacity:.3 }}>✓</div>
+                    <div style={{ fontSize:14, fontWeight:600, color:C.navy, marginBottom:4 }}>Nothing here — you're clean</div>
+                    <div style={{ fontSize:12.5, color:C.slate }}>
+                      {claimsTab==="pending" && "No claims need your attention. Every new exam's claim is validated automatically."}
+                      {claimsTab==="ready"   && "No claims queued for submission right now."}
+                      {claimsTab==="submitted" && "No claims submitted yet this period."}
+                    </div>
+                  </div>
+                )}
+
+                {shown.map((c,i)=>(
+                  <div key={c.id} style={{ display:"grid", gridTemplateColumns:"140px 1fr 80px 90px 90px 1.4fr 140px", gap:12, padding:"14px 20px", borderBottom:i<shown.length-1?`1px solid #F1F5F9`:"none", alignItems:"center", transition:"background .12s" }}
+                    onMouseEnter={e=>e.currentTarget.style.background=C.bg}
+                    onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
+                    <div style={{ fontSize:11.5, color:C.slateLight, fontFamily:"ui-monospace, monospace" }}>{c.id}</div>
+                    <div style={{ fontSize:13, fontWeight:700, color:C.navy }}>{c.patient}</div>
+                    <div><span style={{ fontSize:10.5, fontWeight:700, padding:"3px 9px", borderRadius:20, background:"rgba(8,145,178,.08)", color:C.teal, letterSpacing:0.3 }}>{c.type}</span></div>
+                    <div style={{ fontSize:13, fontWeight:700, color:C.navy, fontFamily:"ui-monospace, monospace" }}>£{c.amount.toFixed(2)}</div>
+                    <div style={{ fontSize:12, color:C.slate }}>{c.date}</div>
+                    <div>
+                      {c.status==="pending" && (
+                        <div style={{ display:"flex", alignItems:"center", gap:6, fontSize:11.5, color:C.amber }}>
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                          <span style={{ fontWeight:600 }}>{c.issues[0]}</span>
+                        </div>
+                      )}
+                      {c.status==="ready" && (
+                        <div style={{ display:"flex", alignItems:"center", gap:6, fontSize:11.5, color:C.green }}>
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                          <span style={{ fontWeight:600 }}>All 247 rules passed</span>
+                        </div>
+                      )}
+                      {c.status==="submitted" && (
+                        <div style={{ display:"flex", alignItems:"center", gap:6, fontSize:11.5, color:C.slate }}>
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                          <span style={{ fontWeight:600 }}>Submitted to PCSE · awaiting payment</span>
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      {c.status==="pending" && (
+                        <button onClick={()=>showToast(`Fix applied to ${c.id}: ${c.issues[0]}`)}
+                          style={{ background:C.amber, color:"#fff", border:"none", borderRadius:8, padding:"7px 14px", fontSize:11.5, fontWeight:700, cursor:"pointer", fontFamily:F, whiteSpace:"nowrap" }}>
+                          Auto-fix →
+                        </button>
+                      )}
+                      {c.status==="ready" && (
+                        <button onClick={()=>showToast(`${c.id} submitted to PCSE`)}
+                          style={{ background:`linear-gradient(135deg,${C.teal},${C.tealLt})`, color:"#fff", border:"none", borderRadius:8, padding:"7px 14px", fontSize:11.5, fontWeight:700, cursor:"pointer", fontFamily:F, whiteSpace:"nowrap", boxShadow:"0 2px 8px rgba(8,145,178,.25)" }}>
+                          Submit →
+                        </button>
+                      )}
+                      {c.status==="submitted" && (
+                        <button onClick={()=>showToast(`Tracking ${c.id} in PCSE portal`)}
+                          style={{ background:"transparent", color:C.slate, border:`1px solid ${C.border}`, borderRadius:8, padding:"7px 14px", fontSize:11.5, fontWeight:600, cursor:"pointer", fontFamily:F, whiteSpace:"nowrap" }}>
+                          Track →
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Rules demo */}
+              <div style={{ marginTop:22, background:"#0C1220", borderRadius:16, padding:"22px 24px", boxShadow:"0 12px 40px rgba(12,18,32,.18)", position:"relative", overflow:"hidden" }}>
+                <div style={{ fontSize:10, fontWeight:700, color:"rgba(255,255,255,.4)", textTransform:"uppercase", letterSpacing:1, marginBottom:10 }}>PCSE rules engine · 247 checks per claim</div>
+                <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:8, fontSize:11.5, color:"rgba(255,255,255,.65)", fontFamily:"ui-monospace, monospace" }}>
+                  {[
+                    "✓ Patient NHS number format",
+                    "✓ Signature date ≤ exam date",
+                    "✓ CL flag matches product",
+                    "✓ Prism values on voucher",
+                    "✓ Optom GOC number valid",
+                    "✓ Eligibility category",
+                    "✓ Voucher code matches Rx",
+                    "✓ Age-group band correct",
+                    "✓ Practice GOC-MC active",
+                    "… and 238 more",
+                  ].map((r,i)=>(
+                    <div key={i} style={{ color: i<9 ? C.green : "rgba(255,255,255,.3)" }}>{r}</div>
+                  ))}
                 </div>
               </div>
             </div>
@@ -4774,6 +5017,7 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
           { t:"AI Scribe (beta)",hint:"Dictate exam → clinical record", icon:"🎤", run:()=>goNav("scribe") },
         ].map(o=>({...o, group:"Main"}));
         const moduleNav = [
+          { t:"GOS Claims",      hint:"Zero-reject claim engine",       icon:"◨", run:()=>goNav("claims") },
           { t:"Myopia Clinic",   hint:"Paediatric myopia patients",     icon:"◉", run:()=>goNav("myopia") },
           { t:"Reviews",         hint:"Google review requests",         icon:"◆", run:()=>goNav("reviews") },
           { t:"Intelligence",    hint:"Competitor mentions & win-backs",icon:"🎯", run:()=>goNav("intelligence") },
