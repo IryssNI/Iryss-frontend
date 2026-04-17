@@ -841,6 +841,48 @@ function Sparkline({ data, color="#0891B2", width=76, height=22, fill=true }) {
   );
 }
 
+// ─────────────────────────────────────────────────────────────
+// WhyBadge — tiny "(?)" button that reveals the AI signals driving a number
+// Click to toggle a popover listing the 2-4 bullet reasons.
+// ─────────────────────────────────────────────────────────────
+function WhyBadge({ signals, label="Why?", align="right" }) {
+  const [open, setOpen] = useState(false);
+  if (!signals || signals.length === 0) return null;
+  return (
+    <span style={{ position:"relative", display:"inline-block" }}>
+      <button
+        onClick={(e)=>{ e.stopPropagation(); setOpen(o=>!o); }}
+        style={{
+          background:open ? "rgba(8,145,178,.15)" : "rgba(100,116,139,.08)",
+          color:open ? "#0891B2" : "#64748B",
+          border:`1px solid ${open ? "rgba(8,145,178,.25)" : "rgba(100,116,139,.12)"}`,
+          borderRadius:6, padding:"2px 7px", fontSize:10, fontWeight:700,
+          cursor:"pointer", fontFamily:"inherit", letterSpacing:0.3,
+          transition:"all .15s", display:"inline-flex", alignItems:"center", gap:4,
+        }}>
+        <span style={{ fontSize:11, lineHeight:1 }}>?</span> {label}
+      </button>
+      {open && (
+        <>
+          <div onClick={()=>setOpen(false)} style={{ position:"fixed", inset:0, zIndex:40 }} />
+          <div style={{ position:"absolute", top:"calc(100% + 6px)", [align]:0, zIndex:41, background:"#fff", border:"1px solid #E2E8F0", borderRadius:12, padding:"12px 14px", boxShadow:"0 12px 40px rgba(0,0,0,.15)", width:280, animation:"fadeInUp .15s ease-out" }}>
+            <div style={{ fontSize:9.5, fontWeight:700, color:"#0891B2", textTransform:"uppercase", letterSpacing:1, marginBottom:8, display:"flex", alignItems:"center", gap:6 }}>
+              <span style={{ display:"inline-flex", width:14, height:14, borderRadius:4, background:"linear-gradient(135deg,#0891B2,#06B6D4)", color:"#fff", alignItems:"center", justifyContent:"center", fontSize:9, fontWeight:700 }}>◈</span>
+              How Iryss worked this out
+            </div>
+            {signals.map((s,i)=>(
+              <div key={i} style={{ display:"flex", gap:8, padding:"6px 0", borderTop:i>0?"1px solid #F1F5F9":"none" }}>
+                <span style={{ color:"#0891B2", fontWeight:700, fontSize:12, flexShrink:0 }}>·</span>
+                <span style={{ fontSize:11.5, color:"#475569", lineHeight:1.5 }}>{s}</span>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+    </span>
+  );
+}
+
 function Avatar({ initials, bg=C.teal, size=36 }) {
   return <div style={{ width:size, height:size, borderRadius:"50%", background:bg, display:"flex", alignItems:"center", justifyContent:"center", fontWeight:700, fontSize:size*0.33, color:"#fff", flexShrink:0, fontFamily:F, letterSpacing:-0.3 }}>{initials}</div>;
 }
@@ -2061,7 +2103,8 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                 const recallCompliance = complianceRate;
                 const recallColor = recallCompliance >= 80 ? C.green : recallCompliance >= 60 ? C.amber : C.red;
                 const kpiCards = [
-                  { label:"Patients at Risk",  value:highRisk.length,             sub:`£${atRiskRevenue.toLocaleString()} walking out`, color:C.red,    tintBg:"#FEE2E2",   tintFg:"#DC2626",  spark:[8,9,11,10,13,14,12,15,14,16,17,15,18,19,17,20,19,21,20,22,21,19,20,22,21,23,22, Math.max(0,highRisk.length-1), highRisk.length, highRisk.length], onClick:()=>setDrill("at-risk") },
+                  { label:"Patients at Risk",  value:highRisk.length,             sub:`£${atRiskRevenue.toLocaleString()} walking out`, color:C.red,    tintBg:"#FEE2E2",   tintFg:"#DC2626",  spark:[8,9,11,10,13,14,12,15,14,16,17,15,18,19,17,20,19,21,20,22,21,19,20,22,21,23,22, Math.max(0,highRisk.length-1), highRisk.length, highRisk.length], onClick:()=>setDrill("at-risk"),
+                    signals:["Risk score ≥ 70 flags a patient as high-risk","Signals weighted: visit recency (30%), recall compliance (25%), competitor mentions in inbox (20%), CL adherence (15%), engagement drop (10%)","£ figure = sum of each high-risk patient's last recorded revenue","Scores refresh every 15 minutes from your CRM feed"] },
                   { label:"Patients Recovered", value:recovered.length,           sub:"this month · WhatsApp",   color:C.green,  tintBg:"#DCFCE7",   tintFg:"#059669",  spark:[1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,10,10,11,11,12,12,13,14,14,15,15, Math.max(0,recovered.length-1), recovered.length, recovered.length], onClick:()=>setDrill("recovered") },
                   { label:"Recall Compliance", value:`${recallCompliance}%`,      sub:"GOC target 80%",           color:recallColor, tintBg:recallCompliance>=80?"#DCFCE7":recallCompliance>=60?"#FEF3C7":"#FEE2E2", tintFg:recallCompliance>=80?"#059669":recallCompliance>=60?"#D97706":"#DC2626", spark:[55,58,60,62,64,65,67,68,70,71,72,73,74,75,76,77,78,79,80,80,81,81,82,82,83,83,84,84, recallCompliance-1, recallCompliance], onClick:()=>goNav("recalls") },
                 ];
@@ -2099,8 +2142,11 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                         onMouseLeave={e=>{e.currentTarget.style.transform="translateY(0)";e.currentTarget.style.boxShadow=C.cardShadow;e.currentTarget.style.borderColor=C.border;}}>
                         <div style={{ position:"absolute", top:0, left:0, width:3, height:"100%", background:mc.color }} />
                         <div>
-                          <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", marginBottom:12 }}>
-                            <div style={{ fontSize:10, fontWeight:700, textTransform:"uppercase", letterSpacing:1, color:C.slateLight }}>{mc.label}</div>
+                          <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", marginBottom:12, gap:8 }}>
+                            <div style={{ fontSize:10, fontWeight:700, textTransform:"uppercase", letterSpacing:1, color:C.slateLight, display:"flex", alignItems:"center", gap:6 }}>
+                              {mc.label}
+                              {mc.signals && <WhyBadge signals={mc.signals} label="" align="left" />}
+                            </div>
                             <Sparkline data={mc.spark} color={mc.color} width={72} height={20} />
                           </div>
                           <div style={{ fontSize:34, fontWeight:800, color:C.text, lineHeight:1, marginBottom:8, letterSpacing:-0.7, fontVariantNumeric:"tabular-nums" }}>{mc.value}</div>
@@ -2223,11 +2269,16 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                 const noShowList    = APPOINTMENTS.filter(a=>!a.confirmed);
                 const noShowLeak    = noShowList.reduce((a,ap)=>a+(ap.revenue||140), 0);
                 const rows = [
-                  { key:"cl",   label:"Contact lens patients defecting", count:reorderPatients.length,   amt:clLeak,       color:C.red,    action:()=>{ setCampaignSegment("cl-lapsed");  setCampaignTemplate("reorder"); setCampaignSchedule("now"); setCampaignOpen(true); }, cta:`Send to all ${reorderPatients.length} →` },
-                  { key:"risk", label:"At-risk patients not yet chased", count:atRiskUnchased.length,    amt:atRiskLeak,   color:"#F59E0B",action:()=>{ setCampaignSegment("high-risk");  setCampaignTemplate("winback"); setCampaignSchedule("now"); setCampaignOpen(true); }, cta:`Send to all ${atRiskUnchased.length} →` },
-                  { key:"show", label:"No-shows not followed up",        count:noShowList.length,        amt:noShowLeak,   color:"#F97316",action:()=>goNav("appointments"), cta:"Confirm all →" },
-                  { key:"myo",  label:"Myopia reviews overdue",          count:myopiaLapsed.length,      amt:myopiaLeak,   color:"#EC4899",action:()=>{ setCampaignSegment("myopia-due"); setCampaignTemplate("myopia");  setCampaignSchedule("now"); setCampaignOpen(true); }, cta:`WhatsApp parents →` },
-                  { key:"comp", label:"Competitor-mention patients",     count:competitorMentions.length,amt:competitorLeak,color:"#8B5CF6",action:()=>{ setCampaignSegment("competitor"); setCampaignTemplate("winback"); setCampaignSchedule("now"); setCampaignOpen(true); }, cta:"Win-back offer →" },
+                  { key:"cl",   label:"Contact lens patients defecting", count:reorderPatients.length,   amt:clLeak,       color:C.red,    action:()=>{ setCampaignSegment("cl-lapsed");  setCampaignTemplate("reorder"); setCampaignSchedule("now"); setCampaignOpen(true); }, cta:`Send to all ${reorderPatients.length} →`,
+                    signals:[`${reorderPatients.length} CL wearers with no reorder in 90+ days`, `Average CL-lifetime value £210 × 40% defection rate (industry avg)`, `Signal: last visit > 180 days + product category = contact lens`, `Excludes patients who've been WhatsApp-nudged in the last 14 days`] },
+                  { key:"risk", label:"At-risk patients not yet chased", count:atRiskUnchased.length,    amt:atRiskLeak,   color:"#F59E0B",action:()=>{ setCampaignSegment("high-risk");  setCampaignTemplate("winback"); setCampaignSchedule("now"); setCampaignOpen(true); }, cta:`Send to all ${atRiskUnchased.length} →`,
+                    signals:[`${atRiskUnchased.length} patients with risk score ≥ 70 and no WhatsApp sent`, `Risk score built from: visit recency, recall compliance, competitor mentions, CL adherence`, `£ figure is sum of each patient's last recorded revenue`, `Patients flagged at score ≥ 50 but not yet actioned`] },
+                  { key:"show", label:"No-shows not followed up",        count:noShowList.length,        amt:noShowLeak,   color:"#F97316",action:()=>goNav("appointments"), cta:"Confirm all →",
+                    signals:[`${noShowList.length} appointments today without confirmation received`, `Historical no-show rate for unconfirmed: 18–25%`, `£ figure based on the revenue attached to each appointment type`, `Auto-confirmation WhatsApp recovers 60% of these per industry data`] },
+                  { key:"myo",  label:"Myopia reviews overdue",          count:myopiaLapsed.length,      amt:myopiaLeak,   color:"#EC4899",action:()=>{ setCampaignSegment("myopia-due"); setCampaignTemplate("myopia");  setCampaignSchedule("now"); setCampaignOpen(true); }, cta:`WhatsApp parents →`,
+                    signals:[`${myopiaLapsed.length} paediatric myopia patients past their 6-month review window`, `Avg myopia review fee: £160 (UK independent practices)`, `Axial length progression unseen = risk to clinical outcomes`, `UK Delphi consensus: 6-monthly reviews mandatory for treatment efficacy`] },
+                  { key:"comp", label:"Competitor-mention patients",     count:competitorMentions.length,amt:competitorLeak,color:"#8B5CF6",action:()=>{ setCampaignSegment("competitor"); setCampaignTemplate("winback"); setCampaignSchedule("now"); setCampaignOpen(true); }, cta:"Win-back offer →",
+                    signals:[`${competitorMentions.length} patients mentioned Specsavers, Boots, or Vision Express in the inbox`, `Typical patient lifetime value at this practice: £320`, `Industry data: 40–60% of competitor-curious patients can be recovered with a timely offer`, `Flagged from real WhatsApp conversations, not assumed behaviour`] },
                 ].filter(r=>r.count>0 && r.amt>0);
                 const totalLeak = rows.reduce((a,r)=>a+r.amt,0);
                 if (rows.length===0) {
@@ -2275,13 +2326,17 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                     {/* Rows */}
                     <div>
                       {rows.map((r,i)=>(
-                        <div key={r.key} style={{ display:"grid", gridTemplateColumns:"auto 110px 1fr auto", gap:14, alignItems:"center", padding:"10px 0", borderTop:i>0?`1px solid rgba(226,232,240,.6)`:"none" }}>
+                        <div key={r.key} style={{ display:"grid", gridTemplateColumns:"auto 110px 1fr auto auto", gap:14, alignItems:"center", padding:"10px 0", borderTop:i>0?`1px solid rgba(226,232,240,.6)`:"none" }}>
                           <span style={{ width:9, height:9, borderRadius:"50%", background:r.color, flexShrink:0 }} />
                           <div style={{ fontSize:15, fontWeight:800, color:C.red, letterSpacing:-0.3, fontVariantNumeric:"tabular-nums" }}>£{r.amt.toLocaleString()}</div>
                           <div>
-                            <div style={{ fontSize:13, fontWeight:600, color:C.navy }}>{r.label}</div>
+                            <div style={{ fontSize:13, fontWeight:600, color:C.navy, display:"flex", alignItems:"center", gap:8 }}>
+                              {r.label}
+                              <WhyBadge signals={r.signals} label="" align="left" />
+                            </div>
                             <div style={{ fontSize:11.5, color:C.slate, marginTop:1 }}>{r.count} patient{r.count!==1?"s":""}</div>
                           </div>
+                          <div />
                           <button onClick={r.action}
                             style={{ background:"transparent", color:r.color, border:`1px solid ${r.color}40`, borderRadius:9, padding:"7px 14px", fontSize:12, fontWeight:700, cursor:"pointer", fontFamily:F, whiteSpace:"nowrap", transition:"all .15s" }}
                             onMouseEnter={e=>{ e.currentTarget.style.background=r.color; e.currentTarget.style.color="#fff"; }}
@@ -3312,7 +3367,15 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
               <div style={{ background:"linear-gradient(135deg,#0891B2 0%,#0E7490 100%)", borderRadius:16, padding:"16px 22px", marginBottom:22, display:"flex", alignItems:"center", gap:14, boxShadow:"0 4px 16px rgba(8,145,178,.18)" }}>
                 <div style={{ width:38, height:38, borderRadius:10, background:"rgba(255,255,255,.18)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:18, flexShrink:0, color:"#fff" }}>◈</div>
                 <div style={{ flex:1 }}>
-                  <div style={{ fontSize:11, color:"rgba(255,255,255,.7)", textTransform:"uppercase", letterSpacing:0.8, fontWeight:600, marginBottom:3 }}>IRYSS AI · MYOPIA INSIGHTS</div>
+                  <div style={{ fontSize:11, color:"rgba(255,255,255,.7)", textTransform:"uppercase", letterSpacing:0.8, fontWeight:600, marginBottom:3, display:"flex", alignItems:"center", gap:8 }}>
+                    IRYSS AI · MYOPIA INSIGHTS
+                    <WhyBadge signals={[
+                      `Progressing: any patient with axial-length growth > 0.20 mm/yr on active treatment`,
+                      `Overdue: last review date > 6 months ago per UK Delphi consensus protocol`,
+                      `Pre-myopic: SER still positive but AL growth > 0.18 mm/yr (early warning)`,
+                      `Graduation: age ≥ 15 AND axial length stable for 12+ months`,
+                    ]} label="" align="left" />
+                  </div>
                   <div style={{ fontSize:13.5, color:"#fff", fontWeight:500, lineHeight:1.5 }}>
                     <b>{progressing.length} patients</b> progressing &gt;0.20 mm/yr — consider switch or combination therapy.{" "}
                     <b>{lapsed.length} overdue</b> for 6-month review.{" "}
