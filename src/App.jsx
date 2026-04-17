@@ -1366,14 +1366,10 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
 
         <nav style={{ display:"flex", flexDirection:"column", gap:2, flex:1, padding:"0 8px" }}>
           {[
-            { id:"dashboard",    label:"Dashboard",        icon:"◈"  },
-            { id:"tasks",        label:"Today's Tasks",    icon:"✓", badge:allTasks.filter(t=>!tasksDone[t.id]).length },
-            { id:"patients",     label:"Patients",         icon:"◎", badge:PATIENTS.length },
-            { id:"inbox",        label:"Inbox",            icon:"◻", urgentDot:urgentCount>0, urgentBadge:urgentCount },
-            { id:"recalls",      label:"Recalls",          icon:"◷", badge:recallPatients.length, warnDot:complianceRate<80&&recallPatients.length>0 },
-            { id:"myopia",       label:"Myopia Clinic",    icon:"◉", badge:MYOPIA_PATIENTS.filter(p=>p.category==="active").length },
-            { id:"reviews",      label:"Reviews",          icon:"◆" },
-            { id:"intelligence", label:"Intelligence", icon:"🎯", badge:competitorMentions.length>0?competitorMentions.length:null },
+            { id:"dashboard",    label:"Dashboard",        icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg> },
+            { id:"patients",     label:"Patients",         icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> },
+            { id:"inbox",        label:"Inbox",            icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>, badge:unreadCount>0?unreadCount:null, urgentDot:urgentCount>0, urgentBadge:urgentCount },
+            { id:"recalls",      label:"Recalls",          icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> },
           ].map(item=>{
             const active = nav===item.id;
             return (
@@ -1387,7 +1383,7 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
             }}
               onMouseEnter={e=>{ if(!active){ e.currentTarget.style.background="rgba(255,255,255,.08)"; e.currentTarget.style.color="rgba(255,255,255,.65)"; }}}
               onMouseLeave={e=>{ if(!active){ e.currentTarget.style.background="rgba(255,255,255,0.06)"; e.currentTarget.style.color="rgba(255,255,255,.45)"; }}}>
-              <span style={{ fontSize:14, width:18, textAlign:"center", opacity:active?1:0.6 }}>{item.icon}</span>
+              <span style={{ width:18, display:"flex", alignItems:"center", justifyContent:"center", opacity:active?1:0.7 }}>{item.icon}</span>
               <span style={{ flex:1 }}>{item.label}</span>
               {item.warnDot   && <span style={{ width:8, height:8, borderRadius:"50%", background:C.amber, flexShrink:0, display:"inline-block" }} />}
               {item.urgentDot && <span style={{ width:8, height:8, borderRadius:"50%", background:C.red, flexShrink:0, display:"inline-block", animation:"pulseDot 1.5s ease-in-out infinite, pulseRing 1.5s ease-in-out infinite" }} />}
@@ -1413,7 +1409,7 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
               }}
                 onMouseEnter={e=>{ if(!active){ e.currentTarget.style.background="rgba(255,255,255,.08)"; e.currentTarget.style.color="rgba(255,255,255,.65)"; }}}
                 onMouseLeave={e=>{ if(!active){ e.currentTarget.style.background="rgba(255,255,255,0.06)"; e.currentTarget.style.color="rgba(255,255,255,.45)"; }}}>
-                <span style={{ fontSize:14, width:18, textAlign:"center", opacity:active?1:0.6 }}>⚙</span>
+                <span style={{ width:18, display:"flex", alignItems:"center", justifyContent:"center", opacity:active?1:0.7 }}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
                 <span style={{ flex:1 }}>Settings</span>
               </button>
               );
@@ -1991,251 +1987,113 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
           {/* ═══ RECALLS ═══ */}
           {nav==="recalls"&&(
             <div>
-              <div style={{ marginBottom:28 }}>
-                <h1 style={{ fontSize:24, fontWeight:800, color:C.text, letterSpacing:-0.5, margin:0, marginBottom:6 }}>Recalls</h1>
-                <p style={{ fontSize:14, color:C.slate, margin:0 }}>Schedule and track patient recall campaigns</p>
-              </div>
-              {/* Auto-send toggle + status */}
-              <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:24, background:C.card, borderRadius:14, padding:"16px 22px", border:`1px solid ${C.border}`, boxShadow:"0 2px 8px rgba(0,0,0,.05)" }}>
-                <div style={{ display:"flex", alignItems:"center", gap:12 }}>
-                  {autoSend
-                    ? <span style={{ background:"rgba(16,185,129,.12)", color:C.green, fontWeight:700, fontSize:12, padding:"5px 14px", borderRadius:20, display:"flex", alignItems:"center", gap:6 }}><span style={{ width:7, height:7, borderRadius:"50%", background:C.green, display:"inline-block", boxShadow:"0 0 6px rgba(16,185,129,.6)" }} />Automation Active</span>
-                    : <span style={{ background:"rgba(100,116,139,.1)", color:C.slate, fontWeight:600, fontSize:12, padding:"5px 14px", borderRadius:20 }}>Manual Mode</span>
-                  }
-                  <span style={{ fontSize:13, color:C.slate }}>Auto-send recalls to patients when they become due</span>
-                </div>
-                <div style={{ display:"flex", alignItems:"center", gap:10 }}>
-                  <span style={{ fontSize:13, fontWeight:600, color:C.navy }}>Auto-send recalls</span>
-                  <div onClick={()=>setAutoSend(v=>!v)} style={{ width:44, height:24, borderRadius:12, background:autoSend?C.teal:C.border, cursor:"pointer", position:"relative", transition:"background .2s", flexShrink:0 }}>
-                    <div style={{ position:"absolute", top:3, left:autoSend?22:3, width:18, height:18, borderRadius:"50%", background:"#fff", boxShadow:"0 1px 4px rgba(0,0,0,.2)", transition:"left .2s" }} />
-                  </div>
+              {/* Header — matches demo */}
+              <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:24 }}>
+                <h1 style={{ fontSize:24, fontWeight:800, color:C.text, letterSpacing:-0.5, margin:0, fontFamily:F }}>Recall Automation</h1>
+                <div style={{ display:"flex", gap:8 }}>
+                  <button style={{ padding:"8px 18px", borderRadius:8, fontSize:12, fontWeight:600, border:`1px solid ${C.border}`, background:C.card, color:C.slate, cursor:"pointer", fontFamily:F }}>Settings</button>
+                  <button style={{ padding:"8px 18px", borderRadius:8, fontSize:12, fontWeight:600, border:"1px solid transparent", background:`linear-gradient(135deg,${C.teal},${C.tealLt})`, color:"#fff", cursor:"pointer", fontFamily:F, boxShadow:"0 2px 8px rgba(8,145,178,.25)" }}>+ New Campaign</button>
                 </div>
               </div>
 
-              {/* Tabs */}
-              <div style={{ display:"flex", gap:8, marginBottom:22 }}>
-                {[{id:"eye-test",label:"👁 Eye Test Recalls"},{id:"lens-reorder",label:"◉ Lens Reorders"},{id:"compliance",label:"📋 Compliance"}].map(t=>(
-                  <button key={t.id} onClick={()=>setRecallTab(t.id)} style={{ padding:"9px 20px", borderRadius:10, cursor:"pointer", fontFamily:F, fontSize:13, fontWeight:recallTab===t.id?700:500, background:recallTab===t.id?"rgba(8,145,178,0.08)":C.card, color:recallTab===t.id?C.teal:C.slate, border:`1px solid ${recallTab===t.id?"rgba(8,145,178,0.2)":C.border}`, transition:"all .15s" }}>{t.label}</button>
+              {/* 3 metric cards — matches demo */}
+              <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:14, marginBottom:22 }}>
+                {[
+                  { label:"Recalls This Month", value:recallPatients.length, trend:`${Math.round(recallPatients.length*0.34)}% response rate`, trendBg:"#DCFCE7", trendColor:"#059669" },
+                  { label:"Appointments Booked", value:recovered.length, trend:"From recalls", trendBg:"#DCFCE7", trendColor:"#059669" },
+                  { label:"Revenue Recovered", value:`£${recoveredRev.toLocaleString()}`, trend:"This month", trendBg:"#DCFCE7", trendColor:"#059669" },
+                ].map(mc=>(
+                  <div key={mc.label} style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:14, padding:"18px 20px 16px", position:"relative", overflow:"hidden", boxShadow:"0 1px 3px rgba(0,0,0,.04)", cursor:"pointer", transition:"all .2s" }}
+                    onMouseEnter={e=>{e.currentTarget.style.transform="translateY(-2px)";e.currentTarget.style.boxShadow="0 8px 24px rgba(8,145,178,.1)";}}
+                    onMouseLeave={e=>{e.currentTarget.style.transform="translateY(0)";e.currentTarget.style.boxShadow="0 1px 3px rgba(0,0,0,.04)";}}>
+                    <div style={{ position:"absolute", top:0, left:0, right:0, height:3, background:C.teal, borderRadius:"14px 14px 0 0" }} />
+                    <div style={{ fontSize:10, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.6px", color:C.slateLight, marginBottom:8 }}>{mc.label}</div>
+                    <div style={{ fontSize:28, fontWeight:800, color:C.text, lineHeight:1, marginBottom:8 }}>{mc.value}</div>
+                    <span style={{ display:"inline-block", background:mc.trendBg, color:mc.trendColor, fontSize:10, fontWeight:600, padding:"3px 8px", borderRadius:6 }}>{mc.trend}</span>
+                  </div>
                 ))}
               </div>
 
-              {/* ── Eye Test Recalls tab ── */}
-              {recallTab==="eye-test"&&(
-                <div>
-                  <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:16, marginBottom:24 }}>
-                    <SC label="Due for recall" value={recallPatients.length} accent={`linear-gradient(90deg,${C.teal},${C.tealLt})`} sub="8+ months since visit" onDrill={()=>setDrill("recall-due")} />
-                    <SC label="Overdue" value={overdueRecall.length} accent={`linear-gradient(90deg,${C.red},#F97316)`} sub="24+ months" trend={overdueRecall.length>0?"Action needed":null} trendUp={false} onDrill={()=>setDrill("recall-overdue")} />
-                    <SC label="Sending this week" value={Math.min(recallPatients.length,3)} accent={`linear-gradient(90deg,${C.amber},#EAB308)`} sub="Scheduled" onDrill={()=>setDrill("recall-this-week")} />
-                    <SC label="Est. revenue if all return" value={`£${recallRevenue.toLocaleString()}`} accent={`linear-gradient(90deg,${C.green},#34D399)`} sub={`${recallPatients.length} patients`} onDrill={()=>setDrill("recall-revenue")} />
-                  </div>
-                  <div style={{ background:C.card, borderRadius:16, border:`1px solid ${C.border}`, overflow:"hidden", boxShadow:"0 2px 12px rgba(0,0,0,.06)" }}>
-                    <div style={{ display:"grid", gridTemplateColumns:"1fr 120px 130px 130px 100px 160px", gap:12, padding:"12px 20px", borderBottom:`1px solid ${C.border}`, background:C.bg }}>
-                      {["Patient","Last Visit","Due Date","Status","Risk Score","Action"].map(h=>(
-                        <div key={h} style={{ fontSize:11, fontWeight:600, color:C.slateLight, textTransform:"uppercase", letterSpacing:0.8 }}>{h}</div>
-                      ))}
-                    </div>
-                    {recallPatients.map((p,i)=>{
-                      const months = parseMonthsAgo(p.lastVisit);
-                      const monthsUntilDue = 24-months;
-                      const overdue = monthsUntilDue<0;
-                      const dueSoon = !overdue&&monthsUntilDue<=6;
-                      const dueDate = new Date(); dueDate.setMonth(dueDate.getMonth()+monthsUntilDue);
-                      const dueDateStr = dueDate.toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"});
-                      const statusLabel = overdue?`${Math.abs(monthsUntilDue)} months overdue`:dueSoon?`Due in ${monthsUntilDue} months`:`Due in ${monthsUntilDue} months`;
-                      const statusColor = overdue?C.red:dueSoon?C.amber:C.slate;
-                      const statusBg = overdue?"rgba(239,68,68,.08)":dueSoon?"rgba(245,158,11,.08)":"transparent";
-                      return (
-                        <div key={p.id} style={{ display:"grid", gridTemplateColumns:"1fr 120px 130px 130px 100px 160px", gap:12, padding:"15px 20px", borderBottom:`1px solid #F1F5F9`, alignItems:"center", background:C.white, transition:"background .12s" }}
-                          onMouseEnter={e=>e.currentTarget.style.background=C.bg}
-                          onMouseLeave={e=>e.currentTarget.style.background=C.white}>
-                          <div style={{ display:"flex", alignItems:"center", gap:10 }}>
-                            <Avatar initials={p.initials} bg={p.risk==="high"?C.red:p.risk==="medium"?C.amber:C.green} size={32} />
-                            <div>
-                              <div onClick={()=>openTimeline(p)} style={{ fontWeight:600, fontSize:13, cursor:"pointer", color:C.navy }} onMouseEnter={e=>e.target.style.color=C.teal} onMouseLeave={e=>e.target.style.color=C.navy}>{p.name}</div>
-                              <div style={{ fontSize:11, color:C.slate }}>{p.product}</div>
-                            </div>
-                          </div>
-                          <div style={{ fontSize:13, color:C.slate }}>{p.lastVisit}</div>
-                          <div style={{ fontSize:12, color:C.navy }}>{dueDateStr}</div>
-                          <div style={{ fontSize:11, fontWeight:700, color:statusColor, background:statusBg, padding:"4px 10px", borderRadius:20, display:"inline-block" }}>{statusLabel}</div>
-                          <div>
-                            <Chip color={riskFg[p.risk]}>{riskLabel[p.risk]}</Chip>
-                            <div style={{ fontSize:10, color:C.slateLight, marginTop:3 }}>{p.riskScore}/100</div>
-                          </div>
-                          <div>
-                            {waSent[p.id]
-                              ?<span style={{ fontSize:12, color:C.green, fontWeight:600 }}>✓ Sent</span>
-                              :<button onClick={()=>openRecallWA(p)} style={{ background:`linear-gradient(135deg,${C.teal},${C.tealLt})`, color:"#fff", border:"none", borderRadius:8, padding:"7px 13px", fontSize:12, fontWeight:700, cursor:"pointer", fontFamily:F, boxShadow:"0 2px 8px rgba(8,145,178,.25)" }}>Send Recall WhatsApp</button>
-                            }
-                          </div>
-                        </div>
-                      );
-                    })}
-                    {recallPatients.length===0&&<div style={{ padding:40, textAlign:"center", color:C.slate, fontSize:14 }}>No patients currently due for recall.</div>}
-                  </div>
-                </div>
-              )}
-
-              {/* ── Lens Reorders tab ── */}
-              {recallTab==="lens-reorder"&&(
-                <div>
-                  <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:16, marginBottom:24 }}>
-                    <SC label="Likely due reorder" value={reorderPatients.length} accent={`linear-gradient(90deg,${C.teal},${C.tealLt})`} sub="Monthly CL patients" />
-                    <SC label="3+ months overdue" value={reorderPatients.filter(p=>parseMonthsAgo(p.lastVisit)>=6).length} accent={`linear-gradient(90deg,${C.red},#F97316)`} sub="Long overdue" />
-                    <SC label="Avg months lapsed" value={Math.round(reorderPatients.reduce((a,p)=>a+parseMonthsAgo(p.lastVisit),0)/(reorderPatients.length||1))} accent={`linear-gradient(90deg,${C.amber},#EAB308)`} sub="Since last visit" />
-                    <SC label="Est. reorder revenue" value={`£${reorderPatients.reduce((a,p)=>a+Math.round(p.revenue*0.4),0).toLocaleString()}`} accent={`linear-gradient(90deg,${C.green},#34D399)`} sub="If all reorder" />
-                  </div>
-                  <div style={{ background:C.card, borderRadius:16, border:`1px solid ${C.border}`, overflow:"hidden", boxShadow:"0 2px 12px rgba(0,0,0,.06)" }}>
-                    <div style={{ display:"grid", gridTemplateColumns:"1fr 130px 160px 100px 160px", gap:12, padding:"12px 20px", borderBottom:`1px solid ${C.border}`, background:C.bg }}>
-                      {["Patient","Last Visit","Lens Product","Risk","Action"].map(h=>(
-                        <div key={h} style={{ fontSize:11, fontWeight:600, color:C.slateLight, textTransform:"uppercase", letterSpacing:0.8 }}>{h}</div>
-                      ))}
-                    </div>
-                    {reorderPatients.map((p,i)=>{
-                      const months = parseMonthsAgo(p.lastVisit);
-                      const urgent = months>=6;
-                      return (
-                        <div key={p.id} style={{ display:"grid", gridTemplateColumns:"1fr 130px 160px 100px 160px", gap:12, padding:"15px 20px", borderBottom:`1px solid #F1F5F9`, alignItems:"center", background:C.white, transition:"background .12s" }}
-                          onMouseEnter={e=>e.currentTarget.style.background=C.bg}
-                          onMouseLeave={e=>e.currentTarget.style.background=C.white}>
-                          <div style={{ display:"flex", alignItems:"center", gap:10 }}>
-                            <Avatar initials={p.initials} bg={urgent?C.red:C.teal} size={32} />
-                            <div>
-                              <div onClick={()=>openTimeline(p)} style={{ fontWeight:600, fontSize:13, cursor:"pointer", color:C.navy }} onMouseEnter={e=>e.target.style.color=C.teal} onMouseLeave={e=>e.target.style.color=C.navy}>{p.name}</div>
-                              <div style={{ fontSize:11, color:C.slate }}>{p.phone}</div>
-                            </div>
-                          </div>
-                          <div style={{ fontSize:13, color:urgent?C.red:C.slate, fontWeight:urgent?600:400 }}>{p.lastVisit}</div>
-                          <div style={{ fontSize:12, color:C.navy }}>{p.product}</div>
-                          <Chip color={riskFg[p.risk]}>{riskLabel[p.risk]}</Chip>
-                          <div>
-                            {waSent[p.id]
-                              ?<span style={{ fontSize:12, color:C.green, fontWeight:600 }}>✓ Sent</span>
-                              :<button onClick={()=>openReorderWA(p)} style={{ background:`linear-gradient(135deg,${C.teal},${C.tealLt})`, color:"#fff", border:"none", borderRadius:8, padding:"7px 13px", fontSize:12, fontWeight:700, cursor:"pointer", fontFamily:F, boxShadow:"0 2px 8px rgba(8,145,178,.25)" }}>Send Reorder WhatsApp</button>
-                            }
-                          </div>
-                        </div>
-                      );
-                    })}
-                    {reorderPatients.length===0&&<div style={{ padding:40, textAlign:"center", color:C.slate, fontSize:14 }}>No patients currently due for lens reorder.</div>}
-                  </div>
-                </div>
-              )}
-
-              {/* ── Compliance tab ── */}
-              {recallTab==="compliance"&&(()=>{
-                const totalPts     = recallPatients.length;
-                const contactedPts = recallPatients.filter(p=>waSent[p.id]).length;
-                const compRate     = complianceRate;
-                const statusColor  = compRate>=80?C.green:compRate>=60?C.amber:C.red;
-                const statusLabel  = compRate>=80?"Compliant":compRate>=60?"Review Required":"Action Required";
-                const timeline     = [
-                  { month:"Oct 2025", rate:72, contacted:5,  total:8  },
-                  { month:"Nov 2025", rate:78, contacted:7,  total:10 },
-                  { month:"Dec 2025", rate:65, contacted:6,  total:11 },
-                  { month:"Jan 2026", rate:80, contacted:8,  total:10 },
-                  { month:"Feb 2026", rate:85, contacted:9,  total:11 },
-                  { month:"Mar 2026", rate:compRate, contacted:contactedPts, total:totalPts },
+              {/* 4-quadrant grid — matches demo */}
+              {(()=>{
+                const sentToday = recallPatients.slice(0,4).map((p,i)=>({
+                  name:p.name, type:p.product,
+                  status:i===0?"Booked":i<2?"Opened":"Sent",
+                  statusStyle:i===0?{bg:"#DCFCE7",color:C.green}:i<2?{bg:"rgba(16,185,129,.08)",color:C.green}:{bg:"rgba(8,145,178,.08)",color:C.teal}
+                }));
+                const awaiting = recallPatients.filter(p=>!waSent[p.id]).slice(0,4).map((p,i)=>({
+                  name:p.name, detail:`Overdue ${parseMonthsAgo(p.lastVisit)-24>0?parseMonthsAgo(p.lastVisit)-24:parseMonthsAgo(p.lastVisit)} months`,
+                  status:`Follow-up #${i+1}`, statusStyle:{bg:"#FEF3C7",color:"#D97706"}
+                }));
+                const scheduled = [
+                  { label:"Tuesday — 22 SMS recalls", tag:"Auto" },
+                  { label:"Wednesday — 14 email recalls", tag:"Auto" },
+                  { label:"Thursday — 11 WhatsApp", tag:"Auto" },
+                  { label:"Friday — 6 no-show follow-ups", tag:"Auto" },
                 ];
-                const maxTimeRate = 100;
+                const channels = [
+                  { label:"WhatsApp recalls", value:"42%", color:C.green },
+                  { label:"SMS recalls", value:"28%", color:C.teal },
+                  { label:"Email recalls", value:"18%", color:C.amber },
+                  { label:"No-show follow-ups", value:"31%", color:C.green },
+                ];
                 return (
-                  <div>
-                    {/* KPI row */}
-                    <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:16, marginBottom:22 }}>
-                      <SC label="Compliance rate"    value={`${compRate}%`}   accent={`linear-gradient(90deg,${statusColor},${compRate>=80?"#34D399":compRate>=60?"#EAB308":"#F97316"})`} />
-                      <SC label="Patients contacted" value={contactedPts}     accent={`linear-gradient(90deg,${C.teal},${C.tealLt})`} sub={`of ${totalPts} recall patients`} />
-                      <SC label="GOC target"         value="80%"              accent={`linear-gradient(90deg,${C.navy},#1E3A5F)`} sub="Minimum acceptable rate" />
-                      <SC label="Status"             value={statusLabel}      accent={`linear-gradient(90deg,${statusColor},${statusColor}88)`} sub={compRate>=80?"On track":"Needs attention"} />
-                    </div>
-
-                    <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:18, marginBottom:22 }}>
-                      {/* Circular compliance indicator */}
-                      <div style={{ background:C.white, borderRadius:16, padding:28, border:`1px solid ${C.border}`, boxShadow:"0 1px 3px rgba(0,0,0,.04)", display:"flex", alignItems:"center", gap:24 }}>
-                        {(()=>{
-                          const r = 52; const circ = 2*Math.PI*r;
-                          const dash = (compRate/100)*circ;
-                          return (
-                            <svg width={130} height={130} style={{ flexShrink:0 }}>
-                              <circle cx={65} cy={65} r={r} fill="none" stroke={C.border} strokeWidth={10} />
-                              <circle cx={65} cy={65} r={r} fill="none" stroke={statusColor} strokeWidth={10}
-                                strokeDasharray={`${dash} ${circ-dash}`} strokeDashoffset={circ*0.25}
-                                strokeLinecap="round" style={{ transition:"stroke-dasharray .6s ease" }} />
-                              <text x={65} y={62} textAnchor="middle" dominantBaseline="middle" fill={statusColor} fontSize={22} fontWeight={800} fontFamily="Plus Jakarta Sans,sans-serif">{compRate}%</text>
-                              <text x={65} y={80} textAnchor="middle" dominantBaseline="middle" fill={C.slate} fontSize={11} fontFamily="Plus Jakarta Sans,sans-serif">compliance</text>
-                            </svg>
-                          );
-                        })()}
-                        <div>
-                          <div style={{ fontWeight:700, fontSize:16, color:C.navy, letterSpacing:-0.4, marginBottom:6 }}>GOC Compliance Status</div>
-                          <div style={{ display:"inline-flex", alignItems:"center", gap:6, background:`${statusColor}18`, color:statusColor, fontWeight:700, fontSize:13, padding:"5px 14px", borderRadius:20, marginBottom:10 }}>
-                            <span style={{ width:7, height:7, borderRadius:"50%", background:statusColor, display:"inline-block" }} />
-                            {statusLabel}
-                          </div>
-                          <div style={{ fontSize:12, color:C.slate, lineHeight:1.6 }}>
-                            {contactedPts} of {totalPts} recall patients contacted.{compRate<80&&<><br/><span style={{ color:C.amber, fontWeight:600 }}>Contact {Math.max(0,Math.ceil(totalPts*0.8)-contactedPts)} more to reach target.</span></>}
-                          </div>
-                        </div>
+                  <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:14 }}>
+                    {/* Sent Today */}
+                    <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:12, padding:"16px 18px", display:"flex", flexDirection:"column" }}>
+                      <div style={{ fontSize:12, fontWeight:700, color:C.text, marginBottom:10, display:"flex", alignItems:"center", gap:8 }}>
+                        <span style={{ width:8, height:8, borderRadius:"50%", background:C.green, flexShrink:0 }} />Sent Today ({sentToday.length})
                       </div>
-
-                      {/* Compliance timeline chart */}
-                      <div style={{ background:C.white, borderRadius:16, padding:22, border:`1px solid ${C.border}`, boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
-                        <div style={{ fontWeight:700, fontSize:15, marginBottom:16, letterSpacing:-0.3 }}>Compliance Over Time</div>
-                        {timeline.map((row,i)=>{
-                          const barColor = row.rate>=80?C.green:row.rate>=60?C.amber:C.red;
-                          const isNow = i===timeline.length-1;
-                          return (
-                            <div key={row.month} style={{ marginBottom:10 }}>
-                              <div style={{ display:"flex", justifyContent:"space-between", marginBottom:3 }}>
-                                <span style={{ fontSize:11, color:isNow?C.navy:C.slate, fontWeight:isNow?700:400 }}>{row.month}{isNow?" (now)":""}</span>
-                                <span style={{ fontSize:11, fontWeight:700, color:barColor }}>{row.rate}%</span>
-                              </div>
-                              <div style={{ height:7, background:C.border, borderRadius:4, overflow:"hidden" }}>
-                                <div style={{ width:`${(row.rate/maxTimeRate)*100}%`, height:"100%", background:barColor, borderRadius:4, opacity:isNow?1:0.65 }} />
-                              </div>
-                            </div>
-                          );
-                        })}
-                        <div style={{ marginTop:10, height:1, background:C.border }} />
-                        <div style={{ marginTop:8, display:"flex", alignItems:"center", gap:6 }}>
-                          <div style={{ height:2, width:20, background:C.red, borderRadius:2 }} />
-                          <span style={{ fontSize:11, color:C.slate }}>GOC minimum (80%)</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Summary table */}
-                    <div style={{ background:C.white, borderRadius:16, border:`1px solid ${C.border}`, overflow:"hidden", boxShadow:"0 2px 12px rgba(0,0,0,.06)", marginBottom:18 }}>
-                      <div style={{ display:"grid", gridTemplateColumns:"1fr 120px 100px 120px 160px", gap:12, padding:"12px 20px", borderBottom:`1px solid ${C.border}`, background:"#FAFBFC" }}>
-                        {["Patient","Last Visit","Risk","Status","Action"].map(h=>(
-                          <div key={h} style={{ fontSize:10, fontWeight:700, color:C.slateLight, textTransform:"uppercase", letterSpacing:1 }}>{h}</div>
+                      <div style={{ display:"flex", flexDirection:"column", gap:5, flex:1 }}>
+                        {sentToday.map((r,i)=>(
+                          <div key={i} style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"7px 12px", background:C.bg, borderRadius:6, fontSize:11, color:C.slate }}>
+                            <span>{r.name} — {r.type}</span>
+                            <span style={{ fontSize:9, fontWeight:700, padding:"3px 8px", borderRadius:4, background:r.statusStyle.bg, color:r.statusStyle.color }}>{r.status}{r.status==="Booked"?" ✓":""}</span>
+                          </div>
                         ))}
                       </div>
-                      {recallPatients.map((p,i)=>(
-                        <div key={p.id} style={{ display:"grid", gridTemplateColumns:"1fr 120px 100px 120px 160px", gap:12, padding:"13px 20px", borderBottom:i<recallPatients.length-1?`1px solid ${C.border}`:"none", alignItems:"center", background:i%2===0?C.white:"#FAFBFD" }}>
-                          <div style={{ display:"flex", alignItems:"center", gap:10 }}>
-                            <Avatar initials={p.initials} bg={waSent[p.id]?C.green:C.amber} size={30} />
-                            <div style={{ fontWeight:600, fontSize:13 }}>{p.name}</div>
-                          </div>
-                          <div style={{ fontSize:12, color:C.slate }}>{p.lastVisit}</div>
-                          <Chip color={riskFg[p.risk]}>{riskLabel[p.risk]}</Chip>
-                          <div>
-                            {waSent[p.id]
-                              ? <span style={{ fontSize:12, color:C.green, fontWeight:600 }}>✓ Contacted</span>
-                              : <span style={{ fontSize:12, color:C.amber, fontWeight:600 }}>⚠ Not contacted</span>
-                            }
-                          </div>
-                          <div style={{ fontSize:11, color:C.slate }}>{waSent[p.id]?"Recall WhatsApp sent":"Recall pending"}</div>
-                        </div>
-                      ))}
-                      {recallPatients.length===0&&<div style={{ padding:40, textAlign:"center", color:C.slate, fontSize:14 }}>No recall patients found.</div>}
                     </div>
-
-                    {/* Generate report button */}
-                    <div style={{ display:"flex", justifyContent:"flex-end" }}>
-                      <button onClick={()=>generateComplianceReport(compRate, recallPatients, recallPatients.filter(p=>waSent[p.id]))}
-                        style={{ background:`linear-gradient(135deg,${C.teal},${C.tealLt})`, color:"#fff", border:"none", borderRadius:12, padding:"12px 24px", fontWeight:700, fontSize:14, cursor:"pointer", fontFamily:F, boxShadow:"0 4px 16px rgba(8,145,178,.2)", letterSpacing:-0.2, display:"flex", alignItems:"center", gap:8 }}>
-                        🖨 Generate Compliance Report
-                      </button>
+                    {/* Awaiting Response */}
+                    <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:12, padding:"16px 18px", display:"flex", flexDirection:"column" }}>
+                      <div style={{ fontSize:12, fontWeight:700, color:C.text, marginBottom:10, display:"flex", alignItems:"center", gap:8 }}>
+                        <span style={{ width:8, height:8, borderRadius:"50%", background:C.amber, flexShrink:0 }} />Awaiting Response ({awaiting.length})
+                      </div>
+                      <div style={{ display:"flex", flexDirection:"column", gap:5, flex:1 }}>
+                        {awaiting.map((r,i)=>(
+                          <div key={i} style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"7px 12px", background:C.bg, borderRadius:6, fontSize:11, color:C.slate }}>
+                            <span>{r.name} — {r.detail}</span>
+                            <span style={{ fontSize:9, fontWeight:700, padding:"3px 8px", borderRadius:4, background:r.statusStyle.bg, color:r.statusStyle.color }}>{r.status}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    {/* Scheduled This Week */}
+                    <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:12, padding:"16px 18px", display:"flex", flexDirection:"column" }}>
+                      <div style={{ fontSize:12, fontWeight:700, color:C.text, marginBottom:10, display:"flex", alignItems:"center", gap:8 }}>
+                        <span style={{ width:8, height:8, borderRadius:"50%", background:C.teal, flexShrink:0 }} />Scheduled This Week
+                      </div>
+                      <div style={{ display:"flex", flexDirection:"column", gap:5, flex:1 }}>
+                        {scheduled.map((r,i)=>(
+                          <div key={i} style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"7px 12px", background:C.bg, borderRadius:6, fontSize:11, color:C.slate }}>
+                            <span>{r.label}</span>
+                            <span style={{ fontSize:9, fontWeight:700, padding:"3px 8px", borderRadius:4, background:"rgba(8,145,178,.08)", color:C.teal }}>{r.tag}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    {/* Channel Performance */}
+                    <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:12, padding:"16px 18px", display:"flex", flexDirection:"column" }}>
+                      <div style={{ fontSize:12, fontWeight:700, color:C.text, marginBottom:10, display:"flex", alignItems:"center", gap:8 }}>
+                        <span style={{ width:8, height:8, borderRadius:"50%", background:"#8B5CF6", flexShrink:0 }} />Channel Performance
+                      </div>
+                      <div style={{ display:"flex", flexDirection:"column", gap:5, flex:1 }}>
+                        {channels.map((r,i)=>(
+                          <div key={i} style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"7px 12px", background:C.bg, borderRadius:6, fontSize:11, color:C.slate }}>
+                            <span>{r.label}</span>
+                            <span style={{ fontWeight:700, fontSize:12, color:r.color }}>{r.value}</span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 );
