@@ -589,6 +589,49 @@ a{text-decoration:none;color:inherit}
   .explainer-grid{grid-template-columns:1fr}
 }
 
+/* ROI Calculator */
+.roi{
+  padding:72px 32px;
+  background:linear-gradient(180deg,#F8FAFB 0%,#FFFFFF 100%);
+  border-top:1px solid var(--border);
+  border-bottom:1px solid var(--border);
+}
+.roi .wrap{ max-width:1040px; }
+.roi-header{ text-align:center; margin-bottom:36px; }
+.roi-header .tag{ display:inline-block; background:rgba(8,145,178,.08); color:var(--accent); font-size:12px; font-weight:700; padding:6px 14px; border-radius:20px; letter-spacing:0.6px; text-transform:uppercase; margin-bottom:14px; }
+.roi-header h2{ font-size:clamp(26px,3vw,36px); font-weight:800; letter-spacing:-1px; margin-bottom:10px; }
+.roi-header p{ font-size:15px; color:var(--sub); max-width:580px; margin:0 auto; }
+.roi-grid{ display:grid; grid-template-columns:1fr 1fr; gap:24px; align-items:stretch; }
+.roi-inputs{ background:#fff; border:1px solid var(--border); border-radius:18px; padding:28px 30px; box-shadow:0 4px 20px rgba(0,0,0,.04); }
+.roi-inputs h3{ font-size:15px; font-weight:700; color:var(--text); margin-bottom:4px; letter-spacing:-0.2px; }
+.roi-inputs p.hint{ font-size:12.5px; color:var(--sub); margin-bottom:22px; }
+.roi-field{ margin-bottom:20px; }
+.roi-field-label{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px; }
+.roi-field-label span:first-child{ font-size:13px; font-weight:600; color:var(--text); }
+.roi-field-label span:last-child{ font-size:13px; font-weight:800; color:var(--accent); font-variant-numeric:tabular-nums; }
+.roi-slider{ -webkit-appearance:none; appearance:none; width:100%; height:6px; border-radius:3px; background:#E2E8F0; outline:none; cursor:pointer; }
+.roi-slider::-webkit-slider-thumb{ -webkit-appearance:none; appearance:none; width:20px; height:20px; border-radius:50%; background:var(--grad); cursor:pointer; box-shadow:0 2px 6px rgba(8,145,178,.3); border:3px solid #fff; }
+.roi-slider::-moz-range-thumb{ width:20px; height:20px; border-radius:50%; background:var(--accent); cursor:pointer; box-shadow:0 2px 6px rgba(8,145,178,.3); border:3px solid #fff; }
+.roi-ticks{ display:flex; justify-content:space-between; font-size:10px; color:var(--muted); margin-top:6px; }
+.roi-output{ background:linear-gradient(135deg,#0C1220 0%,#1A2541 100%); border-radius:18px; padding:30px 32px; color:#fff; position:relative; overflow:hidden; }
+.roi-output::before{ content:''; position:absolute; top:-60px; right:-60px; width:220px; height:220px; border-radius:50%; background:radial-gradient(circle,rgba(34,211,238,.25),transparent 60%); filter:blur(40px); pointer-events:none; }
+.roi-output-tag{ position:relative; font-size:10px; font-weight:700; color:rgba(255,255,255,.5); text-transform:uppercase; letter-spacing:1.2px; margin-bottom:8px; }
+.roi-output-hero{ position:relative; font-size:46px; font-weight:800; letter-spacing:-1.5px; line-height:1; color:#fff; margin-bottom:6px; font-variant-numeric:tabular-nums; }
+.roi-output-hero span{ background:linear-gradient(135deg,#22D3EE,#06B6D4); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.roi-output-sub{ position:relative; font-size:13px; color:rgba(255,255,255,.6); margin-bottom:22px; line-height:1.5; }
+.roi-stack{ position:relative; display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:20px; }
+.roi-stat{ background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.08); border-radius:12px; padding:14px 16px; }
+.roi-stat-label{ font-size:10px; font-weight:700; color:rgba(255,255,255,.45); text-transform:uppercase; letter-spacing:1px; margin-bottom:6px; }
+.roi-stat-val{ font-size:20px; font-weight:800; color:#fff; letter-spacing:-0.5px; font-variant-numeric:tabular-nums; }
+.roi-cta{ position:relative; display:flex; gap:10px; }
+.roi-cta a{ flex:1; text-align:center; padding:12px 16px; border-radius:10px; font-weight:700; font-size:13px; transition:all .2s; }
+.roi-cta a.primary{ background:var(--grad); color:#fff; box-shadow:0 4px 14px rgba(8,145,178,.35); }
+.roi-cta a.primary:hover{ box-shadow:0 6px 24px rgba(8,145,178,.5); transform:translateY(-1px); }
+.roi-cta a.secondary{ background:rgba(255,255,255,.08); color:#fff; border:1px solid rgba(255,255,255,.15); }
+.roi-cta a.secondary:hover{ background:rgba(255,255,255,.12); }
+.roi-disclaimer{ font-size:11px; color:var(--muted); text-align:center; margin-top:22px; max-width:640px; margin-left:auto; margin-right:auto; line-height:1.55; }
+@media(max-width:768px){ .roi-grid{ grid-template-columns:1fr; } }
+
 /* Section */
 .sec{
   padding:80px 32px;
@@ -1153,6 +1196,7 @@ a{text-decoration:none;color:inherit}
     <a href="#" class="logo">IRY<span>SS</span></a>
     <div class="nav-links">
       <a href="#features">Features</a>
+      <a href="#roi">ROI</a>
       <a href="#pricing">Pricing</a>
       <a href="#how">How It Works</a>
       <a href="mailto:IryssNI@outlook.com" class="btn btn-p btn-sm">Book a Demo</a>
@@ -1252,6 +1296,82 @@ a{text-decoration:none;color:inherit}
         <span class="ex-highlight">Under 1 week · zero disruption · works with whatever you use</span>
       </div>
     </div>
+  </div>
+</section>
+
+<!-- ROI CALCULATOR -->
+<section class="roi" id="roi">
+  <div class="wrap">
+    <div class="roi-header">
+      <span class="tag">ROI Calculator · live</span>
+      <h2>See how much Iryss would recover for your practice</h2>
+      <p>Drop in a few numbers about your practice and we'll show you — in real time — how much revenue Iryss would recover in your first year.</p>
+    </div>
+
+    <div class="roi-grid">
+      <!-- Inputs -->
+      <div class="roi-inputs">
+        <h3>Your practice</h3>
+        <p class="hint">Adjust the sliders · numbers update live.</p>
+
+        <div class="roi-field">
+          <div class="roi-field-label"><span>Active patients on file</span><span id="roi-patients-val">2,500</span></div>
+          <input type="range" id="roi-patients" class="roi-slider" min="500" max="15000" step="250" value="2500">
+          <div class="roi-ticks"><span>500</span><span>15,000</span></div>
+        </div>
+
+        <div class="roi-field">
+          <div class="roi-field-label"><span>Average exam fee (private + NHS blend)</span><span id="roi-fee-val">£75</span></div>
+          <input type="range" id="roi-fee" class="roi-slider" min="25" max="250" step="5" value="75">
+          <div class="roi-ticks"><span>£25</span><span>£250</span></div>
+        </div>
+
+        <div class="roi-field">
+          <div class="roi-field-label"><span>Average product spend per returning patient</span><span id="roi-spend-val">£180</span></div>
+          <input type="range" id="roi-spend" class="roi-slider" min="50" max="600" step="10" value="180">
+          <div class="roi-ticks"><span>£50</span><span>£600</span></div>
+        </div>
+
+        <div class="roi-field">
+          <div class="roi-field-label"><span>Current annual patient churn</span><span id="roi-churn-val">22%</span></div>
+          <input type="range" id="roi-churn" class="roi-slider" min="5" max="45" step="1" value="22">
+          <div class="roi-ticks"><span>5%</span><span>45%</span></div>
+        </div>
+      </div>
+
+      <!-- Output -->
+      <div class="roi-output">
+        <div class="roi-output-tag">Year 1 projection · Professional plan</div>
+        <div class="roi-output-hero">£<span id="roi-recovered">8,910</span></div>
+        <div class="roi-output-sub">Additional revenue Iryss would recover in your first year — based on an industry-validated 18% re-engagement uplift over standard CRM recalls.</div>
+
+        <div class="roi-stack">
+          <div class="roi-stat">
+            <div class="roi-stat-label">Patients recovered</div>
+            <div class="roi-stat-val" id="roi-patients-recovered">99</div>
+          </div>
+          <div class="roi-stat">
+            <div class="roi-stat-label">ROI multiple</div>
+            <div class="roi-stat-val" id="roi-multiple">3.7×</div>
+          </div>
+          <div class="roi-stat">
+            <div class="roi-stat-label">Payback period</div>
+            <div class="roi-stat-val" id="roi-payback">3 weeks</div>
+          </div>
+          <div class="roi-stat">
+            <div class="roi-stat-label">Monthly cost</div>
+            <div class="roi-stat-val">£199</div>
+          </div>
+        </div>
+
+        <div class="roi-cta">
+          <a href="mailto:IryssNI@outlook.com?subject=Demo%20request%20for%20Iryss" class="primary">Book a demo →</a>
+          <a href="#pricing" class="secondary">See plans</a>
+        </div>
+      </div>
+    </div>
+
+    <p class="roi-disclaimer">Estimates use UK independent benchmarks: 18% uplift on standard recalls via WhatsApp (vs SMS/email), industry-average patient churn 20–30%, Iryss Professional pricing £199/mo. Actual results vary with patient demographics, message timing, and offer relevance.</p>
   </div>
 </section>
 
@@ -1886,6 +2006,73 @@ function closeModal(e) {
 }
 
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+// ── ROI Calculator ──
+(function(){
+  const patientsEl = document.getElementById('roi-patients');
+  const feeEl      = document.getElementById('roi-fee');
+  const spendEl    = document.getElementById('roi-spend');
+  const churnEl    = document.getElementById('roi-churn');
+  if (!patientsEl) return;
+
+  const patientsVal  = document.getElementById('roi-patients-val');
+  const feeVal       = document.getElementById('roi-fee-val');
+  const spendVal     = document.getElementById('roi-spend-val');
+  const churnVal     = document.getElementById('roi-churn-val');
+  const recoveredEl  = document.getElementById('roi-recovered');
+  const recPatEl     = document.getElementById('roi-patients-recovered');
+  const multipleEl   = document.getElementById('roi-multiple');
+  const paybackEl    = document.getElementById('roi-payback');
+
+  function fmt(n){ return Math.round(n).toLocaleString(); }
+
+  function calc(){
+    const patients = parseInt(patientsEl.value, 10);
+    const fee      = parseInt(feeEl.value, 10);
+    const spend    = parseInt(spendEl.value, 10);
+    const churn    = parseInt(churnEl.value, 10) / 100;
+
+    // Patients who'd be lost in Year 1 before Iryss
+    const lost = patients * churn;
+    // Iryss recovers 18% of the would-be-lost (conservative benchmark for WhatsApp recalls)
+    const recovered = lost * 0.18;
+    // Each recovered patient contributes avg fee + product spend
+    const revenuePerRecovered = fee + spend;
+    const annualRecovered = recovered * revenuePerRecovered;
+    // Iryss cost: Professional £199/mo · £2,388/yr
+    const annualCost = 2388;
+    const multiple = annualRecovered / annualCost;
+    // Payback: how many weeks until recovered revenue exceeds cost
+    const weeklyRecovery = annualRecovered / 52;
+    const paybackWeeks = weeklyRecovery > 0 ? Math.max(1, Math.round(annualCost / weeklyRecovery)) : 52;
+
+    // Update input labels
+    patientsVal.textContent = patients.toLocaleString();
+    feeVal.textContent      = '£' + fee;
+    spendVal.textContent    = '£' + spend;
+    churnVal.textContent    = (churn*100).toFixed(0) + '%';
+
+    // Animate output (smooth ease-out)
+    animate(recoveredEl, parseInt(recoveredEl.textContent.replace(/,/g,''),10) || 0, annualRecovered, 450, v=>fmt(v));
+    recPatEl.textContent    = Math.round(recovered).toLocaleString();
+    multipleEl.textContent  = multiple.toFixed(1) + '×';
+    paybackEl.textContent   = paybackWeeks <= 1 ? '<1 week' : paybackWeeks < 4 ? paybackWeeks + ' weeks' : paybackWeeks < 52 ? Math.round(paybackWeeks/4.33) + ' months' : '>1 year';
+  }
+
+  function animate(el, from, to, dur, fmtFn){
+    const start = performance.now();
+    function tick(now){
+      const p = Math.min(1, (now-start)/dur);
+      const eased = 1 - Math.pow(1-p, 3);
+      el.textContent = fmtFn(from + (to-from)*eased);
+      if (p < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+
+  [patientsEl, feeEl, spendEl, churnEl].forEach(el=>el.addEventListener('input', calc));
+  calc();
+})();
 </script>
 
 </body>
