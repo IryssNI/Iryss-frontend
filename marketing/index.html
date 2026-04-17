@@ -502,6 +502,93 @@ a{text-decoration:none;color:inherit}
   margin-top:4px;
 }
 
+/* 3-Question Explainer */
+.explainer{
+  padding:72px 32px;
+  background:#fff;
+}
+
+.explainer .wrap{
+  max-width:1060px;
+}
+
+.explainer-header{
+  text-align:center;
+  margin-bottom:48px;
+}
+
+.explainer-header h2{
+  font-size:clamp(24px,3vw,34px);
+  font-weight:800;
+  letter-spacing:-1px;
+  margin-bottom:8px;
+}
+
+.explainer-header p{
+  font-size:15px;
+  color:var(--sub);
+}
+
+.explainer-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:28px;
+}
+
+.explainer-card{
+  background:var(--alt);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:32px 28px;
+  text-align:center;
+  transition:all .3s ease;
+}
+
+.explainer-card:hover{
+  transform:translateY(-3px);
+  box-shadow:0 8px 24px rgba(0,0,0,.07);
+}
+
+.explainer-card .ex-icon{
+  width:56px;
+  height:56px;
+  border-radius:14px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:24px;
+  margin:0 auto 20px;
+}
+
+.explainer-card h3{
+  font-size:17px;
+  font-weight:800;
+  letter-spacing:-0.3px;
+  margin-bottom:12px;
+  color:var(--text);
+}
+
+.explainer-card p{
+  font-size:14px;
+  color:var(--sub);
+  line-height:1.65;
+}
+
+.explainer-card .ex-highlight{
+  display:inline-block;
+  margin-top:14px;
+  font-size:13px;
+  font-weight:700;
+  color:var(--accent);
+  background:rgba(8,145,178,.06);
+  padding:6px 14px;
+  border-radius:8px;
+}
+
+@media(max-width:768px){
+  .explainer-grid{grid-template-columns:1fr}
+}
+
 /* Section */
 .sec{
   padding:80px 32px;
@@ -1134,6 +1221,39 @@ a{text-decoration:none;color:inherit}
   <p>Trusted by independent optical practices across the UK &amp; Ireland</p>
   <div class="trust-items"><span>GDPR compliant</span><span>·</span><span>EU data servers</span><span>·</span><span>Built in Belfast</span></div>
 </div>
+
+<!-- 3-QUESTION EXPLAINER -->
+<section class="explainer">
+  <div class="wrap">
+    <div class="explainer-header">
+      <h2>Three questions every optician asks us</h2>
+      <p>Here are the honest answers.</p>
+    </div>
+
+    <div class="explainer-grid">
+      <div class="explainer-card">
+        <div class="ex-icon" style="background:rgba(8,145,178,.08)">🔍</div>
+        <h3>What does Iryss do?</h3>
+        <p>Iryss plugs into your existing CRM and watches for patients slipping away — overdue recalls, lapsed contact-lens wearers, missed appointments. Then it <strong>automatically re-engages them via WhatsApp</strong> before they walk into a competitor.</p>
+        <span class="ex-highlight">Think of it as a retention assistant that never sleeps</span>
+      </div>
+
+      <div class="explainer-card">
+        <div class="ex-icon" style="background:rgba(239,68,68,.06)">💡</div>
+        <h3>What problem does it solve?</h3>
+        <p>You're losing patients you shouldn't be. Paper recalls go in the bin. SMS gets ignored. <strong>Your CRM stores data — it doesn't act on it.</strong> Iryss turns that data into real conversations that bring patients back and protect your revenue.</p>
+        <span class="ex-highlight">Practices lose 20–30% of patients to inaction</span>
+      </div>
+
+      <div class="explainer-card">
+        <div class="ex-icon" style="background:rgba(16,185,129,.06)">⚡</div>
+        <h3>How easy is it to set up?</h3>
+        <p><strong>You don't replace anything.</strong> Iryss connects alongside your existing system — Optix, Ocuco, Acuitas, Optisoft, XEYEX, or whatever you use. No data migration, no staff retraining, no downtime. Live in under a week.</p>
+        <span class="ex-highlight">Under 1 week · no disruption · works with your CRM</span>
+      </div>
+    </div>
+  </div>
+</section>
 
 <!-- PROBLEM / SOLUTION -->
 <section class="sec-ps">
