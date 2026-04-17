@@ -2029,7 +2029,7 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                 </div>
               )}
 
-              {/* ═══ Practice Score + 4 Metric Cards ═══ */}
+              {/* ═══ HERO ROW — Practice Score + 3 KPI cards ═══ */}
               {(()=>{
                 const atRiskCount = PATIENTS.filter(p=>p.risk!=="low").length;
                 const practiceScore = Math.round((recovered.length / Math.max(atRiskCount + recovered.length, 1)) * 100);
@@ -2037,39 +2037,49 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                 const strokeDashoffset = circumference - (practiceScore / 100) * circumference;
                 const scoreColor = practiceScore >= 80 ? C.green : practiceScore >= 60 ? C.amber : C.red;
                 const scoreLabel = practiceScore >= 90 ? "Excellent" : practiceScore >= 80 ? "Great" : practiceScore >= 60 ? "Good" : "Needs attention";
+                const recallCompliance = complianceRate;
+                const recallColor = recallCompliance >= 80 ? C.green : recallCompliance >= 60 ? C.amber : C.red;
+                const kpiCards = [
+                  { label:"Patients at Risk",  value:highRisk.length,             sub:"score 70-100",             color:C.red,    tintBg:"#FEE2E2",   tintFg:"#DC2626",  spark:[8,9,11,10,13,14,12,15,14,16,17,15,18,19,17,20,19,21,20,22,21,19,20,22,21,23,22, Math.max(0,highRisk.length-1), highRisk.length, highRisk.length], onClick:()=>setDrill("at-risk") },
+                  { label:"Patients Recovered", value:recovered.length,           sub:"this month · WhatsApp",   color:C.green,  tintBg:"#DCFCE7",   tintFg:"#059669",  spark:[1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,10,10,11,11,12,12,13,14,14,15,15, Math.max(0,recovered.length-1), recovered.length, recovered.length], onClick:()=>setDrill("recovered") },
+                  { label:"Recall Compliance", value:`${recallCompliance}%`,      sub:"GOC target 80%",           color:recallColor, tintBg:recallCompliance>=80?"#DCFCE7":recallCompliance>=60?"#FEF3C7":"#FEE2E2", tintFg:recallCompliance>=80?"#059669":recallCompliance>=60?"#D97706":"#DC2626", spark:[55,58,60,62,64,65,67,68,70,71,72,73,74,75,76,77,78,79,80,80,81,81,82,82,83,83,84,84, recallCompliance-1, recallCompliance], onClick:()=>goNav("recalls") },
+                ];
                 return (
-                  <div style={{ display:"grid", gridTemplateColumns:"170px repeat(4,1fr)", gap:16, marginBottom:22, alignItems:"stretch", animation:"fadeInUp .5s ease-out" }}>
+                  <div style={{ display:"grid", gridTemplateColumns:"190px repeat(3,1fr)", gap:16, marginBottom:14, alignItems:"stretch", animation:"fadeInUp .5s ease-out" }}>
                     {/* Practice Score Ring */}
-                    <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:16, padding:"20px 16px", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", boxShadow:C.cardShadow, position:"relative", overflow:"hidden" }}>
-                      <div style={{ position:"absolute", top:0, left:0, right:0, height:2, background:"linear-gradient(90deg,#0891B2,#06B6D4,#22D3EE)", opacity:.5 }} />
-                      <div style={{ fontSize:9, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.8px", color:C.slateLight, marginBottom:8 }}>Practice Health</div>
-                      <div style={{ position:"relative", width:90, height:90 }}>
-                        <svg width="90" height="90" viewBox="0 0 120 120" style={{ transform:"rotate(-90deg)" }}>
-                          <circle cx="60" cy="60" r="54" fill="none" stroke="#F1F5F9" strokeWidth="8" />
-                          <circle cx="60" cy="60" r="54" fill="none" stroke={scoreColor} strokeWidth="8" strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={strokeDashoffset} style={{ transition:"stroke-dashoffset 1.2s cubic-bezier(0.34,1.56,0.64,1)", filter:`drop-shadow(0 0 6px ${scoreColor}40)` }} />
+                    <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:16, padding:"22px 16px 20px", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", boxShadow:C.cardShadow, position:"relative", overflow:"hidden" }}>
+                      <div style={{ position:"absolute", top:0, left:0, right:0, height:2, background:"linear-gradient(90deg,#0891B2,#06B6D4,#22D3EE)", opacity:.6 }} />
+                      <div style={{ fontSize:10, fontWeight:700, textTransform:"uppercase", letterSpacing:1, color:C.slateLight, marginBottom:10 }}>Practice Score</div>
+                      <div style={{ position:"relative", width:108, height:108 }}>
+                        <svg width="108" height="108" viewBox="0 0 120 120" style={{ transform:"rotate(-90deg)" }}>
+                          <circle cx="60" cy="60" r="54" fill="none" stroke="#F1F5F9" strokeWidth="9" />
+                          <circle cx="60" cy="60" r="54" fill="none" stroke={scoreColor} strokeWidth="9" strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={strokeDashoffset} style={{ transition:"stroke-dashoffset 1.2s cubic-bezier(0.34,1.56,0.64,1)", filter:`drop-shadow(0 0 8px ${scoreColor}55)` }} />
                         </svg>
                         <div style={{ position:"absolute", inset:0, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center" }}>
-                          <div style={{ fontSize:28, fontWeight:800, color:C.text, lineHeight:1 }}>{practiceScore}</div>
-                          <div style={{ fontSize:9, fontWeight:700, color:scoreColor, marginTop:3, letterSpacing:0.3 }}>{scoreLabel}</div>
+                          <div style={{ fontSize:34, fontWeight:800, color:C.text, lineHeight:1, letterSpacing:-1 }}>{practiceScore}</div>
+                          <div style={{ fontSize:9.5, fontWeight:700, color:scoreColor, marginTop:4, letterSpacing:0.5, textTransform:"uppercase" }}>{scoreLabel}</div>
                         </div>
                       </div>
+                      <div style={{ fontSize:10.5, color:C.slate, marginTop:10, textAlign:"center", fontWeight:500, lineHeight:1.4 }}>
+                        {practiceScore>=80?"On top of retention":practiceScore>=60?"Room to recover more":"Act this week"}
+                      </div>
                     </div>
-                    {/* 4 Metric Cards */}
-                    {[
-                      { label:"Patients at Risk", value:atRiskCount, color:C.red, grad:"linear-gradient(135deg,#EF4444,#F87171)", trend:`↑ ${Math.max(Math.round(atRiskCount*0.12),1)} this week`, trendBg:"#FEE2E2", trendColor:"#DC2626", onClick:()=>setDrill("at-risk") },
-                      { label:"Revenue at Risk", value:`£${atRiskRevenue.toLocaleString()}`, color:C.amber, grad:"linear-gradient(135deg,#F59E0B,#FBBF24)", trend:"This month", trendBg:"#FEF3C7", trendColor:"#D97706", onClick:()=>setDrill("revenue-risk") },
-                      { label:"Patients Recovered", value:recovered.length, color:C.green, grad:"linear-gradient(135deg,#10B981,#34D399)", trend:"This month", trendBg:"#DCFCE7", trendColor:"#059669", onClick:()=>setDrill("recovered") },
-                      { label:"Revenue Recovered", value:`£${recoveredRev.toLocaleString()}`, color:C.green, grad:"linear-gradient(135deg,#10B981,#34D399)", trend:"This month", trendBg:"#DCFCE7", trendColor:"#059669", onClick:()=>setDrill("revenue-recovered") },
-                    ].map((mc,idx)=>(
-                      <div key={mc.label} onClick={mc.onClick} style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:16, padding:"20px 22px 18px", position:"relative", overflow:"hidden", boxShadow:C.cardShadow, cursor:"pointer", transition:"all .25s ease", animation:`fadeInUp ${.4+idx*.08}s ease-out` }}
+                    {/* 3 KPI Cards */}
+                    {kpiCards.map((mc,idx)=>(
+                      <div key={mc.label} onClick={mc.onClick} style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:16, padding:"20px 22px 18px", position:"relative", overflow:"hidden", boxShadow:C.cardShadow, cursor:"pointer", transition:"all .25s ease", animation:`fadeInUp ${.4+idx*.08}s ease-out`, display:"flex", flexDirection:"column", justifyContent:"space-between" }}
                         onMouseEnter={e=>{e.currentTarget.style.transform="translateY(-3px)";e.currentTarget.style.boxShadow=C.cardHoverShadow;e.currentTarget.style.borderColor="rgba(8,145,178,.15)";}}
                         onMouseLeave={e=>{e.currentTarget.style.transform="translateY(0)";e.currentTarget.style.boxShadow=C.cardShadow;e.currentTarget.style.borderColor=C.border;}}>
-                        <div style={{ position:"absolute", top:0, left:0, right:0, height:3, background:mc.grad }} />
-                        <div style={{ fontSize:10, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.8px", color:C.slateLight, marginBottom:10 }}>{mc.label}</div>
-                        <div style={{ fontSize:30, fontWeight:800, color:C.text, lineHeight:1, marginBottom:10, letterSpacing:-0.5 }}>{mc.value}</div>
-                        <div style={{ display:"flex", alignItems:"center", gap:6 }}>
-                          <span style={{ display:"inline-block", background:mc.trendBg, color:mc.trendColor, fontSize:10, fontWeight:600, padding:"4px 10px", borderRadius:8 }}>{mc.trend}</span>
-                          <span style={{ color:C.slateLight, fontSize:11 }}>→</span>
+                        <div style={{ position:"absolute", top:0, left:0, width:3, height:"100%", background:mc.color }} />
+                        <div>
+                          <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", marginBottom:12 }}>
+                            <div style={{ fontSize:10, fontWeight:700, textTransform:"uppercase", letterSpacing:1, color:C.slateLight }}>{mc.label}</div>
+                            <Sparkline data={mc.spark} color={mc.color} width={72} height={20} />
+                          </div>
+                          <div style={{ fontSize:34, fontWeight:800, color:C.text, lineHeight:1, marginBottom:8, letterSpacing:-0.7, fontVariantNumeric:"tabular-nums" }}>{mc.value}</div>
+                        </div>
+                        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+                          <span style={{ fontSize:11, color:C.slate, fontWeight:500 }}>{mc.sub}</span>
+                          <span style={{ color:C.teal, fontSize:11, fontWeight:700 }}>View →</span>
                         </div>
                       </div>
                     ))}
@@ -2077,28 +2087,40 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                 );
               })()}
 
-              {/* Secondary stats row */}
-              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:16, marginBottom:22, animation:"fadeInUp .6s ease-out" }}>
-                <div onClick={()=>goNav("inbox")} style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:16, padding:"20px 22px 18px", position:"relative", overflow:"hidden", boxShadow:C.cardShadow, cursor:"pointer", transition:"all .25s ease" }}
-                  onMouseEnter={e=>{e.currentTarget.style.transform="translateY(-3px)";e.currentTarget.style.boxShadow=C.cardHoverShadow;e.currentTarget.style.borderColor="rgba(8,145,178,.15)";}}
-                  onMouseLeave={e=>{e.currentTarget.style.transform="translateY(0)";e.currentTarget.style.boxShadow=C.cardShadow;e.currentTarget.style.borderColor=C.border;}}>
-                  <div style={{ position:"absolute", top:0, left:0, right:0, height:3, background:"linear-gradient(90deg,#0891B2,#06B6D4,#22D3EE)" }} />
-                  <div style={{ fontSize:10, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.8px", color:C.slateLight, marginBottom:10 }}>WhatsApp Sent This Week</div>
-                  <div style={{ fontSize:30, fontWeight:800, color:C.text, lineHeight:1, marginBottom:10, letterSpacing:-0.5 }}>{liveInbox.length}</div>
-                  <div style={{ display:"flex", alignItems:"center", gap:6 }}>
-                    <span style={{ display:"inline-block", background:"#CFFAFE", color:C.teal, fontSize:10, fontWeight:600, padding:"4px 10px", borderRadius:8 }}>This week</span>
-                    <span style={{ color:C.slateLight, fontSize:11 }}>→</span>
+              {/* ═══ Today's priority stripe (full width) ═══ */}
+              {(()=>{
+                const urgWA  = urgentMessages.length;
+                const recDue = Math.min(recallPatients.length, 5);
+                const gosOpen = 3; // matches Claims page
+                const total = urgWA + recDue + gosOpen;
+                return (
+                  <div onClick={()=>goNav("tasks")} style={{ display:"flex", alignItems:"center", gap:14, background:"linear-gradient(135deg,#FFFFFF 0%,#F8FBFD 100%)", border:`1px solid ${C.border}`, borderRadius:14, padding:"14px 20px", marginBottom:22, cursor:"pointer", transition:"all .2s", boxShadow:"0 1px 3px rgba(0,0,0,.04)", animation:"fadeInUp .55s ease-out" }}
+                    onMouseEnter={e=>{e.currentTarget.style.borderColor="rgba(8,145,178,.25)";e.currentTarget.style.boxShadow="0 4px 14px rgba(8,145,178,.08)";}}
+                    onMouseLeave={e=>{e.currentTarget.style.borderColor=C.border;e.currentTarget.style.boxShadow="0 1px 3px rgba(0,0,0,.04)";}}>
+                    <div style={{ fontSize:10, fontWeight:700, textTransform:"uppercase", letterSpacing:1, color:C.slateLight, flexShrink:0 }}>Today's priority</div>
+                    <div style={{ display:"flex", alignItems:"center", gap:18, flex:1, flexWrap:"wrap" }}>
+                      <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+                        <span style={{ width:8, height:8, borderRadius:"50%", background:urgWA>0?C.red:C.slateLight, boxShadow:urgWA>0?"0 0 8px rgba(239,68,68,.5)":"none", animation:urgWA>0?"pulseDot 2s ease-in-out infinite":"none" }} />
+                        <span style={{ fontSize:13, fontWeight:700, color:C.navy, fontVariantNumeric:"tabular-nums" }}>{urgWA}</span>
+                        <span style={{ fontSize:12.5, color:C.slate, fontWeight:500 }}>urgent WhatsApp{urgWA!==1?"s":""}</span>
+                      </div>
+                      <span style={{ color:"#CBD5E1" }}>·</span>
+                      <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+                        <span style={{ width:8, height:8, borderRadius:"50%", background:recDue>0?C.amber:C.slateLight }} />
+                        <span style={{ fontSize:13, fontWeight:700, color:C.navy, fontVariantNumeric:"tabular-nums" }}>{recDue}</span>
+                        <span style={{ fontSize:12.5, color:C.slate, fontWeight:500 }}>recall{recDue!==1?"s":""} due today</span>
+                      </div>
+                      <span style={{ color:"#CBD5E1" }}>·</span>
+                      <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+                        <span style={{ width:8, height:8, borderRadius:"50%", background:gosOpen>0?C.teal:C.slateLight }} />
+                        <span style={{ fontSize:13, fontWeight:700, color:C.navy, fontVariantNumeric:"tabular-nums" }}>{gosOpen}</span>
+                        <span style={{ fontSize:12.5, color:C.slate, fontWeight:500 }}>GOS claim{gosOpen!==1?"s":""} need attention</span>
+                      </div>
+                    </div>
+                    <span style={{ fontSize:12, fontWeight:700, color:C.teal, whiteSpace:"nowrap" }}>Open Today's Tasks →</span>
                   </div>
-                </div>
-                <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:16, padding:"20px 22px 18px", position:"relative", overflow:"hidden", boxShadow:C.cardShadow }}>
-                  <div style={{ position:"absolute", top:0, left:0, right:0, height:3, background:"linear-gradient(90deg,#10B981,#34D399)" }} />
-                  <div style={{ fontSize:10, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.8px", color:C.slateLight, marginBottom:10 }}>Recalls Today</div>
-                  <div style={{ fontSize:30, fontWeight:800, color:C.text, lineHeight:1, marginBottom:10, letterSpacing:-0.5 }}>{recallPatients.length}</div>
-                  <div style={{ display:"flex", alignItems:"center", gap:6 }}>
-                    <span style={{ display:"inline-block", background:"#DCFCE7", color:"#059669", fontSize:10, fontWeight:600, padding:"4px 10px", borderRadius:8 }}>Automated</span>
-                  </div>
-                </div>
-              </div>
+                );
+              })()}
 
               {/* Needs Your Attention table */}
               <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:16, overflow:"hidden", boxShadow:C.cardShadow, marginBottom:22, animation:"fadeInUp .7s ease-out" }}>
@@ -2162,97 +2184,103 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                 )}
               </div>
 
-              {/* ═══ CONTACT LENS RETENTION — defection defence ═══ */}
-              {reorderPatients.length>0&&(()=>{
-                const avgMonths = Math.round(reorderPatients.reduce((a,p)=>a+parseMonthsAgo(p.lastVisit),0)/reorderPatients.length);
+              {/* ═══ OPPORTUNITY ROW — CL Defence + AI Scribe teaser ═══ */}
+              {(()=>{
+                const avgMonths = reorderPatients.length>0 ? Math.round(reorderPatients.reduce((a,p)=>a+parseMonthsAgo(p.lastVisit),0)/reorderPatients.length) : 0;
                 const leakRev = reorderPatients.reduce((a,p)=>a+Math.round((p.revenue||200)*0.4), 0);
                 return (
-                  <div style={{ marginTop:22, background:"linear-gradient(135deg,#FFFFFF 0%,#F8FBFD 100%)", border:`1px solid ${C.border}`, borderRadius:16, padding:"20px 24px", boxShadow:"0 2px 12px rgba(0,0,0,.04)", display:"grid", gridTemplateColumns:"auto 1fr auto", gap:20, alignItems:"center" }}>
-                    <div style={{ width:44, height:44, borderRadius:12, background:"linear-gradient(135deg,#FEE2E2,#FECACA)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
-                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={C.red} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
-                    </div>
-                    <div style={{ minWidth:0 }}>
-                      <div style={{ fontSize:10, fontWeight:700, color:C.red, textTransform:"uppercase", letterSpacing:1, marginBottom:4 }}>Contact Lens Defection Defence</div>
-                      <div style={{ fontSize:15.5, fontWeight:700, color:C.navy, letterSpacing:-0.3, marginBottom:3 }}>
-                        {reorderPatients.length} CL patients haven't reordered in {avgMonths}+ months
+                  <div style={{ marginTop:22, display:"grid", gridTemplateColumns:"1fr 1fr", gap:16, animation:"fadeInUp .75s ease-out" }}>
+                    {/* CL Defection Defence */}
+                    {reorderPatients.length>0 ? (
+                      <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:16, padding:"20px 22px", boxShadow:C.cardShadow, position:"relative", overflow:"hidden", display:"flex", flexDirection:"column" }}>
+                        <div style={{ position:"absolute", top:0, left:0, width:3, height:"100%", background:C.red }} />
+                        <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:12 }}>
+                          <div style={{ width:34, height:34, borderRadius:9, background:"linear-gradient(135deg,#FEE2E2,#FECACA)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke={C.red} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
+                          </div>
+                          <div>
+                            <div style={{ fontSize:13.5, fontWeight:800, color:C.navy, letterSpacing:-0.2 }}>CL Defection Defence</div>
+                            <div style={{ fontSize:10, fontWeight:700, color:C.red, letterSpacing:0.5, textTransform:"uppercase" }}>Revenue leak</div>
+                          </div>
+                        </div>
+                        <div style={{ fontSize:13, color:C.navy, fontWeight:600, marginBottom:4, lineHeight:1.5 }}>
+                          {reorderPatients.length} CL patients haven't reordered in {avgMonths}+ months
+                        </div>
+                        <div style={{ fontSize:12, color:C.slate, marginBottom:14, lineHeight:1.55, flex:1 }}>
+                          That's <b style={{ color:C.red }}>£{leakRev.toLocaleString()}</b> of CL revenue probably going to Vision Direct. One WhatsApp can bring them back.
+                        </div>
+                        <div style={{ display:"flex", gap:8 }}>
+                          <button onClick={()=>{ goNav("recalls"); setRecallTab("lens-reorder"); }}
+                            style={{ background:"transparent", color:C.slate, border:`1px solid ${C.border}`, borderRadius:9, padding:"8px 14px", fontSize:12, fontWeight:600, cursor:"pointer", fontFamily:F, whiteSpace:"nowrap" }}>
+                            View all
+                          </button>
+                          <button onClick={()=>{ const first = reorderPatients[0]; if (first) openReorderWA(first); }}
+                            style={{ flex:1, background:`linear-gradient(135deg,${C.teal},${C.tealLt})`, color:"#fff", border:"none", borderRadius:9, padding:"8px 14px", fontSize:12, fontWeight:700, cursor:"pointer", fontFamily:F, boxShadow:"0 4px 14px rgba(8,145,178,.25)", whiteSpace:"nowrap" }}>
+                            Send reorder WhatsApp →
+                          </button>
+                        </div>
                       </div>
-                      <div style={{ fontSize:13, color:C.slate, fontWeight:500 }}>
-                        That's <b style={{ color:C.red }}>£{leakRev.toLocaleString()}</b> of CL revenue probably going to Vision Direct. One WhatsApp can bring them back.
+                    ) : (
+                      <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:16, padding:"24px 26px", boxShadow:C.cardShadow, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", textAlign:"center" }}>
+                        <div style={{ width:34, height:34, borderRadius:9, background:"rgba(16,185,129,.1)", display:"flex", alignItems:"center", justifyContent:"center", marginBottom:10 }}>
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={C.green} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                        </div>
+                        <div style={{ fontSize:13, fontWeight:700, color:C.navy, marginBottom:3 }}>No CL revenue leaking</div>
+                        <div style={{ fontSize:12, color:C.slate }}>All contact lens patients are up to date with reorders.</div>
                       </div>
-                    </div>
-                    <div style={{ display:"flex", gap:8, flexShrink:0 }}>
-                      <button onClick={()=>{ goNav("recalls"); setRecallTab("lens-reorder"); }}
-                        style={{ background:"transparent", color:C.slate, border:`1px solid ${C.border}`, borderRadius:10, padding:"10px 16px", fontSize:13, fontWeight:600, cursor:"pointer", fontFamily:F, whiteSpace:"nowrap" }}>
-                        View all
-                      </button>
-                      <button onClick={()=>{
-                          const first = reorderPatients[0];
-                          if (first) openReorderWA(first);
-                        }}
-                        style={{ background:`linear-gradient(135deg,${C.teal},${C.tealLt})`, color:"#fff", border:"none", borderRadius:10, padding:"10px 18px", fontSize:13, fontWeight:700, cursor:"pointer", fontFamily:F, boxShadow:"0 4px 14px rgba(8,145,178,.25)", whiteSpace:"nowrap" }}>
-                        Send reorder WhatsApp →
-                      </button>
+                    )}
+
+                    {/* AI scribe teaser */}
+                    <div onClick={()=>goNav("scribe")} style={{ background:"linear-gradient(135deg, rgba(139,92,246,.06), rgba(167,139,250,.03))", border:"1px solid rgba(139,92,246,.2)", borderRadius:16, padding:"20px 22px", cursor:"pointer", transition:"all .2s", display:"flex", flexDirection:"column" }}
+                      onMouseEnter={e=>{ e.currentTarget.style.transform="translateY(-2px)"; e.currentTarget.style.boxShadow="0 10px 30px rgba(139,92,246,.15)"; }}
+                      onMouseLeave={e=>{ e.currentTarget.style.transform="translateY(0)"; e.currentTarget.style.boxShadow="none"; }}>
+                      <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:12 }}>
+                        <div style={{ width:34, height:34, borderRadius:9, background:"linear-gradient(135deg,#8B5CF6,#A78BFA)", display:"flex", alignItems:"center", justifyContent:"center", color:"#fff", flexShrink:0 }}>
+                          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
+                        </div>
+                        <div style={{ display:"flex", alignItems:"center", gap:6 }}>
+                          <div style={{ fontSize:13.5, fontWeight:800, color:C.navy, letterSpacing:-0.2 }}>AI Scribe</div>
+                          <span style={{ fontSize:9, fontWeight:800, color:"#8B5CF6", background:"rgba(139,92,246,.12)", padding:"2px 7px", borderRadius:6, letterSpacing:0.5 }}>BETA</span>
+                        </div>
+                      </div>
+                      <div style={{ fontSize:13, color:C.navy, fontWeight:600, marginBottom:4, lineHeight:1.5 }}>
+                        Dictate the exam. Iryss writes the record.
+                      </div>
+                      <div style={{ fontSize:12, color:C.slate, marginBottom:14, lineHeight:1.55, flex:1 }}>
+                        Saves 11 min per patient · pushes clinical notes + GOS claim + referral letter straight to your CRM.
+                      </div>
+                      <div style={{ display:"flex", alignItems:"center", gap:8, color:"#8B5CF6", fontSize:12, fontWeight:700 }}>
+                        Try it now →
+                      </div>
                     </div>
                   </div>
                 );
               })()}
 
-              {/* ═══ REVENUE PULSE — the headline money view on Dashboard ═══ */}
-              <div style={{ marginTop:22, display:"grid", gridTemplateColumns:"1.4fr 1fr", gap:16 }}>
-                {/* Revenue recovered / at risk */}
-                <div style={{ background:`linear-gradient(135deg,${C.navy} 0%,#1A2541 100%)`, borderRadius:18, padding:"24px 26px", boxShadow:"0 12px 40px rgba(12,18,32,.18)", position:"relative", overflow:"hidden", color:"#fff" }}>
-                  <div style={{ position:"absolute", top:-50, right:-50, width:200, height:200, borderRadius:"50%", background:"radial-gradient(circle,rgba(16,185,129,.25),transparent 60%)", filter:"blur(40px)" }} />
-                  <div style={{ position:"relative", display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:18 }}>
-                    <div>
-                      <div style={{ fontSize:10, fontWeight:700, color:"rgba(255,255,255,.45)", textTransform:"uppercase", letterSpacing:1, marginBottom:6 }}>Revenue recovered · MTD</div>
-                      <div style={{ fontSize:30, fontWeight:800, color:"#fff", letterSpacing:-0.8, marginBottom:4, fontVariantNumeric:"tabular-nums" }}>£{recoveredRev.toLocaleString()}</div>
-                      <div style={{ fontSize:11.5, color:C.green, fontWeight:600 }}>↑ {recovered.length} patients rescued</div>
-                    </div>
-                    <div>
-                      <div style={{ fontSize:10, fontWeight:700, color:"rgba(255,255,255,.45)", textTransform:"uppercase", letterSpacing:1, marginBottom:6 }}>At risk · walking out</div>
-                      <div style={{ fontSize:30, fontWeight:800, color:"#fff", letterSpacing:-0.8, marginBottom:4, fontVariantNumeric:"tabular-nums" }}>£{atRiskRevenue.toLocaleString()}</div>
-                      <div style={{ fontSize:11.5, color:C.red, fontWeight:600 }}>↓ act before they leave</div>
-                    </div>
-                    <div>
-                      <div style={{ fontSize:10, fontWeight:700, color:"rgba(255,255,255,.45)", textTransform:"uppercase", letterSpacing:1, marginBottom:6 }}>ROI on Iryss</div>
-                      <div style={{ fontSize:30, fontWeight:800, color:"#22D3EE", letterSpacing:-0.8, marginBottom:4, fontVariantNumeric:"tabular-nums" }}>7.5×</div>
-                      <div style={{ fontSize:11.5, color:"rgba(255,255,255,.5)", fontWeight:600 }}>£199 plan · £1,490 back</div>
-                    </div>
-                  </div>
-                  <div style={{ position:"relative", marginTop:18, paddingTop:16, borderTop:"1px solid rgba(255,255,255,.08)", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
-                    <div style={{ fontSize:12, color:"rgba(255,255,255,.55)" }}>
-                      You're on pace for <b style={{ color:"#fff" }}>£{Math.round(recoveredRev*1.8).toLocaleString()}</b> recovered this month · last month: £{Math.round(recoveredRev*0.85).toLocaleString()}
-                    </div>
-                    <button onClick={()=>goNav("revenue")}
-                      style={{ background:"rgba(255,255,255,.08)", color:"#fff", border:"1px solid rgba(255,255,255,.15)", borderRadius:10, padding:"8px 14px", fontSize:12, fontWeight:600, cursor:"pointer", fontFamily:F }}>
-                      Full revenue breakdown →
-                    </button>
-                  </div>
+              {/* ═══ Compact Revenue Pulse — stand-alone row ═══ */}
+              <div onClick={()=>goNav("revenue")} style={{ marginTop:16, background:C.card, border:`1px solid ${C.border}`, borderRadius:16, padding:"18px 24px", boxShadow:C.cardShadow, cursor:"pointer", transition:"all .2s", display:"flex", alignItems:"center", gap:24, animation:"fadeInUp .8s ease-out" }}
+                onMouseEnter={e=>{e.currentTarget.style.transform="translateY(-2px)";e.currentTarget.style.boxShadow=C.cardHoverShadow;e.currentTarget.style.borderColor="rgba(8,145,178,.15)";}}
+                onMouseLeave={e=>{e.currentTarget.style.transform="translateY(0)";e.currentTarget.style.boxShadow=C.cardShadow;e.currentTarget.style.borderColor=C.border;}}>
+                <div style={{ fontSize:10, fontWeight:700, textTransform:"uppercase", letterSpacing:1, color:C.slateLight, flexShrink:0 }}>Revenue Pulse</div>
+                <div style={{ display:"flex", alignItems:"baseline", gap:6 }}>
+                  <div style={{ fontSize:22, fontWeight:800, color:C.green, letterSpacing:-0.5, fontVariantNumeric:"tabular-nums" }}>£{recoveredRev.toLocaleString()}</div>
+                  <div style={{ fontSize:11, color:C.slate, fontWeight:500 }}>recovered</div>
                 </div>
-
-                {/* AI scribe teaser */}
-                <div onClick={()=>goNav("scribe")} style={{ background:"linear-gradient(135deg, rgba(139,92,246,.08), rgba(167,139,250,.04))", border:"1px solid rgba(139,92,246,.2)", borderRadius:18, padding:"24px 26px", cursor:"pointer", transition:"all .2s" }}
-                  onMouseEnter={e=>{ e.currentTarget.style.transform="translateY(-2px)"; e.currentTarget.style.boxShadow="0 10px 30px rgba(139,92,246,.15)"; }}
-                  onMouseLeave={e=>{ e.currentTarget.style.transform="translateY(0)"; e.currentTarget.style.boxShadow="none"; }}>
-                  <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:14 }}>
-                    <div style={{ width:36, height:36, borderRadius:10, background:"linear-gradient(135deg,#8B5CF6,#A78BFA)", display:"flex", alignItems:"center", justifyContent:"center", color:"#fff" }}>
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
-                    </div>
-                    <div>
-                      <div style={{ fontSize:13.5, fontWeight:800, color:C.navy, letterSpacing:-0.2 }}>AI Scribe</div>
-                      <span style={{ fontSize:9, fontWeight:800, color:"#8B5CF6", background:"rgba(139,92,246,.1)", padding:"2px 7px", borderRadius:6, letterSpacing:0.5 }}>BETA</span>
-                    </div>
-                  </div>
-                  <div style={{ fontSize:13, color:C.navy, fontWeight:600, marginBottom:6, lineHeight:1.5 }}>
-                    Dictate the exam. Iryss writes the record.
-                  </div>
-                  <div style={{ fontSize:12, color:C.slate, marginBottom:14, lineHeight:1.5 }}>
-                    Saves 11 min per patient. 96.4% accurate. Push straight to your CRM.
-                  </div>
-                  <div style={{ display:"flex", alignItems:"center", gap:8, color:"#8B5CF6", fontSize:12, fontWeight:700 }}>
-                    Try it now →
-                  </div>
+                <span style={{ color:"#CBD5E1" }}>·</span>
+                <div style={{ display:"flex", alignItems:"baseline", gap:6 }}>
+                  <div style={{ fontSize:22, fontWeight:800, color:C.red, letterSpacing:-0.5, fontVariantNumeric:"tabular-nums" }}>£{atRiskRevenue.toLocaleString()}</div>
+                  <div style={{ fontSize:11, color:C.slate, fontWeight:500 }}>walking out</div>
                 </div>
+                <span style={{ color:"#CBD5E1" }}>·</span>
+                <div style={{ display:"flex", alignItems:"baseline", gap:6 }}>
+                  <div style={{ fontSize:22, fontWeight:800, color:C.teal, letterSpacing:-0.5, fontVariantNumeric:"tabular-nums" }}>7.5×</div>
+                  <div style={{ fontSize:11, color:C.slate, fontWeight:500 }}>ROI · £199 plan → £1,490 back</div>
+                </div>
+                <div style={{ flex:1 }} />
+                <span style={{ fontSize:12, color:C.slate, fontWeight:500, textAlign:"right", whiteSpace:"nowrap" }}>
+                  on pace for <b style={{ color:C.navy }}>£{Math.round(recoveredRev*1.8).toLocaleString()}</b> this month
+                </span>
+                <span style={{ fontSize:12, fontWeight:700, color:C.teal, whiteSpace:"nowrap" }}>Full breakdown →</span>
               </div>
 
             </div>
