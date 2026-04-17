@@ -803,7 +803,10 @@ function Sparkline({ data, color="#0891B2", width=76, height=22, fill=true }) {
   if (!data || data.length < 2) return null;
   const min = Math.min(...data);
   const max = Math.max(...data);
-  const range = max - min || 1;
+  // If every value is identical (flat), skip rendering — a flat line at the bottom
+  // of the SVG adds visual noise without conveying a trend.
+  if (max === min) return null;
+  const range = max - min;
   const step = width / (data.length - 1);
   const pts = data.map((v, i) => [i * step, height - ((v - min) / range) * height]);
   const line = pts.map((p, i) => (i === 0 ? "M" : "L") + p[0].toFixed(1) + " " + p[1].toFixed(1)).join(" ");
