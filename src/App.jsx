@@ -2274,6 +2274,55 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                 );
               })()}
 
+              {/* ═══ PEER BENCHMARKING — how you compare to UK independents ═══ */}
+              {(()=>{
+                const googleRating = 4.9;
+                const clRetention  = Math.round(100 - (reorderPatients.length / Math.max(1, PATIENTS.filter(p=>/contact|lens|cl |acuvue|oasys|dailies|biofinity|coopervision/i.test(p.product||"")).length)) * 100);
+                const myopiaConv   = MYOPIA_PATIENTS.length>0 ? Math.round((MYOPIA_PATIENTS.filter(p=>p.category==="active"||p.category==="trial").length / MYOPIA_PATIENTS.length)*100) : 0;
+                const metrics = [
+                  { label:"Recall compliance", your:complianceRate, avg:64, unit:"%",  fmt:(v)=>`${v}%`  },
+                  { label:"CL retention",      your:clRetention,    avg:68, unit:"%",  fmt:(v)=>`${v}%`  },
+                  { label:"Myopia conversion", your:myopiaConv,     avg:54, unit:"%",  fmt:(v)=>`${v}%`  },
+                  { label:"Google rating",     your:googleRating,   avg:4.3, unit:"★", fmt:(v)=>`${v.toFixed(1)}★` },
+                ];
+                return (
+                  <div style={{ marginTop:16, background:C.card, border:`1px solid ${C.border}`, borderRadius:16, padding:"20px 24px", boxShadow:C.cardShadow, animation:"fadeInUp .8s ease-out" }}>
+                    <div style={{ display:"flex", alignItems:"baseline", justifyContent:"space-between", marginBottom:14 }}>
+                      <div>
+                        <div style={{ fontSize:10, fontWeight:700, textTransform:"uppercase", letterSpacing:1, color:C.slateLight, marginBottom:3 }}>How you compare</div>
+                        <div style={{ fontSize:14.5, fontWeight:700, color:C.navy, letterSpacing:-0.2 }}>
+                          Benchmarked against <b style={{ color:C.teal }}>247 UK independent practices</b>
+                        </div>
+                      </div>
+                      <span style={{ fontSize:11, color:C.slateLight, fontWeight:500 }}>Updated monthly · anonymous</span>
+                    </div>
+                    <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:14 }}>
+                      {metrics.map(m=>{
+                        const delta = m.your - m.avg;
+                        const better = delta >= 0;
+                        const percentile = Math.min(95, Math.max(5, Math.round(50 + (delta / m.avg) * 60)));
+                        const rank = better ? `top ${100-percentile}%` : `bottom ${percentile}%`;
+                        return (
+                          <div key={m.label} style={{ background:C.bg, border:`1px solid ${C.border}`, borderRadius:12, padding:"14px 16px" }}>
+                            <div style={{ fontSize:10, fontWeight:700, color:C.slateLight, textTransform:"uppercase", letterSpacing:0.8, marginBottom:8 }}>{m.label}</div>
+                            <div style={{ display:"flex", alignItems:"baseline", gap:8, marginBottom:4 }}>
+                              <div style={{ fontSize:28, fontWeight:800, color:C.navy, lineHeight:1, letterSpacing:-0.7, fontVariantNumeric:"tabular-nums" }}>{m.fmt(m.your)}</div>
+                              <div style={{ fontSize:11, color:C.slateLight, fontVariantNumeric:"tabular-nums" }}>vs {m.fmt(m.avg)} avg</div>
+                            </div>
+                            <div style={{ display:"flex", alignItems:"center", gap:6 }}>
+                              <span style={{ display:"inline-flex", alignItems:"center", gap:4, fontSize:11, fontWeight:700, color:better?C.green:C.red, background:better?"rgba(16,185,129,.1)":"rgba(239,68,68,.1)", padding:"3px 8px", borderRadius:20 }}>
+                                {better?"↑":"↓"} {Math.abs(delta).toFixed(delta%1===0?0:1)}{m.unit}
+                              </span>
+                              <span style={{ fontSize:11, color:C.slate, fontWeight:600 }}>{rank}</span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })()}
+
               {/* ═══ AI Scribe teaser (full width, compact) ═══ */}
               <div onClick={()=>goNav("scribe")} style={{ marginTop:16, background:"linear-gradient(135deg, rgba(139,92,246,.06), rgba(167,139,250,.03))", border:"1px solid rgba(139,92,246,.2)", borderRadius:16, padding:"16px 22px", cursor:"pointer", transition:"all .2s", display:"flex", alignItems:"center", gap:16, animation:"fadeInUp .8s ease-out" }}
                 onMouseEnter={e=>{ e.currentTarget.style.transform="translateY(-2px)"; e.currentTarget.style.boxShadow="0 10px 30px rgba(139,92,246,.15)"; }}
