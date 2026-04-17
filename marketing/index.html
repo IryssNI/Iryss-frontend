@@ -1347,6 +1347,15 @@ a{text-decoration:none;color:inherit}
     </div>
 
     <div class="feat-grid">
+      <div class="feat" onclick="openModal('AI Scribe','scribe')" style="position:relative">
+        <span style="position:absolute;top:16px;right:16px;background:linear-gradient(135deg,#8B5CF6,#A78BFA);color:#fff;font-size:10px;font-weight:800;padding:3px 8px;border-radius:6px;letter-spacing:.6px;box-shadow:0 2px 8px rgba(139,92,246,.3)">BETA</span>
+        <div class="feat-icon" style="background:rgba(139,92,246,.08)">🎤</div>
+        <h3>AI Scribe</h3>
+        <p>Dictate the exam. Iryss writes the clinical record, referral letter, and pre-checks the GOS claim — in under a minute. Saves 11+ min per patient.</p>
+        <span class="feat-tag" style="background:rgba(139,92,246,.06);color:#8B5CF6">Only for opticians · No generic scribe has this</span>
+        <div class="feat-peek">See it in action →</div>
+      </div>
+
       <div class="feat" onclick="openModal('WhatsApp Inbox','inbox')">
         <div class="feat-icon" style="background:rgba(8,145,178,.08)">💬</div>
         <h3>WhatsApp-Native Inbox</h3>
@@ -1577,6 +1586,43 @@ a{text-decoration:none;color:inherit}
 
 <script>
 const previews = {
+  scribe: `
+    <div style="font-family:'Plus Jakarta Sans',sans-serif">
+      <div style="background:linear-gradient(135deg,#0C1220 0%,#1E2942 100%);border-radius:16px;padding:24px;margin-bottom:16px;color:#fff;position:relative;overflow:hidden">
+        <div style="position:absolute;top:-40px;right:-40px;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(139,92,246,.25),transparent 60%);filter:blur(30px)"></div>
+        <div style="display:flex;align-items:center;gap:14px;position:relative">
+          <div style="min-width:180px"><div style="font-size:10px;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Patient in chair</div><div style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:9px 12px;font-size:13px;font-weight:600">Louise Everton · age 33</div></div>
+          <div style="flex:1;height:44px;display:flex;align-items:center;gap:3px">${Array.from({length:40},(_,i)=>`<div style='width:3px;height:${6+Math.abs(Math.sin(i*0.7)*24)}px;background:linear-gradient(180deg,#A78BFA,#8B5CF6);border-radius:2px'></div>`).join('')}</div>
+          <div style="display:flex;align-items:center;gap:8px;background:linear-gradient(135deg,#EF4444,#DC2626);color:#fff;border-radius:12px;padding:11px 18px;font-size:13px;font-weight:700;box-shadow:0 8px 24px rgba(239,68,68,.4)">● Listening…</div>
+        </div>
+        <div style="margin-top:12px;font-size:11.5px;color:rgba(255,255,255,.55)">Listening to you and the patient. Long pauses are fine — Iryss waits.</div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:14px">
+        <div style="border:1px solid #E2E8F0;border-radius:14px;padding:16px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><div style="font-weight:700;font-size:13px">Clinical Record · Structured</div><span style="font-size:9.5px;font-weight:700;color:#10B981;background:rgba(16,185,129,.1);padding:3px 8px;border-radius:20px">✓ READY</span></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+            <div style="background:#F8FAFB;border:1px solid #E2E8F0;border-radius:8px;padding:7px 10px"><div style="font-size:8.5px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.8px;margin-bottom:2px">VA Right</div><div style="font-size:12px;font-weight:600;color:#0F172A;font-family:ui-monospace,monospace">6/6</div></div>
+            <div style="background:#F8FAFB;border:1px solid #E2E8F0;border-radius:8px;padding:7px 10px"><div style="font-size:8.5px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.8px;margin-bottom:2px">VA Left</div><div style="font-size:12px;font-weight:600;color:#0F172A;font-family:ui-monospace,monospace">6/6</div></div>
+            <div style="background:#F8FAFB;border:1px solid #E2E8F0;border-radius:8px;padding:7px 10px"><div style="font-size:8.5px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.8px;margin-bottom:2px">IOP R/L</div><div style="font-size:12px;font-weight:600;color:#0F172A;font-family:ui-monospace,monospace">14 / 13</div></div>
+            <div style="background:#F8FAFB;border:1px solid #E2E8F0;border-radius:8px;padding:7px 10px"><div style="font-size:8.5px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.8px;margin-bottom:2px">C:D ratio</div><div style="font-size:12px;font-weight:600;color:#0F172A;font-family:ui-monospace,monospace">0.3 / 0.3</div></div>
+          </div>
+          <div style="background:#F8FAFB;border:1px solid #E2E8F0;border-radius:8px;padding:9px 11px;font-size:11px;color:#0F172A;line-height:1.5">Patient presents for routine examination. Vision stable, no new symptoms. Anterior segment unremarkable, fundus clear. Recommend continue current Rx, review in 24 months. GOS 1 claim ready for submission.</div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="border:1px solid #E2E8F0;border-radius:12px;padding:13px 14px">
+            <div style="display:flex;justify-content:space-between;margin-bottom:7px"><div style="font-weight:700;font-size:12px">Referral letter</div><span style="font-size:10px;font-weight:700;color:#0891B2">Auto-drafted</span></div>
+            <div style="font-size:10.5px;color:#475569;line-height:1.5;font-family:ui-monospace,monospace;background:#F8FAFB;padding:8px 10px;border-radius:6px">Dear Colleague, I saw Louise Everton today for routine exam. No concerns — routine follow-up 24 months.</div>
+          </div>
+          <div style="border:1px solid #E2E8F0;border-radius:12px;padding:13px 14px">
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px"><div style="font-weight:700;font-size:12px">GOS 1 claim</div><span style="font-size:10px;font-weight:700;color:#10B981;background:rgba(16,185,129,.1);padding:2px 7px;border-radius:12px">✓ Valid</span></div>
+            <div style="font-size:11px;color:#64748B;line-height:1.6">All mandatory fields present. PCSE pre-validation clean. Ready to submit.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `,
   inbox: `
     <div style="display:grid;grid-template-columns:280px 1fr;gap:16px;font-family:'Plus Jakarta Sans',sans-serif">
       <div style="border:1px solid #E2E8F0;border-radius:14px;padding:16px">

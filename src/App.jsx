@@ -15,6 +15,7 @@ pulseStyle.textContent = `
   @keyframes slideInRight { from{opacity:0;transform:translateX(20px)} to{opacity:1;transform:translateX(0)} }
   @keyframes scaleIn { from{opacity:0;transform:scale(.95)} to{opacity:1;transform:scale(1)} }
   @keyframes gradientShift { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+  @keyframes spin { from { transform:rotate(0deg) } to { transform:rotate(360deg) } }
   .page-enter { animation: fadeInUp .42s cubic-bezier(.2,.8,.2,1) both; }
   .stagger-1 { animation: fadeInUp .4s cubic-bezier(.2,.8,.2,1) both; animation-delay: .05s; }
   .stagger-2 { animation: fadeInUp .4s cubic-bezier(.2,.8,.2,1) both; animation-delay: .12s; }
@@ -986,6 +987,15 @@ function Dashboard() {
   const [cmdOpen, setCmdOpen]                   = useState(false);
   const [cmdQuery, setCmdQuery]                 = useState("");
   const [cmdSel, setCmdSel]                     = useState(0);
+  const [scribeState, setScribeState]           = useState("idle"); // idle | listening | processing | complete
+  const [scribePatientId, setScribePatientId]   = useState("P-001");
+  const [scribeRecent, setScribeRecent]         = useState([
+    { id:"SC-041", patient:"Louise Everton", date:"Today · 10:42",     mins:12, status:"pushed"    },
+    { id:"SC-040", patient:"Ethan Kumar",    date:"Today · 09:15",     mins:9,  status:"reviewed"  },
+    { id:"SC-039", patient:"Sophia Patel",   date:"Yesterday · 16:30", mins:11, status:"pushed"    },
+    { id:"SC-038", patient:"Tom Bradley",    date:"Yesterday · 14:12", mins:14, status:"pushed"    },
+    { id:"SC-037", patient:"Mia Davies",     date:"Yesterday · 11:05", mins:10, status:"pushed"    },
+  ]);
   const [reviewSent, setReviewSent]             = useState({});
   const [showImport, setShowImport]             = useState(false);
   const [importStep, setImportStep]             = useState(1);
@@ -1346,6 +1356,7 @@ function Dashboard() {
     tasks:"Today's Tasks",
     patients:"Patients",
     recalls:"Recalls",
+    scribe:"AI Scribe",
     myopia:"Myopia Clinic",
     inbox:"Inbox",
     revenue:"Revenue",
@@ -1490,6 +1501,7 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
               { id:"patients",     label:"Patients",         icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>, badge:PATIENTS.length },
               { id:"inbox",        label:"Inbox",            icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>, urgentDot:urgentCount>0, urgentBadge:urgentCount },
               { id:"recalls",      label:"Recalls",          icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>, badge:recallPatients.length, warnDot:complianceRate<80&&recallPatients.length>0 },
+              { id:"scribe",       label:"AI Scribe",        icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>, beta:true },
             ];
             const modules = [
               { id:"myopia",       label:"Myopia Clinic",    icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/></svg>, badge:MYOPIA_PATIENTS.filter(p=>p.category==="active").length },
@@ -1514,6 +1526,7 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                   <span style={{ flex:1 }}>{item.label}</span>
                   {item.warnDot   && <span style={{ width:8, height:8, borderRadius:"50%", background:C.amber, flexShrink:0, display:"inline-block" }} />}
                   {item.urgentDot && <span style={{ width:8, height:8, borderRadius:"50%", background:C.red, flexShrink:0, display:"inline-block", animation:"pulseDot 1.5s ease-in-out infinite, pulseRing 1.5s ease-in-out infinite" }} />}
+                  {item.beta && <span style={{ background:"linear-gradient(135deg,#8B5CF6,#A78BFA)", color:"#fff", borderRadius:6, fontSize:8.5, fontWeight:800, padding:"2px 6px", letterSpacing:0.6, boxShadow:"0 2px 6px rgba(139,92,246,.35)" }}>BETA</span>}
                   {item.urgentBadge>0
                     ? <span style={{ background:"linear-gradient(135deg,#EF4444,#DC2626)", color:"#fff", borderRadius:20, fontSize:9, fontWeight:700, padding:"2px 7px", minWidth:18, textAlign:"center", animation:"pulseRing 1.5s ease-in-out infinite", boxShadow:"0 2px 8px rgba(239,68,68,.4)" }}>{item.urgentBadge}</span>
                     : item.badge>0 && <span style={{ background:"rgba(255,255,255,.08)", color:"rgba(255,255,255,.5)", borderRadius:20, fontSize:9, fontWeight:600, padding:"2px 7px", minWidth:18, textAlign:"center" }}>{item.badge}</span>
@@ -2419,6 +2432,236 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
               })()}
             </div>
           )}
+
+          {/* ═══ AI SCRIBE ═══ */}
+          {nav==="scribe"&&(()=>{
+            const scribePatient = PATIENTS.find(p=>p.id===scribePatientId) || PATIENTS[0];
+            const startListening = () => {
+              setScribeState("listening");
+              setTimeout(()=>setScribeState("processing"), 2800);
+              setTimeout(()=>setScribeState("complete"), 4500);
+            };
+            const reset = () => setScribeState("idle");
+            const pushToCRM = () => {
+              setScribeRecent(prev => [
+                { id:`SC-${String(parseInt(prev[0].id.slice(3))+1).padStart(3,"0")}`, patient:scribePatient.name, date:"Just now", mins:11, status:"pushed" },
+                ...prev.slice(0,9)
+              ]);
+              showToast(`Clinical record pushed to ${scribePatient.name}'s file in your CRM`);
+              setScribeState("idle");
+            };
+            const timeSavedHrs = Math.round(scribeRecent.reduce((a,s)=>a+s.mins, 0) / 6) / 10;
+
+            const transcript = `Patient is a ${scribePatient.age||33} year old presenting for routine eye examination. Reports vision stable, no new symptoms, no headaches or flashes. Currently wearing ${scribePatient.product||"soft contact lenses"} with good tolerance. Distance vision 6/6 right and left. Near vision N5 each eye. Anterior segment unremarkable. Fundus clear, optic discs healthy with cup-to-disc ratio of 0.3 both eyes. Intraocular pressures 14 and 13 millimetres of mercury. Recommend continue current correction, review in 24 months, standard GOS one claim.`;
+
+            return (
+            <div>
+              <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:6 }}>
+                <h1 style={{ fontSize:26, fontWeight:800, color:C.text, letterSpacing:-0.7, margin:0, display:"flex", alignItems:"center", gap:10 }}>
+                  AI Scribe
+                  <span style={{ background:"linear-gradient(135deg,#8B5CF6,#A78BFA)", color:"#fff", fontSize:10, fontWeight:800, padding:"3px 9px", borderRadius:8, letterSpacing:0.6, boxShadow:"0 3px 10px rgba(139,92,246,.3)" }}>BETA</span>
+                </h1>
+                <div style={{ display:"flex", alignItems:"center", gap:8, background:C.card, border:`1px solid ${C.border}`, borderRadius:12, padding:"8px 14px", boxShadow:"0 2px 6px rgba(0,0,0,.04)" }}>
+                  <div style={{ width:7, height:7, borderRadius:"50%", background:C.green, boxShadow:"0 0 8px rgba(16,185,129,.6)", animation:"pulseDot 1.5s ease-in-out infinite" }} />
+                  <span style={{ fontSize:12, fontWeight:600, color:C.slate }}>{timeSavedHrs} hrs saved this week</span>
+                </div>
+              </div>
+              <p style={{ fontSize:14, color:C.slate, margin:"0 0 22px 0", fontWeight:500 }}>Dictate the exam. Iryss writes the clinical record, GOS claim, and referral letter — in seconds. Pushed straight to your CRM.</p>
+
+              {/* Value strip */}
+              <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:12, marginBottom:22 }}>
+                {[
+                  { label:"Avg time saved per exam", value:"11 min",  icon:"⏱" },
+                  { label:"Exams scribed this week",  value:scribeRecent.length*9, icon:"📋" },
+                  { label:"Letters auto-drafted",     value:scribeRecent.length*3, icon:"✉" },
+                  { label:"Accuracy vs gold standard", value:"96.4%", icon:"✓" },
+                ].map(s=>(
+                  <div key={s.label} style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:12, padding:"14px 16px" }}>
+                    <div style={{ fontSize:10.5, fontWeight:700, color:C.slateLight, textTransform:"uppercase", letterSpacing:1, marginBottom:6 }}>{s.icon} {s.label}</div>
+                    <div style={{ fontSize:22, fontWeight:800, color:C.navy, letterSpacing:-0.5, fontVariantNumeric:"tabular-nums" }}>{s.value}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Recording panel */}
+              <div style={{ background:`linear-gradient(135deg, ${C.navy} 0%, #1E2942 100%)`, borderRadius:18, padding:"28px 30px", marginBottom:22, boxShadow:"0 12px 40px rgba(12,18,32,.2)", position:"relative", overflow:"hidden" }}>
+                <div style={{ position:"absolute", top:-40, right:-40, width:180, height:180, borderRadius:"50%", background:"radial-gradient(circle, rgba(139,92,246,.25), transparent 60%)", filter:"blur(30px)" }} />
+                <div style={{ display:"flex", alignItems:"center", gap:18, position:"relative" }}>
+                  {/* Patient selector */}
+                  <div style={{ minWidth:220 }}>
+                    <div style={{ fontSize:10, fontWeight:700, color:"rgba(255,255,255,.4)", textTransform:"uppercase", letterSpacing:1, marginBottom:6 }}>Patient in chair</div>
+                    <select value={scribePatientId} onChange={e=>setScribePatientId(e.target.value)}
+                      disabled={scribeState!=="idle"}
+                      style={{ background:"rgba(255,255,255,.08)", color:"#fff", border:"1px solid rgba(255,255,255,.15)", borderRadius:10, padding:"9px 12px", fontSize:13, fontWeight:600, fontFamily:F, cursor:scribeState==="idle"?"pointer":"not-allowed", width:"100%" }}>
+                      {PATIENTS.slice(0,20).map(p=><option key={p.id} value={p.id} style={{ background:C.navy }}>{p.name} · {p.age?`age ${p.age}`:"patient"}</option>)}
+                    </select>
+                  </div>
+
+                  <div style={{ flex:1, height:56, display:"flex", alignItems:"center", gap:3 }}>
+                    {Array.from({length:60}).map((_,i)=>{
+                      const baseH = 6 + Math.abs(Math.sin(i*0.7)*22);
+                      const isListening = scribeState==="listening";
+                      const h = isListening ? baseH + Math.abs(Math.sin((Date.now()/80 + i*0.4))*18) : baseH;
+                      return <div key={i} style={{ width:3, height:scribeState==="idle"?4:h, background: scribeState==="idle" ? "rgba(255,255,255,.08)" : scribeState==="listening" ? "linear-gradient(180deg,#A78BFA,#8B5CF6)" : scribeState==="processing" ? "linear-gradient(180deg,#22D3EE,#06B6D4)" : "linear-gradient(180deg,#34D399,#10B981)", borderRadius:2, transition:"height .15s, background .3s" }} />;
+                    })}
+                  </div>
+
+                  {/* Action button */}
+                  {scribeState==="idle" && (
+                    <button onClick={startListening}
+                      style={{ display:"flex", alignItems:"center", gap:10, background:"linear-gradient(135deg,#8B5CF6,#A78BFA)", color:"#fff", border:"none", borderRadius:12, padding:"14px 24px", fontSize:14, fontWeight:700, cursor:"pointer", fontFamily:F, boxShadow:"0 8px 24px rgba(139,92,246,.4)", whiteSpace:"nowrap" }}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
+                      Start dictation
+                    </button>
+                  )}
+                  {scribeState==="listening" && (
+                    <button onClick={()=>setScribeState("processing")}
+                      style={{ display:"flex", alignItems:"center", gap:10, background:"linear-gradient(135deg,#EF4444,#DC2626)", color:"#fff", border:"none", borderRadius:12, padding:"14px 24px", fontSize:14, fontWeight:700, cursor:"pointer", fontFamily:F, boxShadow:"0 8px 24px rgba(239,68,68,.4)", whiteSpace:"nowrap", animation:"pulseRing 1.5s ease-in-out infinite" }}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
+                      Listening… tap to stop
+                    </button>
+                  )}
+                  {scribeState==="processing" && (
+                    <div style={{ display:"flex", alignItems:"center", gap:10, background:"rgba(255,255,255,.08)", color:"#22D3EE", border:"1px solid rgba(34,211,238,.3)", borderRadius:12, padding:"14px 24px", fontSize:14, fontWeight:700, fontFamily:F, whiteSpace:"nowrap" }}>
+                      <span style={{ width:14, height:14, border:"2px solid rgba(34,211,238,.3)", borderTopColor:"#22D3EE", borderRadius:"50%", animation:"spin 0.8s linear infinite", display:"inline-block" }} />
+                      Writing record…
+                    </div>
+                  )}
+                  {scribeState==="complete" && (
+                    <button onClick={reset}
+                      style={{ background:"rgba(255,255,255,.08)", color:"rgba(255,255,255,.7)", border:"1px solid rgba(255,255,255,.15)", borderRadius:12, padding:"14px 22px", fontSize:13, fontWeight:600, cursor:"pointer", fontFamily:F, whiteSpace:"nowrap" }}>
+                      New session
+                    </button>
+                  )}
+                </div>
+
+                <div style={{ marginTop:14, fontSize:12, color:"rgba(255,255,255,.55)" }}>
+                  {scribeState==="idle"       && "Ready when you are. Press start to dictate the exam — Iryss listens, transcribes, and structures the findings."}
+                  {scribeState==="listening"  && "Listening to you and the patient. Keep talking — long pauses are fine. Stop when the exam is complete."}
+                  {scribeState==="processing" && "Structuring the clinical note, drafting referral letters, and building the GOS 1 claim."}
+                  {scribeState==="complete"   && "Record drafted and ready for your review below. Nothing is pushed to your CRM until you approve it."}
+                </div>
+              </div>
+
+              {/* Output — only once complete */}
+              {scribeState==="complete" && (
+                <div style={{ display:"grid", gridTemplateColumns:"1.15fr 1fr", gap:16, marginBottom:22 }}>
+                  {/* Left: Clinical record */}
+                  <div style={{ background:C.card, borderRadius:16, border:`1px solid ${C.border}`, padding:"22px 24px", boxShadow:"0 2px 12px rgba(0,0,0,.05)" }}>
+                    <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:14 }}>
+                      <h3 style={{ fontSize:14, fontWeight:700, color:C.text, margin:0 }}>Clinical Record · Structured</h3>
+                      <span style={{ fontSize:10, fontWeight:700, color:C.green, background:"rgba(16,185,129,.1)", padding:"4px 9px", borderRadius:20, letterSpacing:0.3 }}>✓ READY TO REVIEW</span>
+                    </div>
+                    {/* Structured fields */}
+                    <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, marginBottom:14 }}>
+                      {[
+                        { l:"Patient",  v:scribePatient.name },
+                        { l:"DOB / Age", v:`Age ${scribePatient.age||33}` },
+                        { l:"Visual acuity R",  v:"6/6" },
+                        { l:"Visual acuity L",  v:"6/6" },
+                        { l:"IOP R / L", v:"14 / 13 mmHg" },
+                        { l:"C:D ratio", v:"0.3 / 0.3" },
+                        { l:"Rx status", v:"Stable" },
+                        { l:"Next review",   v:"24 months" },
+                      ].map(f=>(
+                        <div key={f.l} style={{ background:C.bg, border:`1px solid ${C.border}`, borderRadius:9, padding:"9px 11px" }}>
+                          <div style={{ fontSize:9.5, fontWeight:700, color:C.slateLight, textTransform:"uppercase", letterSpacing:0.8, marginBottom:2 }}>{f.l}</div>
+                          <div style={{ fontSize:13, fontWeight:600, color:C.navy, fontFamily:"ui-monospace, monospace" }}>{f.v}</div>
+                        </div>
+                      ))}
+                    </div>
+                    {/* Narrative */}
+                    <div style={{ fontSize:10.5, fontWeight:700, color:C.slateLight, textTransform:"uppercase", letterSpacing:0.8, marginBottom:6 }}>Narrative (auto-generated)</div>
+                    <div style={{ background:C.bg, border:`1px solid ${C.border}`, borderRadius:10, padding:"12px 14px", fontSize:12.5, color:C.navy, lineHeight:1.6, marginBottom:14 }}>
+                      {transcript}
+                    </div>
+                    {/* Push to CRM */}
+                    <div style={{ display:"flex", gap:10 }}>
+                      <button onClick={pushToCRM}
+                        style={{ flex:1, background:`linear-gradient(135deg,${C.teal},${C.tealLt})`, color:"#fff", border:"none", borderRadius:10, padding:"11px 16px", fontSize:13, fontWeight:700, cursor:"pointer", fontFamily:F, boxShadow:"0 4px 14px rgba(8,145,178,.25)" }}>
+                        Push to CRM →
+                      </button>
+                      <button onClick={()=>showToast("Record saved as draft — not pushed to CRM")}
+                        style={{ background:"transparent", color:C.slate, border:`1px solid ${C.border}`, borderRadius:10, padding:"11px 16px", fontSize:13, fontWeight:600, cursor:"pointer", fontFamily:F }}>
+                        Save draft
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Right: Referral letter + GOS */}
+                  <div style={{ display:"flex", flexDirection:"column", gap:16 }}>
+                    <div style={{ background:C.card, borderRadius:16, border:`1px solid ${C.border}`, padding:"18px 20px", boxShadow:"0 2px 12px rgba(0,0,0,.05)" }}>
+                      <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:10 }}>
+                        <h3 style={{ fontSize:13.5, fontWeight:700, color:C.text, margin:0 }}>Referral letter · Draft</h3>
+                        <button onClick={()=>showToast("Letter copied to clipboard")}
+                          style={{ fontSize:11, fontWeight:600, color:C.teal, background:"none", border:"none", cursor:"pointer", fontFamily:F }}>
+                          Copy →
+                        </button>
+                      </div>
+                      <div style={{ fontSize:11.5, color:C.slate, lineHeight:1.6, fontFamily:"ui-monospace, monospace", background:C.bg, padding:"10px 12px", borderRadius:8, border:`1px solid ${C.border}` }}>
+                        Dear Colleague,<br/><br/>
+                        I saw <b>{scribePatient.name}</b> today for routine eye examination. Vision stable, no new symptoms. IOPs normal. Fundus clear. No concerns — routine follow-up in 24 months.<br/><br/>
+                        Kind regards,<br/>
+                        Dr. Smith, Bright Eyes Opticians
+                      </div>
+                    </div>
+
+                    <div style={{ background:C.card, borderRadius:16, border:`1px solid ${C.border}`, padding:"18px 20px", boxShadow:"0 2px 12px rgba(0,0,0,.05)" }}>
+                      <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:10 }}>
+                        <h3 style={{ fontSize:13.5, fontWeight:700, color:C.text, margin:0 }}>GOS 1 claim · Pre-checked</h3>
+                        <span style={{ fontSize:10, fontWeight:700, color:C.green, background:"rgba(16,185,129,.1)", padding:"3px 8px", borderRadius:20 }}>✓ VALID</span>
+                      </div>
+                      <div style={{ fontSize:12, color:C.slate, lineHeight:1.8 }}>
+                        <div>Claim type: <b style={{ color:C.navy }}>GOS 1 · Full sight test</b></div>
+                        <div>Mandatory fields: <b style={{ color:C.green }}>all present</b></div>
+                        <div>PCSE pre-validation: <b style={{ color:C.green }}>no errors</b></div>
+                      </div>
+                      <button onClick={()=>showToast("GOS 1 claim submitted to PCSE")}
+                        style={{ marginTop:10, width:"100%", background:C.navy, color:"#fff", border:"none", borderRadius:10, padding:"9px 14px", fontSize:12.5, fontWeight:700, cursor:"pointer", fontFamily:F }}>
+                        Submit to PCSE →
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Recent sessions */}
+              <div style={{ background:C.card, borderRadius:16, border:`1px solid ${C.border}`, overflow:"hidden", boxShadow:"0 2px 12px rgba(0,0,0,.05)" }}>
+                <div style={{ padding:"14px 20px", borderBottom:`1px solid ${C.border}`, display:"flex", alignItems:"center", justifyContent:"space-between", background:C.bg }}>
+                  <h3 style={{ fontSize:13, fontWeight:700, color:C.text, margin:0 }}>Recent sessions</h3>
+                  <span style={{ fontSize:11, color:C.slate }}>{scribeRecent.length} this week</span>
+                </div>
+                {scribeRecent.map((s,i)=>{
+                  const statusMap = {
+                    pushed:   { label:"Pushed to CRM", color:C.green, bg:"rgba(16,185,129,.1)" },
+                    reviewed: { label:"Reviewed",      color:C.amber, bg:"rgba(245,158,11,.1)" },
+                    draft:    { label:"Draft",         color:C.slate, bg:"rgba(100,116,139,.08)" },
+                  };
+                  const st = statusMap[s.status] || statusMap.draft;
+                  return (
+                    <div key={s.id} style={{ display:"grid", gridTemplateColumns:"auto 1.5fr 1fr 1fr auto", gap:14, padding:"12px 20px", borderBottom:i<scribeRecent.length-1?`1px solid #F1F5F9`:"none", alignItems:"center" }}>
+                      <Avatar initials={s.patient.split(" ").map(w=>w[0]).slice(0,2).join("")} bg={getColor(i)} size={28} />
+                      <div>
+                        <div style={{ fontSize:13, fontWeight:700, color:C.navy }}>{s.patient}</div>
+                        <div style={{ fontSize:10.5, color:C.slateLight, fontFamily:"ui-monospace, monospace" }}>{s.id}</div>
+                      </div>
+                      <div style={{ fontSize:12, color:C.slate }}>{s.date}</div>
+                      <div style={{ fontSize:12, color:C.slate }}>{s.mins} min saved</div>
+                      <span style={{ fontSize:10.5, fontWeight:700, padding:"4px 10px", borderRadius:20, background:st.bg, color:st.color, letterSpacing:0.3 }}>{st.label}</span>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div style={{ marginTop:18, padding:"14px 18px", background:"rgba(139,92,246,.05)", border:"1px solid rgba(139,92,246,.15)", borderRadius:12, display:"flex", alignItems:"center", gap:12 }}>
+                <div style={{ width:30, height:30, borderRadius:8, background:"linear-gradient(135deg,#8B5CF6,#A78BFA)", display:"flex", alignItems:"center", justifyContent:"center", color:"#fff", fontSize:14, fontWeight:700, flexShrink:0 }}>◈</div>
+                <div style={{ fontSize:12.5, color:C.slate, flex:1 }}>
+                  <b style={{ color:C.navy }}>Beta access.</b> Iryss AI Scribe is in closed beta. It writes the clinical record, referral letter, and GOS claim — you review before anything's pushed to your CRM. <a href="mailto:IryssNI@outlook.com?subject=AI Scribe beta access" style={{ color:"#8B5CF6", fontWeight:700, textDecoration:"none" }}>Request full access →</a>
+                </div>
+              </div>
+            </div>
+            );
+          })()}
 
           {/* ═══ MYOPIA CLINIC ═══ */}
           {nav==="myopia"&&(()=>{
@@ -4528,6 +4771,7 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
           { t:"Patients",        hint:"All 125 records",                icon:"◎", run:()=>goNav("patients") },
           { t:"Inbox",           hint:"WhatsApp threads",               icon:"◻", run:()=>goNav("inbox") },
           { t:"Recalls",         hint:"Due & overdue patients",         icon:"◷", run:()=>goNav("recalls") },
+          { t:"AI Scribe (beta)",hint:"Dictate exam → clinical record", icon:"🎤", run:()=>goNav("scribe") },
         ].map(o=>({...o, group:"Main"}));
         const moduleNav = [
           { t:"Myopia Clinic",   hint:"Paediatric myopia patients",     icon:"◉", run:()=>goNav("myopia") },
