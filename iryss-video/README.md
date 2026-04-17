@@ -1,54 +1,73 @@
-# Remotion video
+# IRYSS · Pitch Video
 
-<p align="center">
-  <a href="https://github.com/remotion-dev/logo">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://github.com/remotion-dev/logo/raw/main/animated-logo-banner-dark.apng">
-      <img alt="Animated Remotion Logo" src="https://github.com/remotion-dev/logo/raw/main/animated-logo-banner-light.gif">
-    </picture>
-  </a>
-</p>
+A 90-second Remotion-built pitch video telling the Iryss story end-to-end.
 
-Welcome to your Remotion project!
+- **Runtime**: 90 seconds
+- **Format**: 1920 × 1080 @ 30fps (2700 frames total)
+- **Composition ID**: `IryssPitch`
 
-## Commands
+## Scene breakdown
 
-**Install Dependencies**
+| # | Timing | Scene | Purpose |
+|---|--------|-------|---------|
+| 1 | 0:00 – 0:08  | **Hook** | *"Specsavers has 500 marketers. You now have one."* |
+| 2 | 0:08 – 0:20  | **Problem** | The 25% retention loss + three pain-point chips |
+| 3 | 0:20 – 0:35  | **Solution** | Introduces Iryss with the Practice Score ring animating to 87 |
+| 4 | 0:35 – 0:55  | **Features** | 4 feature cards: WhatsApp inbox · Revenue leakage · Myopia Clinic · AI Scribe |
+| 5 | 0:55 – 1:10  | **The maths** | £20,000 count-up + 8× ROI + < 6 weeks payback |
+| 6 | 1:10 – 1:25  | **Who it's for** | UK/Irish independents + CRM compatibility chips |
+| 7 | 1:25 – 1:30  | **Close** | Logo + *"Book a demo at theiryss.com"* |
 
-```console
-npm install
+Voiceover script lives in **[VOICEOVER.md](./VOICEOVER.md)**.
+
+## Preview locally
+
+```bash
+cd ~/iryss-frontend/iryss-video
+npm install         # first time only
+npm run dev          # opens Remotion Studio at http://localhost:3000
 ```
 
-**Start Preview**
+Use the studio timeline to scrub and iterate on scenes without re-rendering.
 
-```console
-npm run dev
+## Render to MP4
+
+```bash
+npx remotion render IryssPitch out/iryss-pitch.mp4
 ```
 
-**Render video**
+With custom concurrency for speed on a laptop:
 
-```console
-npx remotion render
+```bash
+npx remotion render IryssPitch out/iryss-pitch.mp4 --concurrency 4
 ```
 
-**Upgrade Remotion**
+Output lands at `out/iryss-pitch.mp4`. Typical render time on Apple Silicon: 2–3 minutes.
 
-```console
-npx remotion upgrade
-```
+## Swapping in a real voiceover
 
-## Docs
+Record the voiceover to WAV (48kHz) following [VOICEOVER.md](./VOICEOVER.md), then:
 
-Get started with Remotion by reading the [fundamentals page](https://www.remotion.dev/docs/the-fundamentals).
+1. Drop `voice.wav` into `public/`
+2. In `src/Composition.tsx`, import Audio and add `<Audio src={staticFile("voice.wav")} />` inside the top-level `AbsoluteFill`
+3. Re-render
 
-## Help
+## Exporting for different channels
 
-We provide help on our [Discord server](https://discord.gg/6VzzNDwUwV).
+| Channel | Command add-ons |
+|---------|----------------|
+| YouTube (1080p) | (default) |
+| Twitter / LinkedIn | `--codec h264 --crf 23` for smaller files |
+| Square (1:1 for Insta) | Change `width` and `height` in `src/Root.tsx` to 1080×1080 and adjust layouts |
+| Vertical (9:16 Reels) | 1080×1920 — most layouts will need tweaking |
 
-## Issues
+## Files in this project
 
-Found an issue with Remotion? [File an issue here](https://github.com/remotion-dev/remotion/issues/new).
+- `src/Root.tsx` — registers the composition (duration, dimensions)
+- `src/Composition.tsx` — all 7 scenes in one file
+- `src/index.ts` — Remotion entry point
+- `VOICEOVER.md` — word-for-word voiceover script with pacing notes
 
-## License
+---
 
-Note that for some entities a company license is needed. [Read the terms here](https://github.com/remotion-dev/remotion/blob/main/LICENSE.md).
+Built on Remotion · [remotion.dev](https://www.remotion.dev/)
