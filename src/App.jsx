@@ -2221,9 +2221,14 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                             style={{ background:"transparent", color:C.slate, border:`1px solid ${C.border}`, borderRadius:9, padding:"8px 14px", fontSize:12, fontWeight:600, cursor:"pointer", fontFamily:F, whiteSpace:"nowrap" }}>
                             View all
                           </button>
-                          <button onClick={()=>{ const first = reorderPatients[0]; if (first) openReorderWA(first); }}
+                          <button onClick={()=>{
+                              setCampaignSegment("cl-lapsed");
+                              setCampaignTemplate("reorder");
+                              setCampaignSchedule("now");
+                              setCampaignOpen(true);
+                            }}
                             style={{ flex:1, background:`linear-gradient(135deg,${C.teal},${C.tealLt})`, color:"#fff", border:"none", borderRadius:9, padding:"8px 14px", fontSize:12, fontWeight:700, cursor:"pointer", fontFamily:F, boxShadow:"0 4px 14px rgba(8,145,178,.25)", whiteSpace:"nowrap" }}>
-                            Send reorder WhatsApp →
+                            Send to all {reorderPatients.length} →
                           </button>
                         </div>
                       </div>
