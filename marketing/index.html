@@ -168,7 +168,7 @@ a{text-decoration:none;color:inherit}
 
 /* HERO */
 .hero{
-  padding:130px 32px 60px;
+  padding:130px 32px 160px;
   text-align:center;
   background:linear-gradient(180deg,var(--dark) 0%,var(--dark-alt) 100%);
   position:relative;
@@ -289,6 +289,7 @@ a{text-decoration:none;color:inherit}
   flex-wrap:wrap;
   animation:fadeInUp .6s ease-out .4s forwards;
   opacity:0;
+  margin-bottom:20px;
 }
 
 /* Dashboard Preview Card */
@@ -1193,22 +1194,22 @@ a{text-decoration:none;color:inherit}
   <div class="wrap">
     <div class="stats-grid">
       <div class="stat-item">
-        <div class="stat-n" data-target="16">16</div>
+        <div class="stat-n" data-target="16">0</div>
         <div class="stat-label">M</div>
         <div class="stat-l">NHS appointments missed annually<em>NHS England Digital, 2024</em></div>
       </div>
       <div class="stat-item">
-        <div class="stat-n" data-target="30">30</div>
+        <div class="stat-n" data-target="30">0</div>
         <div class="stat-label">M</div>
         <div class="stat-l">UK monthly active WhatsApp users<em>SQM Magazine, 2025</em></div>
       </div>
       <div class="stat-item">
-        <div class="stat-n" data-target="98">98</div>
+        <div class="stat-n" data-target="98">0</div>
         <div class="stat-label">%</div>
         <div class="stat-l">WhatsApp open rate<em>SQM Magazine / D7 Networks, 2025</em></div>
       </div>
       <div class="stat-item">
-        <div class="stat-n" data-target="73">73</div>
+        <div class="stat-n" data-target="73">0</div>
         <div class="stat-label">%</div>
         <div class="stat-l">UK users message brands daily<em>SQM Magazine, 2025</em></div>
       </div>
@@ -1688,17 +1689,17 @@ window.addEventListener('scroll', () => {
         if (!stat.dataset.animated) {
           stat.dataset.animated = true;
           const target = parseInt(stat.dataset.target);
-          let current = 0;
-          const increment = target / 30;
-          const timer = setInterval(() => {
-            current += increment;
-            if (current >= target) {
-              stat.textContent = target;
-              clearInterval(timer);
-            } else {
-              stat.textContent = Math.floor(current);
-            }
-          }, 30);
+          const duration = 1800;
+          const start = performance.now();
+          function tick(now) {
+            const elapsed = now - start;
+            const progress = Math.min(elapsed / duration, 1);
+            // ease-out cubic for smooth deceleration
+            const eased = 1 - Math.pow(1 - progress, 3);
+            stat.textContent = Math.round(eased * target);
+            if (progress < 1) requestAnimationFrame(tick);
+          }
+          requestAnimationFrame(tick);
         }
       });
     }
