@@ -168,7 +168,7 @@ a{text-decoration:none;color:inherit}
 
 /* HERO */
 .hero{
-  padding:130px 32px 60px;
+  padding:130px 32px 160px;
   text-align:center;
   background:linear-gradient(180deg,var(--dark) 0%,var(--dark-alt) 100%);
   position:relative;
@@ -289,6 +289,7 @@ a{text-decoration:none;color:inherit}
   flex-wrap:wrap;
   animation:fadeInUp .6s ease-out .4s forwards;
   opacity:0;
+  margin-bottom:20px;
 }
 
 /* Dashboard Preview Card */
@@ -499,6 +500,93 @@ a{text-decoration:none;color:inherit}
   font-style:normal;
   color:var(--muted);
   margin-top:4px;
+}
+
+/* 3-Question Explainer */
+.explainer{
+  padding:72px 32px;
+  background:#fff;
+}
+
+.explainer .wrap{
+  max-width:1060px;
+}
+
+.explainer-header{
+  text-align:center;
+  margin-bottom:48px;
+}
+
+.explainer-header h2{
+  font-size:clamp(24px,3vw,34px);
+  font-weight:800;
+  letter-spacing:-1px;
+  margin-bottom:8px;
+}
+
+.explainer-header p{
+  font-size:15px;
+  color:var(--sub);
+}
+
+.explainer-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:28px;
+}
+
+.explainer-card{
+  background:var(--alt);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:32px 28px;
+  text-align:center;
+  transition:all .3s ease;
+}
+
+.explainer-card:hover{
+  transform:translateY(-3px);
+  box-shadow:0 8px 24px rgba(0,0,0,.07);
+}
+
+.explainer-card .ex-icon{
+  width:56px;
+  height:56px;
+  border-radius:14px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:24px;
+  margin:0 auto 20px;
+}
+
+.explainer-card h3{
+  font-size:17px;
+  font-weight:800;
+  letter-spacing:-0.3px;
+  margin-bottom:12px;
+  color:var(--text);
+}
+
+.explainer-card p{
+  font-size:14px;
+  color:var(--sub);
+  line-height:1.65;
+}
+
+.explainer-card .ex-highlight{
+  display:inline-block;
+  margin-top:14px;
+  font-size:13px;
+  font-weight:700;
+  color:var(--accent);
+  background:rgba(8,145,178,.06);
+  padding:6px 14px;
+  border-radius:8px;
+}
+
+@media(max-width:768px){
+  .explainer-grid{grid-template-columns:1fr}
 }
 
 /* Section */
@@ -1134,6 +1222,39 @@ a{text-decoration:none;color:inherit}
   <div class="trust-items"><span>GDPR compliant</span><span>·</span><span>EU data servers</span><span>·</span><span>Built in Belfast</span></div>
 </div>
 
+<!-- 3-QUESTION EXPLAINER -->
+<section class="explainer">
+  <div class="wrap">
+    <div class="explainer-header">
+      <h2>Three questions every optician asks us</h2>
+      <p>Here are the honest answers.</p>
+    </div>
+
+    <div class="explainer-grid">
+      <div class="explainer-card">
+        <div class="ex-icon" style="background:rgba(8,145,178,.08)">🔍</div>
+        <h3>What does Iryss do?</h3>
+        <p>Iryss plugs into your existing CRM and watches for patients slipping away — overdue recalls, lapsed contact-lens wearers, missed appointments. It <strong>automatically re-engages them via WhatsApp</strong> before they walk into a competitor. It gives you <strong>real-time revenue calculators</strong> so you can see exactly how much you're recovering. And it includes a <strong>dedicated Myopia Clinic</strong> — axial length tracking, treatment plans, parent WhatsApp, AI recommendations — all in one place.</p>
+        <span class="ex-highlight">A retention engine, revenue tracker &amp; myopia clinic in one</span>
+      </div>
+
+      <div class="explainer-card">
+        <div class="ex-icon" style="background:rgba(239,68,68,.06)">💡</div>
+        <h3>What problem does it solve?</h3>
+        <p>You're losing patients you shouldn't be. Paper recalls go in the bin. SMS gets ignored. <strong>Your CRM stores data — it doesn't act on it.</strong> Iryss turns that data into real conversations that bring patients back. Our revenue dashboards show you exactly what's at risk, what's been recovered, and what's left on the table — <strong>so every decision is backed by numbers, not guesswork.</strong></p>
+        <span class="ex-highlight">Practices lose 20–30% of patients to inaction</span>
+      </div>
+
+      <div class="explainer-card">
+        <div class="ex-icon" style="background:rgba(16,185,129,.06)">⚡</div>
+        <h3>How easy is it to set up?</h3>
+        <p><strong>You don't replace anything.</strong> Iryss connects alongside your existing system — Optix, Ocuco, Acuitas, Optisoft, XEYEX, or whatever you use. No data migration, no staff retraining, no downtime. Your team keeps working exactly as they do now — Iryss just works quietly in the background, recovering patients and revenue.</p>
+        <span class="ex-highlight">Under 1 week · zero disruption · works with whatever you use</span>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- PROBLEM / SOLUTION -->
 <section class="sec-ps">
   <div class="wrap">
@@ -1193,22 +1314,22 @@ a{text-decoration:none;color:inherit}
   <div class="wrap">
     <div class="stats-grid">
       <div class="stat-item">
-        <div class="stat-n" data-target="16">16</div>
+        <div class="stat-n" data-target="16">0</div>
         <div class="stat-label">M</div>
         <div class="stat-l">NHS appointments missed annually<em>NHS England Digital, 2024</em></div>
       </div>
       <div class="stat-item">
-        <div class="stat-n" data-target="30">30</div>
+        <div class="stat-n" data-target="30">0</div>
         <div class="stat-label">M</div>
         <div class="stat-l">UK monthly active WhatsApp users<em>SQM Magazine, 2025</em></div>
       </div>
       <div class="stat-item">
-        <div class="stat-n" data-target="98">98</div>
+        <div class="stat-n" data-target="98">0</div>
         <div class="stat-label">%</div>
         <div class="stat-l">WhatsApp open rate<em>SQM Magazine / D7 Networks, 2025</em></div>
       </div>
       <div class="stat-item">
-        <div class="stat-n" data-target="73">73</div>
+        <div class="stat-n" data-target="73">0</div>
         <div class="stat-label">%</div>
         <div class="stat-l">UK users message brands daily<em>SQM Magazine, 2025</em></div>
       </div>
@@ -1341,74 +1462,74 @@ a{text-decoration:none;color:inherit}
 
     <div class="price-grid">
       <div class="price-card">
-        <div class="price-name">Starter</div>
-        <div class="price-amt">&pound;79<span>/mo</span></div>
-        <div class="price-per">per practice</div>
-        <div class="price-desc">Essential patient retention for smaller practices getting started.</div>
+        <div class="price-name">Essentials</div>
+        <div class="price-amt">&pound;99<span>/mo</span></div>
+        <div class="price-per">per practice &middot; &pound;79/mo billed annually</div>
+        <div class="price-desc">For practices starting their retention journey.</div>
         <ul class="price-list">
-          <li>Up to 500 patients</li>
-          <li>WhatsApp inbox &amp; messaging</li>
-          <li>Patient risk scoring</li>
-          <li>Recall automation</li>
-          <li>Google review requests</li>
-          <li>Daily digest email</li>
-          <li>CRM integration (1 system)</li>
-          <li class="disabled">Myopia Clinic</li>
-          <li class="disabled">GOS claim validation</li>
-          <li class="disabled">Competitor intelligence</li>
-          <li class="disabled">No-show prediction</li>
-          <li class="disabled">Online booking widget</li>
+          <li>Automated recall reminders</li>
+          <li>SMS &amp; email campaigns</li>
+          <li>Patient messaging inbox</li>
+          <li>Basic retention dashboard</li>
+          <li>GOS claim tracking</li>
+          <li>Up to 2,000 patients</li>
+          <li>Email support</li>
+          <li class="disabled">No-show follow-ups</li>
+          <li class="disabled">WhatsApp integration</li>
+          <li class="disabled">Myopia management</li>
+          <li class="disabled">Google review requests</li>
+          <li class="disabled">Health score analytics</li>
         </ul>
         <a href="mailto:IryssNI@outlook.com" class="btn btn-s">Start Free Trial</a>
       </div>
 
       <div class="price-card pop">
         <div class="price-pop-tag">Most Popular</div>
-        <div class="price-name">Pro</div>
-        <div class="price-amt">&pound;149<span>/mo</span></div>
-        <div class="price-per">per practice</div>
-        <div class="price-desc">The full IRYSS experience. Everything you need to retain every patient.</div>
+        <div class="price-name">Professional</div>
+        <div class="price-amt">&pound;199<span>/mo</span></div>
+        <div class="price-per">per practice &middot; &pound;159/mo billed annually</div>
+        <div class="price-desc">The complete toolkit for growing practices.</div>
         <ul class="price-list">
-          <li>Unlimited patients</li>
-          <li>WhatsApp inbox &amp; messaging</li>
-          <li>Patient risk scoring &amp; AI</li>
-          <li>Recall &amp; reorder automation</li>
-          <li>Google review automation</li>
-          <li>Daily digest email</li>
-          <li>CRM integration (unlimited)</li>
-          <li>Myopia Clinic management</li>
-          <li>GOS claim validation</li>
-          <li>Competitor intelligence</li>
-          <li>No-show prediction</li>
-          <li>Online booking widget</li>
+          <li>Everything in Essentials</li>
+          <li>No-show follow-ups</li>
+          <li>WhatsApp integration</li>
+          <li>Google review requests</li>
+          <li>Patient health scores</li>
+          <li>Myopia management hub</li>
+          <li>Up to 8,000 patients</li>
+          <li>Revenue-at-risk alerts</li>
+          <li>Custom campaign builder</li>
+          <li>Multi-user access (3 seats)</li>
+          <li>Priority support</li>
+          <li>Quarterly review call</li>
         </ul>
         <a href="mailto:IryssNI@outlook.com" class="btn btn-p">Start Free Trial →</a>
       </div>
 
       <div class="price-card">
         <div class="price-name">Enterprise</div>
-        <div class="price-amt">&pound;249<span>/mo</span></div>
-        <div class="price-per">per practice</div>
-        <div class="price-desc">For multi-site groups and practices that want white-glove onboarding.</div>
+        <div class="price-amt">&pound;349<span>/mo</span></div>
+        <div class="price-per">per site &middot; &pound;279/mo billed annually</div>
+        <div class="price-desc">For multi-site groups and high-volume practices.</div>
         <ul class="price-list">
-          <li>Everything in Pro</li>
+          <li>Everything in Professional</li>
+          <li>Unlimited patients</li>
           <li>Multi-site dashboard</li>
           <li>Dedicated account manager</li>
-          <li>Custom WhatsApp templates</li>
-          <li>API access</li>
-          <li>Priority support</li>
-          <li>Custom integrations</li>
-          <li>Staff training sessions</li>
-          <li>Quarterly business reviews</li>
-          <li>Custom compliance reports</li>
+          <li>Custom integrations &amp; API</li>
+          <li>Advanced analytics &amp; reports</li>
+          <li>Staff performance tracking</li>
+          <li>Custom branding</li>
           <li>SLA guarantee</li>
-          <li>White-label option</li>
+          <li>Monthly strategy call</li>
+          <li>Onboarding for all sites</li>
+          <li>Priority phone support</li>
         </ul>
         <a href="mailto:IryssNI@outlook.com" class="btn btn-s">Contact Sales</a>
       </div>
     </div>
 
-    <p class="price-note">All plans include a 30-day free trial. No credit card required.</p>
+    <p class="price-note">All plans include a 30-day free trial &middot; No setup fees &middot; Cancel anytime &middot; Save 20% with annual billing</p>
   </div>
 </section>
 
@@ -1688,17 +1809,17 @@ window.addEventListener('scroll', () => {
         if (!stat.dataset.animated) {
           stat.dataset.animated = true;
           const target = parseInt(stat.dataset.target);
-          let current = 0;
-          const increment = target / 30;
-          const timer = setInterval(() => {
-            current += increment;
-            if (current >= target) {
-              stat.textContent = target;
-              clearInterval(timer);
-            } else {
-              stat.textContent = Math.floor(current);
-            }
-          }, 30);
+          const duration = 1800;
+          const start = performance.now();
+          function tick(now) {
+            const elapsed = now - start;
+            const progress = Math.min(elapsed / duration, 1);
+            // ease-out cubic for smooth deceleration
+            const eased = 1 - Math.pow(1 - progress, 3);
+            stat.textContent = Math.round(eased * target);
+            if (progress < 1) requestAnimationFrame(tick);
+          }
+          requestAnimationFrame(tick);
         }
       });
     }
