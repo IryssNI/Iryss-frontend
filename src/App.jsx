@@ -1483,40 +1483,53 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
         </div>
 
         <nav style={{ display:"flex", flexDirection:"column", gap:3, flex:1, padding:"0 10px" }}>
-          {[
-            { id:"dashboard",    label:"Dashboard",        icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg> },
-            { id:"tasks",        label:"Today's Tasks",    icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>, badge:allTasks.filter(t=>!tasksDone[t.id]).length },
-            { id:"patients",     label:"Patients",         icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>, badge:PATIENTS.length },
-            { id:"inbox",        label:"Inbox",            icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>, urgentDot:urgentCount>0, urgentBadge:urgentCount },
-            { id:"recalls",      label:"Recalls",          icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>, badge:recallPatients.length, warnDot:complianceRate<80&&recallPatients.length>0 },
-            { id:"myopia",       label:"Myopia Clinic",    icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/></svg>, badge:MYOPIA_PATIENTS.filter(p=>p.category==="active").length },
-            { id:"reviews",      label:"Reviews",          icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> },
-            { id:"intelligence", label:"Intelligence",     icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>, badge:competitorMentions.length>0?competitorMentions.length:null },
-          ].map(item=>{
-            const active = nav===item.id;
+          {(()=>{
+            const primary = [
+              { id:"dashboard",    label:"Dashboard",        icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg> },
+              { id:"tasks",        label:"Today's Tasks",    icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>, badge:allTasks.filter(t=>!tasksDone[t.id]).length },
+              { id:"patients",     label:"Patients",         icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>, badge:PATIENTS.length },
+              { id:"inbox",        label:"Inbox",            icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>, urgentDot:urgentCount>0, urgentBadge:urgentCount },
+              { id:"recalls",      label:"Recalls",          icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>, badge:recallPatients.length, warnDot:complianceRate<80&&recallPatients.length>0 },
+            ];
+            const modules = [
+              { id:"myopia",       label:"Myopia Clinic",    icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/></svg>, badge:MYOPIA_PATIENTS.filter(p=>p.category==="active").length },
+              { id:"reviews",      label:"Reviews",          icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> },
+              { id:"intelligence", label:"Intelligence",     icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>, badge:competitorMentions.length>0?competitorMentions.length:null },
+            ];
+            const renderItem = (item, dim=false) => {
+              const active = nav===item.id;
+              return (
+                <button key={item.id} onClick={()=>goNav(item.id)} style={{
+                  display:"flex", alignItems:"center", gap:12, width:"100%", padding:"11px 14px",
+                  border:"none", borderRadius:10, cursor:"pointer", position:"relative",
+                  background:active?"rgba(8,145,178,.12)":"transparent",
+                  color:active?"#22D3EE":dim?"rgba(255,255,255,.32)":"rgba(255,255,255,.4)",
+                  fontWeight:active?600:500, fontSize:13.5, fontFamily:F, textAlign:"left",
+                  transition:"all .2s ease", letterSpacing:-0.1,
+                  borderLeft:active?"2px solid #06B6D4":"2px solid transparent",
+                }}
+                  onMouseEnter={e=>{ if(!active){ e.currentTarget.style.background="rgba(255,255,255,.04)"; e.currentTarget.style.color="rgba(255,255,255,.65)"; }}}
+                  onMouseLeave={e=>{ if(!active){ e.currentTarget.style.background="transparent"; e.currentTarget.style.color=dim?"rgba(255,255,255,.32)":"rgba(255,255,255,.4)"; }}}>
+                  <span style={{ width:18, display:"flex", alignItems:"center", justifyContent:"center", opacity:active?1:(dim?0.45:0.55) }}>{item.icon}</span>
+                  <span style={{ flex:1 }}>{item.label}</span>
+                  {item.warnDot   && <span style={{ width:8, height:8, borderRadius:"50%", background:C.amber, flexShrink:0, display:"inline-block" }} />}
+                  {item.urgentDot && <span style={{ width:8, height:8, borderRadius:"50%", background:C.red, flexShrink:0, display:"inline-block", animation:"pulseDot 1.5s ease-in-out infinite, pulseRing 1.5s ease-in-out infinite" }} />}
+                  {item.urgentBadge>0
+                    ? <span style={{ background:"linear-gradient(135deg,#EF4444,#DC2626)", color:"#fff", borderRadius:20, fontSize:9, fontWeight:700, padding:"2px 7px", minWidth:18, textAlign:"center", animation:"pulseRing 1.5s ease-in-out infinite", boxShadow:"0 2px 8px rgba(239,68,68,.4)" }}>{item.urgentBadge}</span>
+                    : item.badge>0 && <span style={{ background:"rgba(255,255,255,.08)", color:"rgba(255,255,255,.5)", borderRadius:20, fontSize:9, fontWeight:600, padding:"2px 7px", minWidth:18, textAlign:"center" }}>{item.badge}</span>
+                  }
+                </button>
+              );
+            };
             return (
-            <button key={item.id} onClick={()=>goNav(item.id)} style={{
-              display:"flex", alignItems:"center", gap:12, width:"100%", padding:"11px 14px",
-              border:"none", borderRadius:10, cursor:"pointer", position:"relative",
-              background:active?"rgba(8,145,178,.12)":"transparent",
-              color:active?"#22D3EE":"rgba(255,255,255,.4)",
-              fontWeight:active?600:500, fontSize:13.5, fontFamily:F, textAlign:"left",
-              transition:"all .2s ease", letterSpacing:-0.1,
-              borderLeft:active?"2px solid #06B6D4":"2px solid transparent",
-            }}
-              onMouseEnter={e=>{ if(!active){ e.currentTarget.style.background="rgba(255,255,255,.04)"; e.currentTarget.style.color="rgba(255,255,255,.65)"; }}}
-              onMouseLeave={e=>{ if(!active){ e.currentTarget.style.background="transparent"; e.currentTarget.style.color="rgba(255,255,255,.4)"; }}}>
-              <span style={{ width:18, display:"flex", alignItems:"center", justifyContent:"center", opacity:active?1:0.55 }}>{item.icon}</span>
-              <span style={{ flex:1 }}>{item.label}</span>
-              {item.warnDot   && <span style={{ width:8, height:8, borderRadius:"50%", background:C.amber, flexShrink:0, display:"inline-block" }} />}
-              {item.urgentDot && <span style={{ width:8, height:8, borderRadius:"50%", background:C.red, flexShrink:0, display:"inline-block", animation:"pulseDot 1.5s ease-in-out infinite, pulseRing 1.5s ease-in-out infinite" }} />}
-              {item.urgentBadge>0
-                ? <span style={{ background:"linear-gradient(135deg,#EF4444,#DC2626)", color:"#fff", borderRadius:20, fontSize:9, fontWeight:700, padding:"2px 7px", minWidth:18, textAlign:"center", animation:"pulseRing 1.5s ease-in-out infinite", boxShadow:"0 2px 8px rgba(239,68,68,.4)" }}>{item.urgentBadge}</span>
-                : item.badge>0 && <span style={{ background:"rgba(255,255,255,.08)", color:"rgba(255,255,255,.5)", borderRadius:20, fontSize:9, fontWeight:600, padding:"2px 7px", minWidth:18, textAlign:"center" }}>{item.badge}</span>
-              }
-            </button>
+              <>
+                <div style={{ fontSize:9, color:"rgba(255,255,255,.25)", fontWeight:700, letterSpacing:1.4, textTransform:"uppercase", padding:"6px 16px 8px" }}>Main</div>
+                {primary.map(item=>renderItem(item, false))}
+                <div style={{ fontSize:9, color:"rgba(255,255,255,.2)", fontWeight:700, letterSpacing:1.4, textTransform:"uppercase", padding:"18px 16px 8px" }}>Modules</div>
+                {modules.map(item=>renderItem(item, true))}
+              </>
             );
-          })}
+          })()}
           <div style={{ marginTop:"auto" }}>
             <div style={{ height:1, background:"rgba(255,255,255,.05)", margin:"12px 8px" }} />
             {(()=>{
@@ -4473,18 +4486,21 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
       {/* ── ⌘K Command Palette ── */}
       {cmdOpen&&(()=>{
         const q = cmdQuery.toLowerCase().trim();
-        const navOpts = [
+        const mainNav = [
           { t:"Dashboard",       hint:"View Practice Score & KPIs",     icon:"◈", run:()=>goNav("dashboard") },
           { t:"Today's Tasks",   hint:"Every action queued for today",  icon:"✓", run:()=>goNav("tasks") },
           { t:"Patients",        hint:"All 125 records",                icon:"◎", run:()=>goNav("patients") },
           { t:"Inbox",           hint:"WhatsApp threads",               icon:"◻", run:()=>goNav("inbox") },
           { t:"Recalls",         hint:"Due & overdue patients",         icon:"◷", run:()=>goNav("recalls") },
+        ].map(o=>({...o, group:"Main"}));
+        const moduleNav = [
           { t:"Myopia Clinic",   hint:"Paediatric myopia patients",     icon:"◉", run:()=>goNav("myopia") },
           { t:"Reviews",         hint:"Google review requests",         icon:"◆", run:()=>goNav("reviews") },
-          { t:"Revenue",         hint:"Revenue recovered & at risk",    icon:"£", run:()=>goNav("revenue") },
           { t:"Intelligence",    hint:"Competitor mentions & win-backs",icon:"🎯", run:()=>goNav("intelligence") },
+          { t:"Revenue",         hint:"Revenue recovered & at risk",    icon:"£", run:()=>goNav("revenue") },
           { t:"Settings",        hint:"Practice details & integrations",icon:"⚙", run:()=>goNav("settings") },
-        ].map(o=>({...o, group:"Navigate"}));
+        ].map(o=>({...o, group:"Modules & Settings"}));
+        const navOpts = [...mainNav, ...moduleNav];
         const actOpts = [
           { t:"Generate compliance report", hint:"Print-ready GOC-style PDF", icon:"🖨", run:()=>{ goNav("recalls"); setTimeout(()=>generateComplianceReport(complianceRate, recallPatients, recallPatients.filter(p=>waSent[p.id])), 100); } },
           { t:"Send all win-back messages", hint:"Competitor-mention recovery", icon:"💬", run:()=>goNav("intelligence") },
