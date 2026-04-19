@@ -43,7 +43,7 @@
 
 ## Scene 5 · The maths (0:55 – 1:10)
 
-> The maths is simple. Save just two patients a month — that's twenty thousand pounds recovered in your first year. / Iryss costs two thousand four hundred. / That's an eight-times return. / Payback in under six weeks.
+> The maths is simple. Recover just two patients a month — that's twenty-four patients a year. / At four hundred pounds average annual spend each — exam plus dispense — that's nine thousand six hundred pounds recovered in your first year. / Iryss costs two thousand four hundred. / That's a four-times return. / Payback in three months.
 
 ---
 
@@ -68,7 +68,7 @@
   - "twenty-five percent" · "drift" (Scene 2)
   - "growth engine" · "live retention machine" · "every morning" (Scene 3)
   - "ninety-eight percent" · "one click" · "eleven minutes" (Scene 4)
-  - "twenty thousand pounds" · "eight-times" · "six weeks" (Scene 5)
+  - "nine thousand six hundred pounds" · "four-times" · "three months" (Scene 5)
   - "independent" · "alongside" · "one week" (Scene 6)
 
 Recording notes:

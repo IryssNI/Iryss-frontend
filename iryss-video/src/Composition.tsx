@@ -1122,62 +1122,195 @@ const SceneFeatures: React.FC = () => (
 
 // ═══════════════════════════════════════════════════════════════════════
 // SCENE 5 — THE MATHS  (0–450 local)
+// Transparent breakdown: 2/mo × 12 × £400 = £9,600 year-1 recovery
 // ═══════════════════════════════════════════════════════════════════════
 const SceneROI: React.FC = () => {
   const frame = useCurrentFrame();
   const sceneOpacity = interpolate(frame, [0, 18, 430, 450], [0, 1, 1, 0], { easing: easeInOutCubic });
-  const money = Math.round(useCount(0, 20000, 40, 110));
-  const formatted = money.toLocaleString();
+
+  // Calculation count-ups
+  const pCount = Math.round(useCount(0, 24, 70, 40));
+  const rCount = Math.round(useCount(0, 9600, 170, 70));
+  const rFormatted = rCount.toLocaleString();
 
   return (
     <AbsoluteFill style={{ background: `linear-gradient(135deg,${C.navy} 0%,${C.navyLt} 100%)`, fontFamily: FONT, opacity: sceneOpacity }}>
       <GridBackground opacity={0.05} />
       <Orb x={-200} y={600} size={800} color={C.green} alpha={0.18} />
       <Orb x={1500} y={-100} size={700} color={C.teal} alpha={0.2} delay={50} />
-      <Particles count={50} color="rgba(16,185,129,.4)" seed="roi" />
+      <Particles count={40} color="rgba(16,185,129,.35)" seed="roi" />
 
       <AbsoluteFill style={{ alignItems: "center", justifyContent: "center", padding: 80, flexDirection: "column" }}>
-        <div style={{ fontSize: 14, fontWeight: 700, letterSpacing: 4, textTransform: "uppercase", color: "rgba(255,255,255,.5)", opacity: fadeIn(frame, 0, 18), marginBottom: 26 }}>The maths</div>
-
-        <div style={{ fontSize: 42, fontWeight: 700, color: "#fff", textAlign: "center", letterSpacing: -1, maxWidth: 1400, lineHeight: 1.3, opacity: fadeIn(frame, 12, 22), marginBottom: 40 }}>
-          Save just <b style={{ color: C.tealSky }}>two patients a month</b>.
+        <div
+          style={{
+            fontSize: 14,
+            fontWeight: 700,
+            letterSpacing: 4,
+            textTransform: "uppercase",
+            color: "rgba(255,255,255,.5)",
+            opacity: fadeIn(frame, 0, 18),
+            marginBottom: 18,
+          }}
+        >
+          The maths
         </div>
 
         <div
           style={{
-            fontSize: 220,
+            fontSize: 38,
+            fontWeight: 700,
+            color: "#fff",
+            textAlign: "center",
+            letterSpacing: -1,
+            maxWidth: 1400,
+            lineHeight: 1.25,
+            opacity: fadeIn(frame, 10, 20),
+            marginBottom: 38,
+          }}
+        >
+          Recover just <b style={{ color: C.tealSky }}>two patients a month</b>.
+        </div>
+
+        {/* Calculation row — three boxes that build up */}
+        <div style={{ display: "flex", alignItems: "center", gap: 18, marginBottom: 40, flexWrap: "nowrap" }}>
+          {/* Box 1 — 2 / month */}
+          <div
+            style={{
+              padding: "18px 28px",
+              background: "rgba(255,255,255,.05)",
+              border: "1px solid rgba(255,255,255,.12)",
+              borderRadius: 14,
+              textAlign: "center",
+              opacity: fadeIn(frame, 40, 20),
+              transform: `translateY(${slideUp(frame, 40, 22, 20)}px)`,
+            }}
+          >
+            <div style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,.5)", textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 6 }}>
+              Per month
+            </div>
+            <div style={{ fontSize: 40, fontWeight: 800, color: "#fff", letterSpacing: -1, fontVariantNumeric: "tabular-nums" }}>2</div>
+            <div style={{ fontSize: 11, color: "rgba(255,255,255,.5)", fontWeight: 500, marginTop: 2 }}>patients</div>
+          </div>
+
+          <div style={{ fontSize: 38, color: "rgba(255,255,255,.4)", fontWeight: 300, opacity: fadeIn(frame, 55, 14) }}>×</div>
+
+          {/* Box 2 — 12 months */}
+          <div
+            style={{
+              padding: "18px 28px",
+              background: "rgba(255,255,255,.05)",
+              border: "1px solid rgba(255,255,255,.12)",
+              borderRadius: 14,
+              textAlign: "center",
+              opacity: fadeIn(frame, 60, 20),
+              transform: `translateY(${slideUp(frame, 60, 22, 20)}px)`,
+            }}
+          >
+            <div style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,.5)", textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 6 }}>
+              Months
+            </div>
+            <div style={{ fontSize: 40, fontWeight: 800, color: "#fff", letterSpacing: -1, fontVariantNumeric: "tabular-nums" }}>12</div>
+            <div style={{ fontSize: 11, color: "rgba(255,255,255,.5)", fontWeight: 500, marginTop: 2 }}>in a year</div>
+          </div>
+
+          <div style={{ fontSize: 38, color: "rgba(255,255,255,.4)", fontWeight: 300, opacity: fadeIn(frame, 80, 14) }}>=</div>
+
+          {/* Box 3 — 24 patients */}
+          <div
+            style={{
+              padding: "18px 32px",
+              background: "rgba(34,211,238,.08)",
+              border: "1px solid rgba(34,211,238,.3)",
+              borderRadius: 14,
+              textAlign: "center",
+              opacity: fadeIn(frame, 82, 22),
+              transform: `translateY(${slideUp(frame, 82, 24, 20)}px)`,
+            }}
+          >
+            <div style={{ fontSize: 11, fontWeight: 700, color: C.tealSky, textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 6 }}>
+              Patients saved
+            </div>
+            <div style={{ fontSize: 48, fontWeight: 800, color: C.tealSky, letterSpacing: -1.2, fontVariantNumeric: "tabular-nums" }}>
+              {pCount}
+            </div>
+            <div style={{ fontSize: 11, color: "rgba(34,211,238,.8)", fontWeight: 500, marginTop: 2 }}>per year</div>
+          </div>
+
+          <div style={{ fontSize: 38, color: "rgba(255,255,255,.4)", fontWeight: 300, opacity: fadeIn(frame, 120, 14) }}>×</div>
+
+          {/* Box 4 — £400 avg */}
+          <div
+            style={{
+              padding: "18px 28px",
+              background: "rgba(255,255,255,.05)",
+              border: "1px solid rgba(255,255,255,.12)",
+              borderRadius: 14,
+              textAlign: "center",
+              opacity: fadeIn(frame, 125, 20),
+              transform: `translateY(${slideUp(frame, 125, 22, 20)}px)`,
+            }}
+          >
+            <div style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,.5)", textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 6 }}>
+              Avg annual spend
+            </div>
+            <div style={{ fontSize: 40, fontWeight: 800, color: "#fff", letterSpacing: -1, fontVariantNumeric: "tabular-nums" }}>£400</div>
+            <div style={{ fontSize: 11, color: "rgba(255,255,255,.5)", fontWeight: 500, marginTop: 2 }}>exam + dispense</div>
+          </div>
+        </div>
+
+        {/* Result reveal */}
+        <div
+          style={{
+            fontSize: 16,
+            fontWeight: 700,
+            color: "rgba(255,255,255,.55)",
+            textTransform: "uppercase",
+            letterSpacing: 3,
+            marginBottom: 6,
+            opacity: fadeIn(frame, 165, 18),
+          }}
+        >
+          = Year 1 recovery
+        </div>
+
+        <div
+          style={{
+            fontSize: 190,
             fontWeight: 800,
-            letterSpacing: -10,
+            letterSpacing: -8,
             background: `linear-gradient(135deg,${C.green},${C.greenLt})`,
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
             backgroundClip: "text",
             lineHeight: 1,
-            opacity: fadeIn(frame, 35, 22),
-            textShadow: "0 0 30px rgba(16,185,129,.3)",
+            opacity: fadeIn(frame, 170, 22),
+            textShadow: "0 0 40px rgba(16,185,129,.35)",
             fontVariantNumeric: "tabular-nums",
           }}
         >
-          £{formatted}
+          £{rFormatted}
         </div>
-        <div style={{ fontSize: 22, color: "rgba(255,255,255,.55)", fontWeight: 500, marginTop: 4, opacity: fadeIn(frame, 35, 18) }}>recovered in your first year</div>
 
-        <div style={{ display: "flex", gap: 70, marginTop: 80 }}>
+        {/* Stat cards */}
+        <div style={{ display: "flex", gap: 60, marginTop: 50 }}>
           {[
-            { k: "Cost of Iryss", v: "£2,400", color: "#fff" },
-            { k: "ROI multiple", v: "8×", color: C.tealSky },
-            { k: "Payback", v: "< 6 weeks", color: C.green },
+            { k: "Cost of Iryss", v: "£2,400", sub: "per year", color: "#fff" },
+            { k: "ROI", v: "4×", sub: "return on spend", color: C.tealSky },
+            { k: "Payback", v: "3 months", sub: "to break-even", color: C.green },
           ].map((m, i) => (
             <div
               key={m.k}
               style={{
                 textAlign: "center",
-                opacity: fadeIn(frame, 180 + i * 15, 22),
-                transform: `translateY(${slideUp(frame, 180 + i * 15, 24, 20)}px)`,
+                opacity: fadeIn(frame, 280 + i * 14, 22),
+                transform: `translateY(${slideUp(frame, 280 + i * 14, 24, 20)}px)`,
               }}
             >
-              <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,.5)", letterSpacing: 3, textTransform: "uppercase", marginBottom: 10 }}>{m.k}</div>
-              <div style={{ fontSize: 56, fontWeight: 800, color: m.color, letterSpacing: -1.5, fontVariantNumeric: "tabular-nums" }}>{m.v}</div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,.5)", letterSpacing: 2.5, textTransform: "uppercase", marginBottom: 10 }}>
+                {m.k}
+              </div>
+              <div style={{ fontSize: 52, fontWeight: 800, color: m.color, letterSpacing: -1.2, fontVariantNumeric: "tabular-nums" }}>{m.v}</div>
+              <div style={{ fontSize: 12, color: "rgba(255,255,255,.4)", fontWeight: 500, marginTop: 4 }}>{m.sub}</div>
             </div>
           ))}
         </div>
