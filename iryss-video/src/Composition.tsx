@@ -201,9 +201,9 @@ const SceneProblem: React.FC = () => {
   });
 
   const painPoints = [
-    "Paper recalls die.",
+    "Paper recalls go unread.",
     "SMS gets ignored.",
-    "Your CRM can't act on data.",
+    "Patients drift to the chains.",
   ];
 
   return (
@@ -344,7 +344,7 @@ const SceneSolution: React.FC = () => {
             backgroundClip: "text",
           }}
         >
-          AI growth layer
+          growth engine
         </span>{" "}
         for independent opticians.
       </div>
@@ -566,13 +566,13 @@ const FeatureSequence: React.FC<{ index: number }> = ({ index }) => {
     {
       tag: "Feature 3",
       title: "Myopia Clinic, built-in",
-      body: "Axial-length progression tracking, treatment plans, parent WhatsApp, AI recommendations — all in one place.",
+      body: "Axial-length progression tracking, treatment plans, parent WhatsApp, built-in clinical recommendations — all in one place.",
       accent: "#EC4899",
       icon: "◎",
     },
     {
       tag: "Feature 4 · BETA",
-      title: "AI Scribe writes the record",
+      title: "Scribe writes the record",
       body: "Dictate the exam. Iryss writes the clinical note, referral letter and GOS claim. Saves 11 minutes per patient.",
       accent: C.purple,
       icon: "🎤",
@@ -787,7 +787,7 @@ const SceneWhoFor: React.FC = () => {
           opacity: fadeIn(frame, 80, 18),
         }}
       >
-        Sits alongside your existing CRM — no migration, no retraining, live in under a week.
+        Works alongside whatever you already use — no migration, no retraining, live in under a week.
       </div>
 
       <div
