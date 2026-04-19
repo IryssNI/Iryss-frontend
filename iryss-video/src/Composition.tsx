@@ -20,6 +20,8 @@
 import {
   AbsoluteFill,
   Sequence,
+  Audio,
+  staticFile,
   useCurrentFrame,
   useVideoConfig,
   interpolate,
@@ -1446,6 +1448,11 @@ const SceneClose: React.FC = () => {
 // ═══════════════════════════════════════════════════════════════════════
 export const IryssPitch: React.FC = () => (
   <AbsoluteFill style={{ background: C.navy }}>
+    {/* Placeholder voiceover — macOS Daniel @ 190wpm · 84.4s · starts 1.5s in */}
+    <Sequence from={45}>
+      <Audio src={staticFile("voice.m4a")} volume={0.85} />
+    </Sequence>
+
     <Sequence from={0} durationInFrames={240}><SceneHook /></Sequence>
     <Sequence from={240} durationInFrames={360}><SceneProblem /></Sequence>
     <Sequence from={600} durationInFrames={450}><SceneSolution /></Sequence>
