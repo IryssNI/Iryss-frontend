@@ -1448,10 +1448,19 @@ const SceneClose: React.FC = () => {
 // ═══════════════════════════════════════════════════════════════════════
 export const IryssPitch: React.FC = () => (
   <AbsoluteFill style={{ background: C.navy }}>
-    {/* Placeholder voiceover — macOS Daniel @ 190wpm · 84.4s · starts 1.5s in */}
-    <Sequence from={45}>
-      <Audio src={staticFile("voice.m4a")} volume={0.85} />
-    </Sequence>
+    {/* ═══ Per-scene voiceover (ElevenLabs voice SB13jgWjPxi4e4JoTT1H) ═══
+        Each clip is wrapped in a Sequence so voice only starts when its scene is on screen.
+        Small `from` offsets give the visuals a beat to breathe before the VO kicks in. */}
+    <Sequence from={30}><Audio src={staticFile("voice-01.mp3")} volume={0.88} /></Sequence>
+    <Sequence from={270}><Audio src={staticFile("voice-02.mp3")} volume={0.88} /></Sequence>
+    <Sequence from={620}><Audio src={staticFile("voice-03.mp3")} volume={0.88} /></Sequence>
+    <Sequence from={1065}><Audio src={staticFile("voice-04.mp3")} volume={0.88} /></Sequence>
+    <Sequence from={1215}><Audio src={staticFile("voice-05.mp3")} volume={0.88} /></Sequence>
+    <Sequence from={1365}><Audio src={staticFile("voice-06.mp3")} volume={0.88} /></Sequence>
+    <Sequence from={1515}><Audio src={staticFile("voice-07.mp3")} volume={0.88} /></Sequence>
+    <Sequence from={1680}><Audio src={staticFile("voice-08.mp3")} volume={0.88} /></Sequence>
+    <Sequence from={2120}><Audio src={staticFile("voice-09.mp3")} volume={0.88} /></Sequence>
+    <Sequence from={2560}><Audio src={staticFile("voice-10.mp3")} volume={0.88} /></Sequence>
 
     <Sequence from={0} durationInFrames={240}><SceneHook /></Sequence>
     <Sequence from={240} durationInFrames={360}><SceneProblem /></Sequence>
