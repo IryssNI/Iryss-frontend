@@ -1328,7 +1328,7 @@ const SceneROI: React.FC = () => {
 // ═══════════════════════════════════════════════════════════════════════
 const SceneWhoFor: React.FC = () => {
   const frame = useCurrentFrame();
-  const sceneOpacity = interpolate(frame, [0, 18, 520, 540], [0, 1, 1, 0], { easing: easeInOutCubic });
+  const sceneOpacity = interpolate(frame, [0, 18, 430, 450], [0, 1, 1, 0], { easing: easeInOutCubic });
   const crms = ["Optix", "Ocuco", "Optisoft", "Acuitas", "XEYEX"];
 
   return (
@@ -1483,16 +1483,15 @@ export const IryssPitch: React.FC = () => (
     <Sequence from={2695}><Audio src={staticFile("whofor-b.mp3")} volume={0.9} /></Sequence>
     <Sequence from={2870}><Audio src={staticFile("whofor-c.mp3")} volume={0.9} /></Sequence>
 
-    {/* Scene 7 · Close (3120-3330) */}
-    <Sequence from={3135}><Audio src={staticFile("close-a.mp3")} volume={0.9} /></Sequence>
-    <Sequence from={3170}><Audio src={staticFile("close-b.mp3")} volume={0.9} /></Sequence>
+    {/* Scene 7 · Close (3030-3240) — only the CTA, no standalone brand callout */}
+    <Sequence from={3055}><Audio src={staticFile("close-b.mp3")} volume={0.9} /></Sequence>
 
     <Sequence from={0}    durationInFrames={300}><SceneHook /></Sequence>
     <Sequence from={300}  durationInFrames={450}><SceneProblem /></Sequence>
     <Sequence from={750}  durationInFrames={540}><SceneSolution /></Sequence>
     <Sequence from={1290} durationInFrames={720}><SceneFeatures /></Sequence>
     <Sequence from={2010} durationInFrames={570}><SceneROI /></Sequence>
-    <Sequence from={2580} durationInFrames={540}><SceneWhoFor /></Sequence>
-    <Sequence from={3120} durationInFrames={210}><SceneClose /></Sequence>
+    <Sequence from={2580} durationInFrames={450}><SceneWhoFor /></Sequence>
+    <Sequence from={3030} durationInFrames={210}><SceneClose /></Sequence>
   </AbsoluteFill>
 );
