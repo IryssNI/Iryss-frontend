@@ -1407,7 +1407,7 @@ const SceneClose: React.FC = () => {
   const logoScale = spring({ frame, fps, config: { damping: 12 } });
 
   // URL typewriter
-  const url = "theiryss.com";
+  const url = "iryss.com";
   const urlChars = Math.floor(interpolate(frame, [45, 90], [0, url.length], { extrapolateRight: "clamp", extrapolateLeft: "clamp" }));
 
   return (
