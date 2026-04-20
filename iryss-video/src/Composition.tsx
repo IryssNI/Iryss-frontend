@@ -1448,19 +1448,42 @@ const SceneClose: React.FC = () => {
 // ═══════════════════════════════════════════════════════════════════════
 export const IryssPitch: React.FC = () => (
   <AbsoluteFill style={{ background: C.navy }}>
-    {/* ═══ Per-scene voiceover (ElevenLabs voice SB13jgWjPxi4e4JoTT1H) ═══
-        Each clip is wrapped in a Sequence so voice only starts when its scene is on screen.
-        Small `from` offsets give the visuals a beat to breathe before the VO kicks in. */}
-    <Sequence from={30}><Audio src={staticFile("voice-01.mp3")} volume={0.88} /></Sequence>
-    <Sequence from={270}><Audio src={staticFile("voice-02.mp3")} volume={0.88} /></Sequence>
-    <Sequence from={620}><Audio src={staticFile("voice-03.mp3")} volume={0.88} /></Sequence>
-    <Sequence from={1065}><Audio src={staticFile("voice-04.mp3")} volume={0.88} /></Sequence>
-    <Sequence from={1215}><Audio src={staticFile("voice-05.mp3")} volume={0.88} /></Sequence>
-    <Sequence from={1365}><Audio src={staticFile("voice-06.mp3")} volume={0.88} /></Sequence>
-    <Sequence from={1515}><Audio src={staticFile("voice-07.mp3")} volume={0.88} /></Sequence>
-    <Sequence from={1680}><Audio src={staticFile("voice-08.mp3")} volume={0.88} /></Sequence>
-    <Sequence from={2120}><Audio src={staticFile("voice-09.mp3")} volume={0.88} /></Sequence>
-    <Sequence from={2560}><Audio src={staticFile("voice-10.mp3")} volume={0.88} /></Sequence>
+    {/* ═══ Phrase-level voiceover (ElevenLabs voice SB13jgWjPxi4e4JoTT1H) ═══
+        Each <Audio> plays at the exact frame its matching visual appears,
+        so the narrator only speaks about a thing when that thing is on screen. */}
+    {/* Scene 1 · Hook — line1 letters reveal f50, line2 letters reveal f130 */}
+    <Sequence from={50}><Audio src={staticFile("hook-a.mp3")} volume={0.9} /></Sequence>
+    <Sequence from={130}><Audio src={staticFile("hook-b.mp3")} volume={0.9} /></Sequence>
+
+    {/* Scene 2 · Problem — 25% big number counts f255-320, pain chips cascade f500-545 */}
+    <Sequence from={255}><Audio src={staticFile("problem-a.mp3")} volume={0.9} /></Sequence>
+    <Sequence from={495}><Audio src={staticFile("problem-b.mp3")} volume={0.9} /></Sequence>
+
+    {/* Scene 3 · Solution — headline reveals f615, dashboard slides up f645, bottom tagline f830 */}
+    <Sequence from={615}><Audio src={staticFile("solution-a.mp3")} volume={0.9} /></Sequence>
+    <Sequence from={720}><Audio src={staticFile("solution-b.mp3")} volume={0.9} /></Sequence>
+    <Sequence from={900}><Audio src={staticFile("solution-c.mp3")} volume={0.9} /></Sequence>
+
+    {/* Scene 4 · Four feature sub-scenes, each 150 frames */}
+    <Sequence from={1060}><Audio src={staticFile("feat-whatsapp.mp3")} volume={0.9} /></Sequence>
+    <Sequence from={1210}><Audio src={staticFile("feat-leakage.mp3")} volume={0.9} /></Sequence>
+    <Sequence from={1360}><Audio src={staticFile("feat-myopia.mp3")} volume={0.9} /></Sequence>
+    <Sequence from={1510}><Audio src={staticFile("feat-scribe.mp3")} volume={0.9} /></Sequence>
+
+    {/* Scene 5 · Maths — chip f1650, tagline f1660, calc boxes f1690-1797, result f1820, stat cards f1930 */}
+    <Sequence from={1655}><Audio src={staticFile("maths-a.mp3")} volume={0.9} /></Sequence>
+    <Sequence from={1690}><Audio src={staticFile("maths-b.mp3")} volume={0.9} /></Sequence>
+    <Sequence from={1820}><Audio src={staticFile("maths-c.mp3")} volume={0.9} /></Sequence>
+    <Sequence from={1945}><Audio src={staticFile("maths-d.mp3")} volume={0.9} /></Sequence>
+
+    {/* Scene 6 · Who for — headline f2110, CRM chips cascade f2220-2260, checkmarks f2320 */}
+    <Sequence from={2115}><Audio src={staticFile("whofor-a.mp3")} volume={0.9} /></Sequence>
+    <Sequence from={2215}><Audio src={staticFile("whofor-b.mp3")} volume={0.9} /></Sequence>
+    <Sequence from={2345}><Audio src={staticFile("whofor-c.mp3")} volume={0.9} /></Sequence>
+
+    {/* Scene 7 · Close — logo f2550, URL types f2595-2640 */}
+    <Sequence from={2565}><Audio src={staticFile("close-a.mp3")} volume={0.9} /></Sequence>
+    <Sequence from={2600}><Audio src={staticFile("close-b.mp3")} volume={0.9} /></Sequence>
 
     <Sequence from={0} durationInFrames={240}><SceneHook /></Sequence>
     <Sequence from={240} durationInFrames={360}><SceneProblem /></Sequence>
