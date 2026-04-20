@@ -1298,9 +1298,9 @@ const SceneROI: React.FC = () => {
         {/* Stat cards */}
         <div style={{ display: "flex", gap: 60, marginTop: 50 }}>
           {[
-            { k: "Cost of Iryss", v: "£2,400", sub: "per year", color: "#fff" },
-            { k: "ROI", v: "4×", sub: "return on spend", color: C.tealSky },
-            { k: "Payback", v: "3 months", sub: "to break-even", color: C.green },
+            { k: "Starts from", v: "£99", sub: "per month", color: "#fff" },
+            { k: "ROI", v: "8×", sub: "return on spend", color: C.tealSky },
+            { k: "Payback", v: "6 weeks", sub: "to break-even", color: C.green },
           ].map((m, i) => (
             <div
               key={m.k}
@@ -1481,7 +1481,7 @@ export const IryssPitch: React.FC = () => (
     {/* Scene 6 · Who for (2580-3120) */}
     <Sequence from={2595}><Audio src={staticFile("whofor-a.mp3")} volume={0.9} /></Sequence>
     <Sequence from={2695}><Audio src={staticFile("whofor-b.mp3")} volume={0.9} /></Sequence>
-    <Sequence from={2825}><Audio src={staticFile("whofor-c.mp3")} volume={0.9} /></Sequence>
+    <Sequence from={2870}><Audio src={staticFile("whofor-c.mp3")} volume={0.9} /></Sequence>
 
     {/* Scene 7 · Close (3120-3330) */}
     <Sequence from={3135}><Audio src={staticFile("close-a.mp3")} volume={0.9} /></Sequence>
