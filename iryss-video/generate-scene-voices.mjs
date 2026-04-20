@@ -52,7 +52,7 @@ const clips = [
   // SCENE 6 — Who For (2100-2550). Visual: Built-for f2100, headline f2110-2132, subtitle f2170-2192, CRM chips f2220-2260, checks f2320
   { n: "whofor-a", max: 4.5, text: "Iryss is built for independent UK and Irish opticians." },
   { n: "whofor-b", max: 6.0, text: "It works alongside Optix, Ocuco, Optisoft, Acuitas — or whatever you already use." },
-  { n: "whofor-c", max: 4.5, text: "No migration. No retraining. Live in under a week." },
+  { n: "whofor-c", max: 5.0, text: "No migration. No retraining. Up and running in under a week." },
 
   // SCENE 7 — Close (2550-2700). Logo f2550, book-a-demo f2565, URL types f2595-2640
   { n: "close-a", max: 1.5, text: "Iryss." },

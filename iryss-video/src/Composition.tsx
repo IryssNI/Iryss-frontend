@@ -295,7 +295,8 @@ const SceneHook: React.FC = () => {
           }}
         >
           {line1Chars.map((ch, i) => {
-            const start = 50 + i * 1.8;
+            // Line 1 voice clip is ~2.5s (75 frames) · 29 chars · 2.6 per char keeps text reveal synced to voice
+            const start = 50 + i * 2.6;
             return (
               <span
                 key={i}
@@ -327,7 +328,8 @@ const SceneHook: React.FC = () => {
           }}
         >
           {line2Chars.map((ch, i) => {
-            const start = 130 + i * 1.8;
+            // Line 2 voice clip is ~1.2s (36 frames) · 17 chars · 2.1 per char keeps text reveal synced to voice
+            const start = 130 + i * 2.1;
             const isOne = i >= line2Chars.length - 4 && i < line2Chars.length - 1;
             return (
               <span
@@ -359,7 +361,7 @@ const SceneHook: React.FC = () => {
 // ═══════════════════════════════════════════════════════════════════════
 const SceneProblem: React.FC = () => {
   const frame = useCurrentFrame();
-  const sceneOpacity = interpolate(frame, [0, 18, 340, 360], [0, 1, 1, 0], { easing: easeInOutCubic });
+  const sceneOpacity = interpolate(frame, [0, 18, 430, 450], [0, 1, 1, 0], { easing: easeInOutCubic });
 
   const painPoints = ["Paper recalls go unread.", "SMS gets ignored.", "Patients drift to the chains."];
 
@@ -535,7 +537,7 @@ const SceneProblem: React.FC = () => {
 // ═══════════════════════════════════════════════════════════════════════
 const SceneSolution: React.FC = () => {
   const frame = useCurrentFrame();
-  const sceneOpacity = interpolate(frame, [0, 18, 430, 450], [0, 1, 1, 0], { easing: easeInOutCubic });
+  const sceneOpacity = interpolate(frame, [0, 18, 520, 540], [0, 1, 1, 0], { easing: easeInOutCubic });
 
   const circumference = 2 * Math.PI * 140;
   const ringProgress = interpolate(frame, [60, 180], [circumference, circumference * 0.13], { easing: easeOutExpo, extrapolateRight: "clamp", extrapolateLeft: "clamp" });
@@ -713,7 +715,7 @@ const SceneSolution: React.FC = () => {
 // Feature 1 — WhatsApp inbox with typing → message → reply
 const FeatWhatsApp: React.FC = () => {
   const frame = useCurrentFrame();
-  const sceneOpacity = interpolate(frame, [0, 18, 130, 150], [0, 1, 1, 0], { easing: easeInOutCubic });
+  const sceneOpacity = interpolate(frame, [0, 18, 160, 180], [0, 1, 1, 0], { easing: easeInOutCubic });
 
   const messages = [
     { side: "practice", text: "Hi Louise, it's been 24 months since your last eye test — would you like to book in? 😊", time: "09:14", delay: 12 },
@@ -838,7 +840,7 @@ const FeatWhatsApp: React.FC = () => {
 // Feature 2 — Revenue Leakage card
 const FeatLeakage: React.FC = () => {
   const frame = useCurrentFrame();
-  const sceneOpacity = interpolate(frame, [0, 18, 130, 150], [0, 1, 1, 0], { easing: easeInOutCubic });
+  const sceneOpacity = interpolate(frame, [0, 18, 160, 180], [0, 1, 1, 0], { easing: easeInOutCubic });
 
   const total = Math.round(useCount(0, 7850, 15, 60));
 
@@ -937,7 +939,7 @@ const FeatLeakage: React.FC = () => {
 // Feature 3 — Myopia axial length chart
 const FeatMyopia: React.FC = () => {
   const frame = useCurrentFrame();
-  const sceneOpacity = interpolate(frame, [0, 18, 130, 150], [0, 1, 1, 0], { easing: easeInOutCubic });
+  const sceneOpacity = interpolate(frame, [0, 18, 160, 180], [0, 1, 1, 0], { easing: easeInOutCubic });
 
   // Simulated AL progression for 3 patients over 12 months
   const kids = [
@@ -1026,7 +1028,7 @@ const FeatMyopia: React.FC = () => {
 // Feature 4 — Scribe waveform
 const FeatScribe: React.FC = () => {
   const frame = useCurrentFrame();
-  const sceneOpacity = interpolate(frame, [0, 18, 130, 150], [0, 1, 1, 0], { easing: easeInOutCubic });
+  const sceneOpacity = interpolate(frame, [0, 18, 160, 180], [0, 1, 1, 0], { easing: easeInOutCubic });
 
   return (
     <AbsoluteFill style={{ background: `linear-gradient(135deg,${C.navy} 0%,${C.navyLt} 100%)`, fontFamily: FONT, opacity: sceneOpacity }}>
@@ -1115,10 +1117,10 @@ const FeatScribe: React.FC = () => {
 
 const SceneFeatures: React.FC = () => (
   <>
-    <Sequence from={0} durationInFrames={150}><FeatWhatsApp /></Sequence>
-    <Sequence from={150} durationInFrames={150}><FeatLeakage /></Sequence>
-    <Sequence from={300} durationInFrames={150}><FeatMyopia /></Sequence>
-    <Sequence from={450} durationInFrames={150}><FeatScribe /></Sequence>
+    <Sequence from={0}   durationInFrames={180}><FeatWhatsApp /></Sequence>
+    <Sequence from={180} durationInFrames={180}><FeatLeakage /></Sequence>
+    <Sequence from={360} durationInFrames={180}><FeatMyopia /></Sequence>
+    <Sequence from={540} durationInFrames={180}><FeatScribe /></Sequence>
   </>
 );
 
@@ -1128,7 +1130,7 @@ const SceneFeatures: React.FC = () => (
 // ═══════════════════════════════════════════════════════════════════════
 const SceneROI: React.FC = () => {
   const frame = useCurrentFrame();
-  const sceneOpacity = interpolate(frame, [0, 18, 430, 450], [0, 1, 1, 0], { easing: easeInOutCubic });
+  const sceneOpacity = interpolate(frame, [0, 18, 550, 570], [0, 1, 1, 0], { easing: easeInOutCubic });
 
   // Calculation count-ups
   const pCount = Math.round(useCount(0, 24, 70, 40));
@@ -1326,7 +1328,7 @@ const SceneROI: React.FC = () => {
 // ═══════════════════════════════════════════════════════════════════════
 const SceneWhoFor: React.FC = () => {
   const frame = useCurrentFrame();
-  const sceneOpacity = interpolate(frame, [0, 18, 430, 450], [0, 1, 1, 0], { easing: easeInOutCubic });
+  const sceneOpacity = interpolate(frame, [0, 18, 520, 540], [0, 1, 1, 0], { easing: easeInOutCubic });
   const crms = ["Optix", "Ocuco", "Optisoft", "Acuitas", "XEYEX"];
 
   return (
@@ -1448,49 +1450,49 @@ const SceneClose: React.FC = () => {
 // ═══════════════════════════════════════════════════════════════════════
 export const IryssPitch: React.FC = () => (
   <AbsoluteFill style={{ background: C.navy }}>
-    {/* ═══ Phrase-level voiceover (ElevenLabs voice SB13jgWjPxi4e4JoTT1H) ═══
-        Each <Audio> plays at the exact frame its matching visual appears,
-        so the narrator only speaks about a thing when that thing is on screen. */}
-    {/* Scene 1 · Hook — line1 letters reveal f50, line2 letters reveal f130 */}
+    {/* ═══ Phrase-level voiceover — each clip fires at its matching visual cue ═══
+        Scene starts have been extended for viewer breathing room; voice offsets
+        are preserved relative to each scene's NEW start. */}
+    {/* Scene 1 · Hook (0-300) · line1 reveal f50, line2 f130 */}
     <Sequence from={50}><Audio src={staticFile("hook-a.mp3")} volume={0.9} /></Sequence>
     <Sequence from={130}><Audio src={staticFile("hook-b.mp3")} volume={0.9} /></Sequence>
 
-    {/* Scene 2 · Problem — 25% big number counts f255-320, pain chips cascade f500-545 */}
-    <Sequence from={255}><Audio src={staticFile("problem-a.mp3")} volume={0.9} /></Sequence>
-    <Sequence from={495}><Audio src={staticFile("problem-b.mp3")} volume={0.9} /></Sequence>
+    {/* Scene 2 · Problem (300-750) */}
+    <Sequence from={315}><Audio src={staticFile("problem-a.mp3")} volume={0.9} /></Sequence>
+    <Sequence from={555}><Audio src={staticFile("problem-b.mp3")} volume={0.9} /></Sequence>
 
-    {/* Scene 3 · Solution — headline reveals f615, dashboard slides up f645, bottom tagline f830 */}
-    <Sequence from={615}><Audio src={staticFile("solution-a.mp3")} volume={0.9} /></Sequence>
-    <Sequence from={720}><Audio src={staticFile("solution-b.mp3")} volume={0.9} /></Sequence>
-    <Sequence from={900}><Audio src={staticFile("solution-c.mp3")} volume={0.9} /></Sequence>
+    {/* Scene 3 · Solution (750-1290) */}
+    <Sequence from={765}><Audio src={staticFile("solution-a.mp3")} volume={0.9} /></Sequence>
+    <Sequence from={870}><Audio src={staticFile("solution-b.mp3")} volume={0.9} /></Sequence>
+    <Sequence from={1050}><Audio src={staticFile("solution-c.mp3")} volume={0.9} /></Sequence>
 
-    {/* Scene 4 · Four feature sub-scenes, each 150 frames */}
-    <Sequence from={1060}><Audio src={staticFile("feat-whatsapp.mp3")} volume={0.9} /></Sequence>
-    <Sequence from={1210}><Audio src={staticFile("feat-leakage.mp3")} volume={0.9} /></Sequence>
-    <Sequence from={1360}><Audio src={staticFile("feat-myopia.mp3")} volume={0.9} /></Sequence>
-    <Sequence from={1510}><Audio src={staticFile("feat-scribe.mp3")} volume={0.9} /></Sequence>
+    {/* Scene 4 · Features (1290-2010) — each sub-scene 180 frames */}
+    <Sequence from={1300}><Audio src={staticFile("feat-whatsapp.mp3")} volume={0.9} /></Sequence>
+    <Sequence from={1480}><Audio src={staticFile("feat-leakage.mp3")} volume={0.9} /></Sequence>
+    <Sequence from={1660}><Audio src={staticFile("feat-myopia.mp3")} volume={0.9} /></Sequence>
+    <Sequence from={1840}><Audio src={staticFile("feat-scribe.mp3")} volume={0.9} /></Sequence>
 
-    {/* Scene 5 · Maths — chip f1650, tagline f1660, calc boxes f1690-1797, result f1820, stat cards f1930 */}
-    <Sequence from={1655}><Audio src={staticFile("maths-a.mp3")} volume={0.9} /></Sequence>
-    <Sequence from={1690}><Audio src={staticFile("maths-b.mp3")} volume={0.9} /></Sequence>
-    <Sequence from={1820}><Audio src={staticFile("maths-c.mp3")} volume={0.9} /></Sequence>
-    <Sequence from={1945}><Audio src={staticFile("maths-d.mp3")} volume={0.9} /></Sequence>
+    {/* Scene 5 · Maths (2010-2580) */}
+    <Sequence from={2015}><Audio src={staticFile("maths-a.mp3")} volume={0.9} /></Sequence>
+    <Sequence from={2050}><Audio src={staticFile("maths-b.mp3")} volume={0.9} /></Sequence>
+    <Sequence from={2180}><Audio src={staticFile("maths-c.mp3")} volume={0.9} /></Sequence>
+    <Sequence from={2305}><Audio src={staticFile("maths-d.mp3")} volume={0.9} /></Sequence>
 
-    {/* Scene 6 · Who for — headline f2110, CRM chips cascade f2220-2260, checkmarks f2320 */}
-    <Sequence from={2115}><Audio src={staticFile("whofor-a.mp3")} volume={0.9} /></Sequence>
-    <Sequence from={2215}><Audio src={staticFile("whofor-b.mp3")} volume={0.9} /></Sequence>
-    <Sequence from={2345}><Audio src={staticFile("whofor-c.mp3")} volume={0.9} /></Sequence>
+    {/* Scene 6 · Who for (2580-3120) */}
+    <Sequence from={2595}><Audio src={staticFile("whofor-a.mp3")} volume={0.9} /></Sequence>
+    <Sequence from={2695}><Audio src={staticFile("whofor-b.mp3")} volume={0.9} /></Sequence>
+    <Sequence from={2825}><Audio src={staticFile("whofor-c.mp3")} volume={0.9} /></Sequence>
 
-    {/* Scene 7 · Close — logo f2550, URL types f2595-2640 */}
-    <Sequence from={2565}><Audio src={staticFile("close-a.mp3")} volume={0.9} /></Sequence>
-    <Sequence from={2600}><Audio src={staticFile("close-b.mp3")} volume={0.9} /></Sequence>
+    {/* Scene 7 · Close (3120-3330) */}
+    <Sequence from={3135}><Audio src={staticFile("close-a.mp3")} volume={0.9} /></Sequence>
+    <Sequence from={3170}><Audio src={staticFile("close-b.mp3")} volume={0.9} /></Sequence>
 
-    <Sequence from={0} durationInFrames={240}><SceneHook /></Sequence>
-    <Sequence from={240} durationInFrames={360}><SceneProblem /></Sequence>
-    <Sequence from={600} durationInFrames={450}><SceneSolution /></Sequence>
-    <Sequence from={1050} durationInFrames={600}><SceneFeatures /></Sequence>
-    <Sequence from={1650} durationInFrames={450}><SceneROI /></Sequence>
-    <Sequence from={2100} durationInFrames={450}><SceneWhoFor /></Sequence>
-    <Sequence from={2550} durationInFrames={150}><SceneClose /></Sequence>
+    <Sequence from={0}    durationInFrames={300}><SceneHook /></Sequence>
+    <Sequence from={300}  durationInFrames={450}><SceneProblem /></Sequence>
+    <Sequence from={750}  durationInFrames={540}><SceneSolution /></Sequence>
+    <Sequence from={1290} durationInFrames={720}><SceneFeatures /></Sequence>
+    <Sequence from={2010} durationInFrames={570}><SceneROI /></Sequence>
+    <Sequence from={2580} durationInFrames={540}><SceneWhoFor /></Sequence>
+    <Sequence from={3120} durationInFrames={210}><SceneClose /></Sequence>
   </AbsoluteFill>
 );

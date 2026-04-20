@@ -7,7 +7,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition
         id="IryssPitch"
         component={IryssPitch}
-        durationInFrames={2700} // 90s @ 30fps
+        durationInFrames={3330} // 111s @ 30fps (extended from 90s for breathing room)
         fps={30}
         width={1920}
         height={1080}
