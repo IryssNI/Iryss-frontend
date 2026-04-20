@@ -537,7 +537,7 @@ const SceneProblem: React.FC = () => {
 // ═══════════════════════════════════════════════════════════════════════
 const SceneSolution: React.FC = () => {
   const frame = useCurrentFrame();
-  const sceneOpacity = interpolate(frame, [0, 18, 520, 540], [0, 1, 1, 0], { easing: easeInOutCubic });
+  const sceneOpacity = interpolate(frame, [0, 18, 460, 480], [0, 1, 1, 0], { easing: easeInOutCubic });
 
   const circumference = 2 * Math.PI * 140;
   const ringProgress = interpolate(frame, [60, 180], [circumference, circumference * 0.13], { easing: easeOutExpo, extrapolateRight: "clamp", extrapolateLeft: "clamp" });
@@ -939,7 +939,7 @@ const FeatLeakage: React.FC = () => {
 // Feature 3 — Myopia axial length chart
 const FeatMyopia: React.FC = () => {
   const frame = useCurrentFrame();
-  const sceneOpacity = interpolate(frame, [0, 18, 160, 180], [0, 1, 1, 0], { easing: easeInOutCubic });
+  const sceneOpacity = interpolate(frame, [0, 18, 220, 240], [0, 1, 1, 0], { easing: easeInOutCubic });
 
   // Simulated AL progression for 3 patients over 12 months
   const kids = [
@@ -1119,8 +1119,8 @@ const SceneFeatures: React.FC = () => (
   <>
     <Sequence from={0}   durationInFrames={180}><FeatWhatsApp /></Sequence>
     <Sequence from={180} durationInFrames={180}><FeatLeakage /></Sequence>
-    <Sequence from={360} durationInFrames={180}><FeatMyopia /></Sequence>
-    <Sequence from={540} durationInFrames={180}><FeatScribe /></Sequence>
+    <Sequence from={360} durationInFrames={240}><FeatMyopia /></Sequence>
+    <Sequence from={600} durationInFrames={180}><FeatScribe /></Sequence>
   </>
 );
 
@@ -1461,15 +1461,15 @@ export const IryssPitch: React.FC = () => (
     <Sequence from={315}><Audio src={staticFile("problem-a.mp3")} volume={0.9} /></Sequence>
     <Sequence from={555}><Audio src={staticFile("problem-b.mp3")} volume={0.9} /></Sequence>
 
-    {/* Scene 3 · Solution (750-1290) */}
+    {/* Scene 3 · Solution (750-1230) */}
     <Sequence from={765}><Audio src={staticFile("solution-a.mp3")} volume={0.9} /></Sequence>
     <Sequence from={870}><Audio src={staticFile("solution-b.mp3")} volume={0.9} /></Sequence>
     <Sequence from={1050}><Audio src={staticFile("solution-c.mp3")} volume={0.9} /></Sequence>
 
-    {/* Scene 4 · Features (1290-2010) — each sub-scene 180 frames */}
-    <Sequence from={1300}><Audio src={staticFile("feat-whatsapp.mp3")} volume={0.9} /></Sequence>
-    <Sequence from={1480}><Audio src={staticFile("feat-leakage.mp3")} volume={0.9} /></Sequence>
-    <Sequence from={1660}><Audio src={staticFile("feat-myopia.mp3")} volume={0.9} /></Sequence>
+    {/* Scene 4 · Features (1230-2010) — 4a,4b,4d = 180 frames; 4c Myopia = 240 */}
+    <Sequence from={1240}><Audio src={staticFile("feat-whatsapp.mp3")} volume={0.9} /></Sequence>
+    <Sequence from={1420}><Audio src={staticFile("feat-leakage.mp3")} volume={0.9} /></Sequence>
+    <Sequence from={1600}><Audio src={staticFile("feat-myopia.mp3")} volume={0.9} /></Sequence>
     <Sequence from={1840}><Audio src={staticFile("feat-scribe.mp3")} volume={0.9} /></Sequence>
 
     {/* Scene 5 · Maths (2010-2580) */}
@@ -1478,18 +1478,18 @@ export const IryssPitch: React.FC = () => (
     <Sequence from={2180}><Audio src={staticFile("maths-c.mp3")} volume={0.9} /></Sequence>
     <Sequence from={2305}><Audio src={staticFile("maths-d.mp3")} volume={0.9} /></Sequence>
 
-    {/* Scene 6 · Who for (2580-3120) */}
+    {/* Scene 6 · Who for (2580-3030) */}
     <Sequence from={2595}><Audio src={staticFile("whofor-a.mp3")} volume={0.9} /></Sequence>
     <Sequence from={2695}><Audio src={staticFile("whofor-b.mp3")} volume={0.9} /></Sequence>
     <Sequence from={2870}><Audio src={staticFile("whofor-c.mp3")} volume={0.9} /></Sequence>
 
-    {/* Scene 7 · Close (3030-3240) — only the CTA, no standalone brand callout */}
+    {/* Scene 7 · Close (3030-3240) — only the CTA */}
     <Sequence from={3055}><Audio src={staticFile("close-b.mp3")} volume={0.9} /></Sequence>
 
     <Sequence from={0}    durationInFrames={300}><SceneHook /></Sequence>
     <Sequence from={300}  durationInFrames={450}><SceneProblem /></Sequence>
-    <Sequence from={750}  durationInFrames={540}><SceneSolution /></Sequence>
-    <Sequence from={1290} durationInFrames={720}><SceneFeatures /></Sequence>
+    <Sequence from={750}  durationInFrames={480}><SceneSolution /></Sequence>
+    <Sequence from={1230} durationInFrames={780}><SceneFeatures /></Sequence>
     <Sequence from={2010} durationInFrames={570}><SceneROI /></Sequence>
     <Sequence from={2580} durationInFrames={450}><SceneWhoFor /></Sequence>
     <Sequence from={3030} durationInFrames={210}><SceneClose /></Sequence>
