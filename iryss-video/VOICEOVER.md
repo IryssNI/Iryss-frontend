@@ -7,7 +7,7 @@
 
 ## Scene 1 · Hook (0:00 – 0:08)
 
-> Specsavers has five hundred marketers. / You now have / one.
+> The chains have five hundred marketers. / You now have / one.
 
 *(Pause fully 0:08 → silence carries into Scene 2.)*
 
@@ -15,7 +15,7 @@
 
 ## Scene 2 · Problem (0:08 – 0:20)
 
-> Independent practices lose up to twenty-five percent of patients they should retain. / Paper recalls go unread. SMS gets ignored. / And patients quietly drift to the multiples — before anyone notices.
+> Independent practices lose up to twenty-five percent of patients they should retain. / Paper recalls go unread. SMS gets ignored. / And patients quietly drift to the chains — before anyone notices.
 
 ---
 
@@ -43,7 +43,7 @@
 
 ## Scene 5 · The maths (0:55 – 1:10)
 
-> The maths is simple. Recover just two patients a month — that's twenty-four patients a year. / At four hundred pounds average annual spend each — exam plus dispense — that's nine thousand six hundred pounds recovered in your first year. / Iryss costs two thousand four hundred. / That's a four-times return. / Payback in three months.
+> The maths is simple. Recover just two patients a month — that's twenty-four patients a year. / At four hundred pounds average annual spend each — exam plus dispense — that's nine thousand six hundred pounds recovered in your first year. / Iryss starts from ninety-nine pounds a month. / An eight-times return. / Payback in six weeks.
 
 ---
 
@@ -68,7 +68,7 @@
   - "twenty-five percent" · "drift" (Scene 2)
   - "growth engine" · "live retention machine" · "every morning" (Scene 3)
   - "ninety-eight percent" · "one click" · "eleven minutes" (Scene 4)
-  - "nine thousand six hundred pounds" · "four-times" · "three months" (Scene 5)
+  - "nine thousand six hundred pounds" · "eight-times" · "six weeks" (Scene 5)
   - "independent" · "alongside" · "one week" (Scene 6)
 
 Recording notes:

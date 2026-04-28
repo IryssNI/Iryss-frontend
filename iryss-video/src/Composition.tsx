@@ -241,7 +241,7 @@ const SceneHook: React.FC = () => {
   const logoScale = spring({ frame, fps, config: { damping: 12, mass: 0.8 } });
   const logoGlow = 0.4 + Math.sin(frame / 25) * 0.25;
 
-  const line1Chars = "Specsavers has 500 marketers.".split("");
+  const line1Chars = "The chains have 500 marketers.".split("");
   const line2Chars = "You now have one.".split("");
 
   const sceneOpacity = fadeOut(frame, 220, 20);

@@ -13,22 +13,18 @@ const publicDir = path.join(__dirname, "public");
 // Notes:
 //  · "Iryss" → "Iris" in input text so the TTS pronounces it correctly.
 //    On-screen text stays "Iryss" — we're only tricking the speech engine.
-//  · hook-b regenerated with different voice settings so "one" sounds natural.
-//  · maths-d reflects Essentials-tier pricing (£99/mo) which looks far more attractive
-//    than £2,400/year and is genuinely achievable for any practice.
+//  · hook-a: drop "Specsavers" (defamation/passing-off risk on a public asset)
+//    in favour of "the chains" — matches website + social copy.
+//  · problem-b: same swap — "the multiples" → "the chains" for consistency.
+//  · Previously regenerated and current: hook-b, solution-a, whofor-a, close-a,
+//    close-b, maths-d. Re-running this script will leave them unchanged because
+//    they are not in this updates array.
 const updates = [
-  // Fix "one" sounding bizarre — try more stable, less expressive settings
-  { n: "hook-b",      text: "You now have one.",
-    settings: { stability: 0.75, similarity_boost: 0.8, style: 0, use_speaker_boost: true } },
+  // Drop competitor name from the hook
+  { n: "hook-a",      text: "The chains have five hundred marketers." },
 
-  // "Iryss" → "Iris" for correct pronunciation
-  { n: "solution-a",  text: "Meet Iris. The growth engine for independent opticians." },
-  { n: "whofor-a",    text: "Iris is built for independent UK and Irish opticians." },
-  { n: "close-a",     text: "Iris." },
-  { n: "close-b",     text: "Book a demo at the Iris dot com." },
-
-  // Updated pricing — more attractive entry-level anchor
-  { n: "maths-d",     text: "Iris starts from just ninety-nine pounds a month. An eight-times return. Payback in six weeks." },
+  // Match website wording: "the chains" everywhere instead of "the multiples"
+  { n: "problem-b",   text: "Paper recalls go unread. SMS gets ignored. Patients drift to the chains." },
 ];
 
 async function generate(text, settings) {

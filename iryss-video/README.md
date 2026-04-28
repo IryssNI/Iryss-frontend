@@ -10,11 +10,11 @@ A 90-second Remotion-built pitch video telling the Iryss story end-to-end.
 
 | # | Timing | Scene | Purpose |
 |---|--------|-------|---------|
-| 1 | 0:00 – 0:08  | **Hook** | *"Specsavers has 500 marketers. You now have one."* |
+| 1 | 0:00 – 0:08  | **Hook** | *"The chains have 500 marketers. You now have one."* |
 | 2 | 0:08 – 0:20  | **Problem** | The 25% retention loss + three pain-point chips |
 | 3 | 0:20 – 0:35  | **Solution** | Introduces Iryss with the Practice Score ring animating to 87 |
-| 4 | 0:35 – 0:55  | **Features** | 4 feature cards: WhatsApp inbox · Revenue leakage · Myopia Clinic · AI Scribe |
-| 5 | 0:55 – 1:10  | **The maths** | £20,000 count-up + 8× ROI + < 6 weeks payback |
+| 4 | 0:35 – 0:55  | **Features** | 4 feature cards: WhatsApp inbox · Revenue leakage · Myopia Clinic · Scribe |
+| 5 | 0:55 – 1:10  | **The maths** | £9,600 recovered + 8× ROI + 6-week payback (£99/mo founding rate) |
 | 6 | 1:10 – 1:25  | **Who it's for** | UK/Irish independents + CRM compatibility chips |
 | 7 | 1:25 – 1:30  | **Close** | Logo + *"Book a demo at theiryss.com"* |
 

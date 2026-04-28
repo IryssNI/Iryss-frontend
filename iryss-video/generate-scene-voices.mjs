@@ -25,12 +25,12 @@ const publicDir = path.join(__dirname, "public");
 // Each clip: name, budget (seconds), text
 const clips = [
   // SCENE 1 — Hook (0-240). Visual: logo @0-40, line1 reveals f50-102, line2 f130-161
-  { n: "hook-a",      max: 3.5, text: "Specsavers has five hundred marketers." },
+  { n: "hook-a",      max: 3.5, text: "The chains have five hundred marketers." },
   { n: "hook-b",      max: 2.5, text: "You now have one." },
 
   // SCENE 2 — Problem (240-600). Visual: 25% counts f255-320, caption at f320, table rows LOST f390-498, pain chips cascade f500-545
   { n: "problem-a",   max: 7.0, text: "Independent practices lose up to twenty-five percent of patients they should retain." },
-  { n: "problem-b",   max: 5.0, text: "Paper recalls go unread. SMS gets ignored. Patients drift to the multiples." },
+  { n: "problem-b",   max: 5.0, text: "Paper recalls go unread. SMS gets ignored. Patients drift to the chains." },
 
   // SCENE 3 — Solution (600-1050). Visual: tag f600, headline f615-638, dashboard slides up f645, score counts f660-780, bottom tagline f830
   { n: "solution-a",  max: 4.0, text: "Meet Iryss. The growth engine for independent opticians." },
@@ -47,7 +47,7 @@ const clips = [
   { n: "maths-a", max: 1.5, text: "The maths." },
   { n: "maths-b", max: 6.5, text: "Recover two patients a month — twenty-four a year, at four hundred pounds each." },
   { n: "maths-c", max: 4.0, text: "That's nine thousand six hundred, recovered in year one." },
-  { n: "maths-d", max: 5.0, text: "Iryss costs twenty-four hundred. A four-times return. Three months payback." },
+  { n: "maths-d", max: 5.0, text: "Iryss starts from ninety-nine pounds a month. An eight-times return. Six-week payback." },
 
   // SCENE 6 — Who For (2100-2550). Visual: Built-for f2100, headline f2110-2132, subtitle f2170-2192, CRM chips f2220-2260, checks f2320
   { n: "whofor-a", max: 4.5, text: "Iryss is built for independent UK and Irish opticians." },
