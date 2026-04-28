@@ -220,9 +220,12 @@ a{text-decoration:none;color:inherit}
 }
 
 .badge{
-  display:inline-flex;
+  display:flex;
   align-items:center;
+  justify-content:center;
   gap:8px;
+  width:fit-content;
+  max-width:90%;
   background:rgba(255,255,255,.08);
   border:1px solid rgba(255,255,255,.15);
   color:rgba(255,255,255,.9);
@@ -230,7 +233,8 @@ a{text-decoration:none;color:inherit}
   font-weight:600;
   padding:8px 18px;
   border-radius:20px;
-  margin-bottom:24px;
+  margin:0 auto 24px;
+  text-align:center;
   animation:fadeInUp .6s ease-out;
 }
 
@@ -1213,9 +1217,9 @@ a{text-decoration:none;color:inherit}
     <path d="M10 45 C5 35 2 30 0 28" stroke="#0891B2" stroke-width="4" stroke-linecap="round"/>
     <path d="M250 45 C255 35 258 30 260 28" stroke="#0891B2" stroke-width="4" stroke-linecap="round"/>
   </svg>
-  <div class="badge"><span class="dot"></span> The anti-chain weapon for UK &amp; Irish independents</div>
+  <div class="badge"><span class="dot"></span> Made for independent opticians who want to grow on their own terms</div>
   <h1>The chains have 500 marketers.<br>You now have <span class="accent">one.</span></h1>
-  <p>IRYSS is the AI growth layer for independent opticians.</p>
+  <p>IRYSS is the patient retention platform built for independent opticians.</p>
   <p>Re-engage lapsed patients over WhatsApp, pre-check GOS claims, run your myopia clinic, and score every patient for churn risk — <strong>all without replacing your CRM</strong>.</p>
   <div class="hero-btns">
     <a href="https://cal.eu/iryss/iryss-demo" target="_blank" rel="noopener" class="btn btn-p">Book a Demo →</a>
@@ -1261,7 +1265,7 @@ a{text-decoration:none;color:inherit}
       <div class="explainer-card">
         <div class="ex-icon" style="background:rgba(8,145,178,.08)">🔍</div>
         <h3>What does Iryss do?</h3>
-        <p>Iryss plugs into your existing CRM and watches for patients slipping away — overdue recalls, lapsed contact-lens wearers, missed appointments. It <strong>automatically re-engages them via WhatsApp</strong> before they walk into a competitor. It gives you <strong>real-time revenue calculators</strong> so you can see exactly how much you're recovering. And it includes a <strong>dedicated Myopia Clinic</strong> — axial length tracking, treatment plans, parent WhatsApp, AI recommendations — all in one place.</p>
+        <p>Iryss plugs into your existing CRM and watches for patients slipping away — overdue recalls, lapsed contact-lens wearers, missed appointments. It <strong>automatically re-engages them via WhatsApp</strong> before they walk into a competitor. It gives you <strong>real-time revenue calculators</strong> so you can see exactly how much you're recovering. And it includes a <strong>dedicated Myopia Clinic</strong> — axial length tracking, treatment plans, parent WhatsApp, smart treatment recommendations — all in one place.</p>
         <span class="ex-highlight">A retention engine, revenue tracker &amp; myopia clinic in one</span>
       </div>
 
@@ -1401,7 +1405,7 @@ a{text-decoration:none;color:inherit}
         </div>
         <div class="ps-card solution">
           <h4>What if you had a dedicated myopia dashboard?</h4>
-          <p>All your myopic children tracked in one place. Axial length progression, treatment plans, parent WhatsApp, AI recommendations.</p>
+          <p>All your myopic children tracked in one place. Axial length progression, treatment plans, parent WhatsApp, smart treatment recommendations.</p>
         </div>
       </div>
     </div>
@@ -1450,10 +1454,10 @@ a{text-decoration:none;color:inherit}
     </div>
 
     <div class="feat-grid">
-      <div class="feat" onclick="openModal('AI Scribe','scribe')" style="position:relative">
+      <div class="feat" onclick="openModal('Scribe','scribe')" style="position:relative">
         <span style="position:absolute;top:16px;right:16px;background:linear-gradient(135deg,#8B5CF6,#A78BFA);color:#fff;font-size:10px;font-weight:800;padding:3px 8px;border-radius:6px;letter-spacing:.6px;box-shadow:0 2px 8px rgba(139,92,246,.3)">BETA</span>
         <div class="feat-icon" style="background:rgba(139,92,246,.08)">🎤</div>
-        <h3>AI Scribe</h3>
+        <h3>Scribe</h3>
         <p>Dictate the exam. Iryss writes the clinical record, referral letter, and pre-checks the GOS claim — in under a minute. Saves 11+ min per patient.</p>
         <span class="feat-tag" style="background:rgba(139,92,246,.06);color:#8B5CF6">Only for opticians · No generic scribe has this</span>
         <div class="feat-peek">See it in action →</div>
@@ -1467,11 +1471,11 @@ a{text-decoration:none;color:inherit}
         <div class="feat-peek">See it in action →</div>
       </div>
 
-      <div class="feat" onclick="openModal('AI Patient Retention','retention')">
+      <div class="feat" onclick="openModal('Patient Retention','retention')">
         <div class="feat-icon" style="background:rgba(239,68,68,.06)">🎯</div>
-        <h3>AI Patient Retention</h3>
+        <h3>Patient Retention</h3>
         <p>Automatically identifies at-risk patients and re-engages them. Risk scoring, competitor detection, and smart nudges.</p>
-        <span class="feat-tag" style="background:rgba(239,68,68,.06);color:var(--red)">AI-powered risk scoring</span>
+        <span class="feat-tag" style="background:rgba(239,68,68,.06);color:var(--red)">Predictive risk scoring</span>
         <div class="feat-peek">See it in action →</div>
       </div>
 
@@ -1486,7 +1490,7 @@ a{text-decoration:none;color:inherit}
       <div class="feat" onclick="openModal('Myopia Clinic','myopia')">
         <div class="feat-icon" style="background:rgba(139,92,246,.06)">👁</div>
         <h3>Myopia Clinic</h3>
-        <p>Paediatric myopia management. Axial length progression charts, treatment tracking, parent WhatsApp, AI recommendations.</p>
+        <p>Paediatric myopia management. Axial length progression charts, treatment tracking, parent WhatsApp, smart treatment recommendations.</p>
         <span class="feat-tag" style="background:rgba(139,92,246,.06);color:#8B5CF6">UK Delphi + IMI guidelines</span>
         <div class="feat-peek">See it in action →</div>
       </div>
@@ -1510,7 +1514,7 @@ a{text-decoration:none;color:inherit}
       <div class="feat" onclick="openModal('No-Show Predictor','noshow')">
         <div class="feat-icon" style="background:rgba(239,68,68,.06)">📅</div>
         <h3>No-Show Predictor</h3>
-        <p>AI flags patients likely to miss appointments. Automated WhatsApp reminders at 48hr and 2hr before.</p>
+        <p>Iryss flags patients likely to miss appointments. Automated WhatsApp reminders at 48hr and 2hr before.</p>
         <span class="feat-tag" style="background:rgba(239,68,68,.06);color:var(--red)">Reduce no-shows by 40%</span>
         <div class="feat-peek">See it in action →</div>
       </div>
@@ -1552,7 +1556,7 @@ a{text-decoration:none;color:inherit}
       <div class="step">
         <div class="step-n">2</div>
         <h3>IRYSS analyses &amp; acts</h3>
-        <p>AI identifies at-risk patients, sends WhatsApp messages, automates recalls, and manages reviews overnight.</p>
+        <p>Iryss identifies at-risk patients, sends WhatsApp messages, automates recalls, and manages reviews overnight.</p>
       </div>
       <div class="step">
         <div class="step-n">3</div>
@@ -1581,13 +1585,13 @@ a{text-decoration:none;color:inherit}
         <div class="price-desc">Everything Iryss does, at the rate we launched at. Reserved for the first 50 independent practices to sign up.</div>
         <ul class="price-list">
           <li>WhatsApp-native recall inbox</li>
-          <li>AI Patient Retention &amp; risk scoring</li>
+          <li>Patient Retention &amp; risk scoring</li>
           <li>Practice Health Score</li>
           <li>Myopia Clinic (axial length, treatment plans)</li>
           <li>GOS Claim pre-flight validator</li>
           <li>Google Review automation</li>
           <li>No-show predictor &amp; follow-ups</li>
-          <li>AI Scribe (beta)</li>
+          <li>Scribe (beta)</li>
           <li>Up to 8,000 patients</li>
           <li>Multi-user access (3 seats)</li>
           <li>Priority support &amp; quarterly call</li>
@@ -1746,7 +1750,7 @@ const previews = {
         </div>
         <div style="flex:1;display:flex;flex-direction:column;gap:8px">
           <div style="align-self:flex-end;background:#DCF8C6;border-radius:14px 14px 4px 14px;padding:10px 14px;max-width:75%;font-size:13px;line-height:1.5">
-            <div style="font-size:10px;color:#0891B2;font-weight:700;margin-bottom:4px">BRIGHT EYES · IRYSS AI</div>
+            <div style="font-size:10px;color:#0891B2;font-weight:700;margin-bottom:4px">BRIGHT EYES · IRYSS</div>
             Hi Louise, this is Bright Eyes Opticians. Your annual eye test is due — would you like to book an appointment?
             <div style="text-align:right;font-size:10px;color:#94A3B8;margin-top:4px">09:15 ✓✓</div>
           </div>
@@ -1755,7 +1759,7 @@ const previews = {
             <div style="text-align:right;font-size:10px;color:#94A3B8;margin-top:4px">09:32</div>
           </div>
           <div style="align-self:flex-end;background:#DCF8C6;border-radius:14px 14px 4px 14px;padding:10px 14px;max-width:75%;font-size:13px;line-height:1.5">
-            <div style="font-size:10px;color:#0891B2;font-weight:700;margin-bottom:4px">BRIGHT EYES · IRYSS AI</div>
+            <div style="font-size:10px;color:#0891B2;font-weight:700;margin-bottom:4px">BRIGHT EYES · IRYSS</div>
             Lovely! We have Thursday at 3pm or 4:30pm available. Which would suit you?
             <div style="text-align:right;font-size:10px;color:#94A3B8;margin-top:4px">10:05 ✓✓</div>
           </div>
@@ -1855,7 +1859,7 @@ const previews = {
   myopia: `
     <div style="font-family:'Plus Jakarta Sans',sans-serif">
       <div style="background:linear-gradient(135deg,#0891B2,#06B6D4);border-radius:14px;padding:18px 22px;color:#fff;margin-bottom:16px">
-        <div style="font-size:10px;letter-spacing:1px;opacity:.6;margin-bottom:6px">IRYSS AI · MYOPIA INSIGHTS</div>
+        <div style="font-size:10px;letter-spacing:1px;opacity:.6;margin-bottom:6px">IRYSS · MYOPIA INSIGHTS</div>
         <div style="font-size:14px;line-height:1.5"><strong>2 patients</strong> progressing >0.20 mm/yr — consider switch. <strong>2 overdue</strong> for 6-month review. <strong>3 pre-myopic children</strong> need lifestyle review.</div>
       </div>
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px">
