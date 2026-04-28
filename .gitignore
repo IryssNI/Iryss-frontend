@@ -5,3 +5,6 @@ dist/
 
 # macOS
 .DS_Store
+
+# Excel temp/lock files
+~$*

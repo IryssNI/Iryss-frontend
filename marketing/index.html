@@ -1169,26 +1169,81 @@ a{text-decoration:none;color:inherit}
   .steps::before{display:none}
   .price-card.pop{transform:scale(1)}
   .wrap{padding:0 24px}
-  .hero{padding:100px 24px 50px}
+  .hero{padding:100px 24px 36px}
   .hero h1{font-size:32px}
+  .hero p{font-size:15px}
+  .badge{font-size:12px;padding:7px 14px;line-height:1.35}
+  .hero-btns{flex-direction:column;width:100%;align-items:stretch;margin-bottom:8px}
+  .hero-btns .btn{width:100%;justify-content:center;padding:14px 20px}
   .sec{padding:60px 24px}
   .sec-ps{padding:60px 24px}
   .stats{padding:40px 24px}
   .trust-bar{padding:30px 24px}
-  .dashboard-card{max-width:95%;padding:24px}
+  .trust-bar .trust-items span{margin:0 6px;font-size:11px}
+  /* Hero dashboard image: positive margin so it sits BELOW the hero buttons cleanly, no overlap */
+  .dashboard-card{max-width:100% !important;padding:0 !important;margin:28px auto 0 !important;animation:fadeInUp .8s ease-out .5s forwards !important}
+  .dashboard-card figure{border-radius:14px}
+  .dashboard-card figure img{border-radius:14px;width:100%;height:auto}
+  .feat{padding:22px}
+  .feat h3{padding-right:90px}
+  .price-card{padding:24px 22px}
+  .price-amt{font-size:38px}
+  .sec-pricing .sec-title{font-size:24px;line-height:1.25}
+  .price-grid{gap:14px}
+  .roi{padding:48px 20px}
+  .roi-output{padding:22px 20px}
+  .roi-output-hero{font-size:36px}
+
+  /* Modal — feature preview mockups: fit to mobile width */
+  .modal{max-width:96vw;width:96vw;max-height:90vh}
+  .modal-header{padding:16px 18px}
+  .modal-header h3{font-size:16px}
+  .modal-body{padding:16px;max-height:72vh;overflow-y:auto;overflow-x:hidden}
+  .modal-footer{padding:12px 18px;flex-direction:column;gap:10px;align-items:stretch}
+  .modal-footer span{font-size:11px;text-align:center}
+  .modal-footer .btn{width:100%;justify-content:center}
+  /* Force all inline-styled grids inside modal previews to stack on mobile */
+  .modal-body [style*="grid-template-columns"]{grid-template-columns:1fr !important;gap:10px !important}
+  .modal-body [style*="min-width:"]{min-width:0 !important;width:100% !important}
+  .modal-body [style*="display:flex"]{flex-wrap:wrap !important}
+  .modal-body img,
+  .modal-body svg{max-width:100% !important;height:auto !important}
+  /* Tighten internal mockup padding so they breathe on small screens */
+  .modal-body [style*="padding:24px"]{padding:16px !important}
+  .modal-body [style*="padding:28px"]{padding:18px !important}
+  .modal-body [style*="padding:32px"]{padding:20px !important}
 }
 
 @media(max-width:480px){
-  .hero{padding:80px 20px 40px}
-  .hero h1{font-size:28px}
+  .hero{padding:80px 20px 32px}
+  .hero h1{font-size:28px;letter-spacing:-1.5px}
+  .hero h1 br{display:none}
   .nav .wrap{height:56px;padding:0 20px}
   .logo{font-size:20px}
   .nav-links{gap:8px}
-  .btn-sm{padding:8px 16px;font-size:12px}
-  .dashboard-card{margin:-60px 0 0;padding:16px}
+  .btn-sm{padding:8px 14px;font-size:12px}
+  .dashboard-card{margin:24px auto 0 !important;padding:0 !important}
+  .dashboard-card > p,.dashboard-card > div[style]:not(.dashboard-img):not(figure){margin-top:14px !important;font-size:13px !important}
   .ps-grid{gap:16px}
   .feat-grid,.price-grid{gap:16px}
   .stats-grid{gap:16px}
+  .feat-icon{width:42px;height:42px;font-size:20px}
+  .price-card.pop{order:-1} /* surface Founding card first on mobile */
+  /* Modal preview elements at very small widths */
+  .modal-body{padding:14px;font-size:13px}
+  .modal-body [style*="font-size:13px"]{font-size:12px !important}
+  .modal-body [style*="font-size:12px"]{font-size:11.5px !important}
+  .modal-body [style*="font-size:11px"]{font-size:11px !important}
+}
+
+@media(max-width:380px){
+  .hero h1{font-size:24px}
+  .badge{font-size:11px}
+  .feat{padding:18px}
+  .feat h3{padding-right:80px;font-size:16px}
+  .price-amt{font-size:34px}
+  .price-card{padding:20px 18px}
+  .modal-body [style*="font-size:14px"]{font-size:12.5px !important}
 }
 </style>
 </head>
@@ -1495,6 +1550,24 @@ a{text-decoration:none;color:inherit}
         <div class="feat-peek">See it in action →</div>
       </div>
 
+      <div class="feat" style="position:relative;opacity:.85;cursor:default">
+        <span style="position:absolute;top:16px;right:16px;background:linear-gradient(135deg,#0891B2,#06B6D4);color:#fff;font-size:10px;font-weight:800;padding:3px 8px;border-radius:6px;letter-spacing:.6px;box-shadow:0 2px 8px rgba(8,145,178,.25)">COMING Q3 2026</span>
+        <div class="feat-icon" style="background:rgba(8,145,178,.08)">💧</div>
+        <h3>Dry Eye Clinic</h3>
+        <p>Dedicated workflow for your dry eye patients. TFOS DEWS II severity scoring, IPL &amp; LipiFlow treatment tracking, lid hygiene compliance, photo timelines, and tailored recall cycles.</p>
+        <span class="feat-tag" style="background:rgba(8,145,178,.06);color:#0891B2">Optional add-on &middot; &pound;49/mo</span>
+        <div class="feat-peek" style="color:#94A3B8">On the roadmap &mdash; ask in your demo</div>
+      </div>
+
+      <div class="feat" style="position:relative;opacity:.85;cursor:default">
+        <span style="position:absolute;top:16px;right:16px;background:linear-gradient(135deg,#0891B2,#06B6D4);color:#fff;font-size:10px;font-weight:800;padding:3px 8px;border-radius:6px;letter-spacing:.6px;box-shadow:0 2px 8px rgba(8,145,178,.25)">COMING Q3 2026</span>
+        <div class="feat-icon" style="background:rgba(245,158,11,.08)">👓</div>
+        <h3>Presbyope Clinic</h3>
+        <p>Built for the 40+ patient demographic. Varifocal &amp; multifocal CL upgrade tracking, premium-lens conversion prompts, age-based recall ladders, and a partner-portal for spouse cross-recall.</p>
+        <span class="feat-tag" style="background:rgba(245,158,11,.06);color:var(--amber)">Optional add-on &middot; &pound;49/mo</span>
+        <div class="feat-peek" style="color:#94A3B8">On the roadmap &mdash; ask in your demo</div>
+      </div>
+
       <div class="feat" onclick="openModal('GOS Claim Validator','gos')">
         <div class="feat-icon" style="background:rgba(245,158,11,.06)">📋</div>
         <h3>GOS Claim Validator</h3>
@@ -1639,6 +1712,11 @@ a{text-decoration:none;color:inherit}
     </div>
 
     <p class="price-note">All plans include a 30-day free trial &middot; No setup fees &middot; Cancel anytime &middot; Save 20% with annual billing</p>
+
+    <div style="max-width:720px;margin:24px auto 0;padding:18px 24px;background:rgba(8,145,178,.04);border:1px dashed rgba(8,145,178,.25);border-radius:14px;text-align:center">
+      <div style="font-size:11px;letter-spacing:1.2px;color:#0891B2;text-transform:uppercase;font-weight:700;margin-bottom:6px">On the roadmap &middot; Q3 2026</div>
+      <p style="font-size:14px;color:#475569;margin:0;line-height:1.55"><strong style="color:#0F172A">Optional specialty add-ons</strong> &mdash; Dry Eye Clinic and Presbyope Clinic, <strong>&pound;49/mo each</strong>. Bolt onto any plan when they ship. Founding practices get founding pricing on add-ons too.</p>
+    </div>
   </div>
 </section>
 
