@@ -20,11 +20,10 @@ const publicDir = path.join(__dirname, "public");
 //    close-b, maths-d. Re-running this script will leave them unchanged because
 //    they are not in this updates array.
 const updates = [
-  // Drop competitor name from the hook
-  { n: "hook-a",      text: "The chains have five hundred marketers." },
-
-  // Match website wording: "the chains" everywhere instead of "the multiples"
-  { n: "problem-b",   text: "Paper recalls go unread. SMS gets ignored. Patients drift to the chains." },
+  // Add the Founding Rate hook to the maths pitch — matches website's strongest
+  // sales lever (£99/mo locked for life for first 50 practices). Use "Iris" for
+  // ElevenLabs pronunciation; visuals still show "IRYSS".
+  { n: "maths-d",     text: "Iris founding rate, ninety-nine pounds a month, locked for life. An eight-times return. Six-week payback." },
 ];
 
 async function generate(text, settings) {

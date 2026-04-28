@@ -43,7 +43,7 @@
 
 ## Scene 5 · The maths (0:55 – 1:10)
 
-> The maths is simple. Recover just two patients a month — that's twenty-four patients a year. / At four hundred pounds average annual spend each — exam plus dispense — that's nine thousand six hundred pounds recovered in your first year. / Iryss starts from ninety-nine pounds a month. / An eight-times return. / Payback in six weeks.
+> The maths is simple. Recover just two patients a month — that's twenty-four patients a year. / At four hundred pounds average annual spend each — exam plus dispense — that's nine thousand six hundred pounds recovered in your first year. / Iryss founding rate: ninety-nine pounds a month, locked for life. / An eight-times return. Six-week payback.
 
 ---
 

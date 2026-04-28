@@ -47,7 +47,7 @@ const clips = [
   { n: "maths-a", max: 1.5, text: "The maths." },
   { n: "maths-b", max: 6.5, text: "Recover two patients a month — twenty-four a year, at four hundred pounds each." },
   { n: "maths-c", max: 4.0, text: "That's nine thousand six hundred, recovered in year one." },
-  { n: "maths-d", max: 5.0, text: "Iryss starts from ninety-nine pounds a month. An eight-times return. Six-week payback." },
+  { n: "maths-d", max: 5.5, text: "Iryss founding rate, ninety-nine pounds a month, locked for life. An eight-times return. Six-week payback." },
 
   // SCENE 6 — Who For (2100-2550). Visual: Built-for f2100, headline f2110-2132, subtitle f2170-2192, CRM chips f2220-2260, checks f2320
   { n: "whofor-a", max: 4.5, text: "Iryss is built for independent UK and Irish opticians." },

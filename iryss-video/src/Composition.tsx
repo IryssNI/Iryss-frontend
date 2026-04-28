@@ -1298,7 +1298,7 @@ const SceneROI: React.FC = () => {
         {/* Stat cards */}
         <div style={{ display: "flex", gap: 60, marginTop: 50 }}>
           {[
-            { k: "Starts from", v: "£99", sub: "per month", color: "#fff" },
+            { k: "Founding rate", v: "£99", sub: "/mo · locked for life", color: "#fff" },
             { k: "ROI", v: "8×", sub: "return on spend", color: C.tealSky },
             { k: "Payback", v: "6 weeks", sub: "to break-even", color: C.green },
           ].map((m, i) => (

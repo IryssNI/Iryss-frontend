@@ -1428,7 +1428,7 @@ function Dashboard() {
     tasks:"Today's Tasks",
     patients:"Patients",
     recalls:"Recalls",
-    scribe:"AI Scribe",
+    scribe:"Scribe",
     claims:"GOS Claims",
     referrals:"Referrals",
     myopia:"Myopia Clinic",
@@ -1655,7 +1655,7 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
               { id:"patients",     label:"Patients",         icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>, badge:PATIENTS.length },
               { id:"inbox",        label:"Inbox",            icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>, urgentDot:urgentCount>0, urgentBadge:urgentCount },
               { id:"recalls",      label:"Recalls",          icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>, badge:recallPatients.length, warnDot:complianceRate<80&&recallPatients.length>0 },
-              { id:"scribe",       label:"AI Scribe",        icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>, beta:true },
+              { id:"scribe",       label:"Scribe",           icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>, beta:true },
             ];
             const modules = [
               { id:"claims",       label:"GOS Claims",       icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 15l2 2 4-4"/></svg> },
@@ -1868,7 +1868,7 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                           {showDateSep&&<div style={{ display:"flex", justifyContent:"center", margin:"8px 0 16px", position:"relative", zIndex:1 }}><span style={{ fontSize:11, color:C.slate, background:C.border, borderRadius:20, padding:"3px 14px", fontWeight:500 }}>{dateLabel}</span></div>}
                           <div style={{ display:"flex", justifyContent:isRight?"flex-end":"flex-start", marginBottom:10, position:"relative", zIndex:1 }}>
                             <div style={{ maxWidth:"43%", background:isRight?`linear-gradient(135deg,${C.teal},${C.tealLt})`:C.white, color:isRight?"#fff":C.navy, borderRadius:isRight?"16px 16px 4px 16px":"16px 16px 16px 4px", padding:"12px 16px", fontSize:13, lineHeight:1.6, border:!isRight?`1px solid ${C.border}`:"none", boxShadow:"0 2px 10px rgba(0,0,0,.08)", whiteSpace:"pre-wrap" }}>
-                              {isRight&&<div style={{ fontSize:9, opacity:0.7, marginBottom:4, textTransform:"uppercase", letterSpacing:1 }}>Bright Eyes · Iryss AI</div>}
+                              {isRight&&<div style={{ fontSize:9, opacity:0.7, marginBottom:4, textTransform:"uppercase", letterSpacing:1 }}>Bright Eyes · Iryss</div>}
                               {ev.text}
                               <div style={{ fontSize:10, opacity:0.55, textAlign:"right", marginTop:6 }}>{ev.time}{isRight?" ✓✓":""}</div>
                             </div>
@@ -2399,7 +2399,7 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                 );
               })()}
 
-              {/* ═══ AI Scribe teaser (full width, compact) ═══ */}
+              {/* ═══ Scribe teaser (full width, compact) ═══ */}
               <div onClick={()=>goNav("scribe")} style={{ marginTop:16, background:"linear-gradient(135deg, rgba(139,92,246,.06), rgba(167,139,250,.03))", border:"1px solid rgba(139,92,246,.2)", borderRadius:16, padding:"16px 22px", cursor:"pointer", transition:"all .2s", display:"flex", alignItems:"center", gap:16, animation:"fadeInUp .8s ease-out" }}
                 onMouseEnter={e=>{ e.currentTarget.style.transform="translateY(-2px)"; e.currentTarget.style.boxShadow="0 10px 30px rgba(139,92,246,.15)"; }}
                 onMouseLeave={e=>{ e.currentTarget.style.transform="translateY(0)"; e.currentTarget.style.boxShadow="none"; }}>
@@ -2407,7 +2407,7 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
                 </div>
                 <div style={{ flex:1, display:"flex", alignItems:"center", gap:10, flexWrap:"wrap" }}>
-                  <div style={{ fontSize:13.5, fontWeight:800, color:C.navy, letterSpacing:-0.2 }}>AI Scribe</div>
+                  <div style={{ fontSize:13.5, fontWeight:800, color:C.navy, letterSpacing:-0.2 }}>Scribe</div>
                   <span style={{ fontSize:9, fontWeight:800, color:"#8B5CF6", background:"rgba(139,92,246,.12)", padding:"2px 7px", borderRadius:6, letterSpacing:0.5 }}>BETA</span>
                   <span style={{ fontSize:12.5, color:C.slate, fontWeight:500 }}>· Dictate the exam, Iryss writes the record, letter &amp; GOS claim. <b style={{ color:C.navy }}>Saves 11 min per patient.</b></span>
                 </div>
@@ -2776,7 +2776,7 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
             </div>
           )}
 
-          {/* ═══ AI SCRIBE ═══ */}
+          {/* ═══ SCRIBE ═══ */}
           {nav==="scribe"&&(()=>{
             const scribePatient = PATIENTS.find(p=>p.id===scribePatientId) || PATIENTS[0];
             const startListening = () => {
@@ -2801,7 +2801,7 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
             <div>
               <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:6 }}>
                 <h1 style={{ fontSize:26, fontWeight:800, color:C.text, letterSpacing:-0.7, margin:0, display:"flex", alignItems:"center", gap:10 }}>
-                  AI Scribe
+                  Scribe
                   <span style={{ background:"linear-gradient(135deg,#8B5CF6,#A78BFA)", color:"#fff", fontSize:10, fontWeight:800, padding:"3px 9px", borderRadius:8, letterSpacing:0.6, boxShadow:"0 3px 10px rgba(139,92,246,.3)" }}>BETA</span>
                 </h1>
                 <div style={{ display:"flex", alignItems:"center", gap:8, background:C.card, border:`1px solid ${C.border}`, borderRadius:12, padding:"8px 14px", boxShadow:"0 2px 6px rgba(0,0,0,.04)" }}>
@@ -2999,7 +2999,7 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
               <div style={{ marginTop:18, padding:"14px 18px", background:"rgba(139,92,246,.05)", border:"1px solid rgba(139,92,246,.15)", borderRadius:12, display:"flex", alignItems:"center", gap:12 }}>
                 <div style={{ width:30, height:30, borderRadius:8, background:"linear-gradient(135deg,#8B5CF6,#A78BFA)", display:"flex", alignItems:"center", justifyContent:"center", color:"#fff", fontSize:14, fontWeight:700, flexShrink:0 }}>◈</div>
                 <div style={{ fontSize:12.5, color:C.slate, flex:1 }}>
-                  <b style={{ color:C.navy }}>Beta access.</b> Iryss AI Scribe is in closed beta. It writes the clinical record, referral letter, and GOS claim — you review before anything's pushed to your CRM. <a href="mailto:IryssNI@outlook.com?subject=AI Scribe beta access" style={{ color:"#8B5CF6", fontWeight:700, textDecoration:"none" }}>Request full access →</a>
+                  <b style={{ color:C.navy }}>Beta access.</b> Iryss Scribe is in closed beta. It writes the clinical record, referral letter, and GOS claim — you review before anything's pushed to your CRM. <a href="mailto:hello@theiryss.com?subject=Scribe beta access" style={{ color:"#8B5CF6", fontWeight:700, textDecoration:"none" }}>Request full access →</a>
                 </div>
               </div>
             </div>
@@ -3368,7 +3368,7 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                 <div style={{ width:38, height:38, borderRadius:10, background:"rgba(255,255,255,.18)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:18, flexShrink:0, color:"#fff" }}>◈</div>
                 <div style={{ flex:1 }}>
                   <div style={{ fontSize:11, color:"rgba(255,255,255,.7)", textTransform:"uppercase", letterSpacing:0.8, fontWeight:600, marginBottom:3, display:"flex", alignItems:"center", gap:8 }}>
-                    IRYSS AI · MYOPIA INSIGHTS
+                    IRYSS · MYOPIA INSIGHTS
                     <WhyBadge signals={[
                       `Progressing: any patient with axial-length growth > 0.20 mm/yr on active treatment`,
                       `Overdue: last review date > 6 months ago per UK Delphi consensus protocol`,
@@ -3383,7 +3383,7 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                     <b>1 child</b> turning 15 this quarter — schedule graduation discussion.
                   </div>
                 </div>
-                <button onClick={()=>showToast("AI recommendations expanded — see patient detail view")}
+                <button onClick={()=>showToast("Recommendations expanded — see patient detail view")}
                   style={{ background:"rgba(255,255,255,.15)", color:"#fff", border:"1px solid rgba(255,255,255,.2)", borderRadius:10, padding:"9px 16px", fontSize:12, fontWeight:600, cursor:"pointer", fontFamily:F, flexShrink:0, whiteSpace:"nowrap" }}>
                   View actions →
                 </button>
@@ -3662,7 +3662,7 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                       {selectedThread.urgent&&(
                         <div style={{ background:"rgba(239,68,68,.07)", border:"1px solid rgba(239,68,68,.18)", borderRadius:12, padding:"10px 14px", display:"flex", gap:10, alignItems:"center", marginBottom:6 }}>
                           <span>🚨</span>
-                          <div style={{ fontSize:12, color:C.red, fontWeight:600 }}>AI flagged this as urgent — patient may need a clinical callback today.</div>
+                          <div style={{ fontSize:12, color:C.red, fontWeight:600 }}>Flagged as urgent — patient may need a clinical callback today.</div>
                         </div>
                       )}
 
@@ -3730,7 +3730,7 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
                                 transition:"background .4s",
                                 wordBreak:"break-word"
                               }}>
-                                {isPractice&&<div style={{ fontSize:9.5, color:"#25D366", fontWeight:700, marginBottom:3, textTransform:"uppercase", letterSpacing:.8 }}>Bright Eyes · Iryss AI</div>}
+                                {isPractice&&<div style={{ fontSize:9.5, color:"#25D366", fontWeight:700, marginBottom:3, textTransform:"uppercase", letterSpacing:.8 }}>Bright Eyes · Iryss</div>}
                                 {msg.text}
                                 <div style={{ fontSize:10, color:"#667781", textAlign:"right", marginTop:3, display:"flex", alignItems:"center", justifyContent:"flex-end", gap:3 }}>
                                   <span>{msg.time}</span>
@@ -5231,7 +5231,7 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
             <div style={{ background:`${recColor}14`, border:`1px solid ${recColor}33`, borderRadius:12, padding:"14px 16px", marginBottom:18, display:"flex", gap:10 }}>
               <div style={{ width:28, height:28, borderRadius:8, background:recColor, color:"#fff", display:"flex", alignItems:"center", justifyContent:"center", fontSize:14, flexShrink:0, fontWeight:700 }}>◈</div>
               <div>
-                <div style={{ fontSize:10, fontWeight:700, color:recColor, textTransform:"uppercase", letterSpacing:0.8, marginBottom:3 }}>IRYSS AI RECOMMENDATION</div>
+                <div style={{ fontSize:10, fontWeight:700, color:recColor, textTransform:"uppercase", letterSpacing:0.8, marginBottom:3 }}>IRYSS RECOMMENDATION</div>
                 <div style={{ fontSize:13, color:C.navy, lineHeight:1.5 }}>{aiRec.text}</div>
               </div>
             </div>
@@ -5436,7 +5436,7 @@ ${[{label:"30–90 days",min:0,max:3},{label:"90–180 days",min:3,max:6},{label
           { t:"Patients",        hint:"All 125 records",                icon:"◎", run:()=>goNav("patients") },
           { t:"Inbox",           hint:"WhatsApp threads",               icon:"◻", run:()=>goNav("inbox") },
           { t:"Recalls",         hint:"Due & overdue patients",         icon:"◷", run:()=>goNav("recalls") },
-          { t:"AI Scribe (beta)",hint:"Dictate exam → clinical record", icon:"🎤", run:()=>goNav("scribe") },
+          { t:"Scribe (beta)",   hint:"Dictate exam → clinical record", icon:"🎤", run:()=>goNav("scribe") },
         ].map(o=>({...o, group:"Main"}));
         const moduleNav = [
           { t:"GOS Claims",      hint:"Zero-reject claim engine",       icon:"◨", run:()=>goNav("claims") },
